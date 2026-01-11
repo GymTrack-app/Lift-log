@@ -120,7 +120,6 @@
     }
     .fab.show{display:grid}
 
-    /* Logger table */
     table{width:100%;border-collapse:collapse}
     th,td{border-bottom:1px solid rgba(42,42,62,.5);padding:8px 6px;font-size:13px;text-align:left}
     th{color:var(--muted);font-weight:700;font-size:12px}
@@ -133,7 +132,6 @@
     .badge.good{border-color: rgba(31,228,138,.45); color: var(--green); background: rgba(31,228,138,.10);}
     .badge.hard{border-color: rgba(255,176,32,.45); color: var(--amber); background: rgba(255,176,32,.08);}
 
-    /* Calendar */
     .calHead{display:flex;align-items:center;justify-content:space-between;gap:8px}
     .calGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:10px}
     .calCell{
@@ -150,7 +148,6 @@
     .dot.amber{background:var(--amber)}
     .calTitle{margin-top:6px;font-size:11px;color:var(--text);opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-    /* Modal */
     .overlay{
       position:fixed;inset:0;background:rgba(0,0,0,.55);
       display:none;z-index:60;align-items:flex-end;justify-content:center;
@@ -249,7 +246,6 @@
         </div>
 
         <div class="sep"></div>
-
         <div id="todayBox" class="tiny muted">—</div>
 
         <div class="sep"></div>
@@ -334,40 +330,77 @@
   </div>
 
   <!-- PROGRESS -->
-<div id="screenPRs" class="screen">
-  <div class="card">
-    <div class="row" style="justify-content:space-between;align-items:flex-start">
-      <div>
-        <div class="name">PRs</div>
-        <div class="tiny muted">Only tracks exact names: <b>Smith Flat Bench</b> and <b>Smith Squat</b>.</div>
-      </div>
-      <div class="right">
-        <select id="prWindow">
-          <option value="7">Week</option>
-          <option value="30" selected>Month</option>
-          <option value="365">Year</option>
-          <option value="99999">All time</option>
-        </select>
+  <div id="screenProgress" class="screen">
+    <div class="topbar">
+      <div class="navrow">
+        <div style="width:80px"></div>
+        <div class="title">Progress</div>
+        <div style="width:80px"></div>
       </div>
     </div>
-    <div class="sep"></div>
-    <div id="prSummary" class="tiny muted">—</div>
-  </div>
 
-  <div id="prCards"></div>
-
-  <div class="card" style="margin-top:12px">
-    <div class="name">PR history</div>
-    <div class="sep"></div>
-    <div id="prHistory" class="tiny muted">—</div>
-  </div>
-</div>
-
-
+    <div class="content">
+      <div class="card">
+        <div class="row" style="justify-content:space-between;align-items:flex-start">
+          <div>
+            <div class="name">How much stronger did you get?</div>
+            <div class="tiny muted">Uses best estimated 1RM (Epley) per exercise per session.</div>
+          </div>
+          <div class="right">
+            <select id="progWindow">
+              <option value="7">Week</option>
+              <option value="30" selected>Month</option>
+              <option value="365">Year</option>
+            </select>
+          </div>
+        </div>
+        <div class="sep"></div>
+        <div id="progSummary" class="tiny muted">—</div>
+      </div>
 
       <div class="list">
-        <div class="listHeader"><span>Exercises</span><span class="tiny">best e1RM</span></div>
+        <div class="listHeader"><span>Exercises</span><span class="tiny">strength + PR</span></div>
         <div id="progList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRs -->
+  <div id="screenPRs" class="screen">
+    <div class="topbar">
+      <div class="navrow">
+        <div style="width:80px"></div>
+        <div class="title">PRs</div>
+        <div style="width:80px"></div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="card">
+        <div class="row" style="justify-content:space-between;align-items:flex-start">
+          <div>
+            <div class="name">PRs</div>
+            <div class="tiny muted">Tracks exact names (case-insensitive): <b>Smith Flat Bench</b> and <b>Smith Squat</b>.</div>
+          </div>
+          <div class="right">
+            <select id="prWindow">
+              <option value="7">Week</option>
+              <option value="30" selected>Month</option>
+              <option value="365">Year</option>
+              <option value="99999">All time</option>
+            </select>
+          </div>
+        </div>
+        <div class="sep"></div>
+        <div id="prSummary" class="tiny muted">—</div>
+      </div>
+
+      <div id="prCards"></div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="name">PR history</div>
+        <div class="sep"></div>
+        <div id="prHistory" class="tiny muted">—</div>
       </div>
     </div>
   </div>
@@ -381,8 +414,7 @@
     <div class="tab" id="tabLogger"><div class="icon">≡</div><div>Log</div></div>
     <div class="tab" id="tabCalendar"><div class="icon">📅</div><div>Calendar</div></div>
     <div class="tab" id="tabProgress"><div class="icon">📈</div><div>Progress</div></div>
-    <button id="tabPRs" class="tabBtn">PRs</button>
-
+    <div class="tab" id="tabPRs"><div class="icon">🏆</div><div>PRs</div></div>
   </div>
 </div>
 
@@ -463,7 +495,6 @@ let state = load();
 const WEEKDAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
 function defaultMonday(){
-  // set to current week Monday
   const d=new Date();
   const dow=d.getDay(); // Sun 0
   const diff = (dow===0? -6 : 1-dow); // move to Monday
@@ -496,16 +527,13 @@ function computeSession(session){
   let totalVol=0;
   const e1rms = {};
   for(const exLog of session.exercises){
-    let best = { w:0, r:0, e1:0 };
+    let bestE1 = 0;
     for(const set of exLog.sets){
       const w=num(set.w,0), r=num(set.r,0);
       totalVol += w*r;
-      const e1 = e1rmEpley(w,r);
-      if(e1 > best.e1){
-        best = { w, r, e1 };
-      }
+      bestE1 = Math.max(bestE1, e1rmEpley(w,r));
     }
-    e1rms[exLog.exId] = best.e1;
+    e1rms[exLog.exId] = bestE1;
   }
   session.computed = session.computed || {};
   session.computed.volume = Math.round(totalVol);
@@ -534,7 +562,6 @@ function updatePRsFromSession(session){
       bestE1 = Math.max(bestE1, e1rmEpley(w,r));
       exVol += w*r;
 
-      // reps at weight PR (simple: if same weight and higher reps)
       if(w>0){
         const cur = state.prs[exId].bestRepsAtWeight;
         if(cur.weight===0 || w > cur.weight || (w===cur.weight && r>cur.reps)){
@@ -559,11 +586,7 @@ function updatePRsFromSession(session){
    Progression engine
 ========================= */
 function isSuccessForExercise(exDef, exLog){
-  const sets = exLog.sets;
-  if(!sets.length) return false;
-
-  // consider a set "attempted" if reps >0
-  const attempted = sets.filter(s => num(s.r,0) > 0);
+  const attempted = (exLog.sets||[]).filter(s => num(s.r,0) > 0);
   if(!attempted.length) return false;
 
   if(exDef.target.type === "range"){
@@ -578,7 +601,7 @@ function isSuccessForExercise(exDef, exLog){
 function hitTopRangeAllSets(exDef, exLog){
   if(exDef.target.type !== "range") return false;
   const max = num(exDef.target.max, 10);
-  const attempted = exLog.sets.filter(s => num(s.r,0) > 0);
+  const attempted = (exLog.sets||[]).filter(s => num(s.r,0) > 0);
   if(!attempted.length) return false;
   return attempted.every(s => num(s.r,0) >= max);
 }
@@ -592,7 +615,6 @@ function applyProgression(exDef, exLog){
   const success = isSuccessForExercise(exDef, exLog);
   const topHit = hitTopRangeAllSets(exDef, exLog);
 
-  // deload rule: if miss 2 times in a row -> -10%
   if(!success){
     st.misses = (st.misses || 0) + 1;
     if((rule.deloadOnMiss2 ?? true) && st.misses >= 2){
@@ -602,7 +624,6 @@ function applyProgression(exDef, exLog){
     return;
   }
 
-  // success resets misses
   st.misses = 0;
 
   if(rule.type === "double"){
@@ -610,7 +631,6 @@ function applyProgression(exDef, exLog){
     if(exDef.target.type === "range"){
       if(topHit) st.currentWeight = st.currentWeight + inc;
     }else{
-      // fixed reps strength: if success, add
       st.currentWeight = st.currentWeight + inc;
     }
   } else if(rule.type === "fixed"){
@@ -623,28 +643,25 @@ function applyProgression(exDef, exLog){
 }
 
 /* =========================
-   UI Routing + Tabs
+   UI Routing + Tabs (FIXED)
 ========================= */
-function setActiveTab(tab){
- if(tab === "prs"){
-  showScreen("screenPRs");
-  renderPRs();
-  state.ui.activeTab = "prs";
-  save();
-  return;
-}
-
-
-
 function tabEl(id, active){
   const el=$(id);
+  if(!el) return;
   el.classList.toggle("active", active);
 }
 
 function showScreen(id){
-  for(const s of ["screenSetup","screenToday","screenLogger","screenCalendar","screenProgress"]){
-    $(s).classList.toggle("show", s===id);
+  for(const s of ["screenSetup","screenToday","screenLogger","screenCalendar","screenProgress","screenPRs"]){
+    const el = $(s);
+    if(el) el.classList.toggle("show", s===id);
   }
+}
+
+function setActiveTab(tab){
+  state.ui.activeTab = tab;
+  save();
+  render();
 }
 
 /* =========================
@@ -673,7 +690,7 @@ function renderSetup(){
   $("setUnits").value = state.program?.units || "lb";
   $("setStartWeek").value = state.program?.startWeekDate || defaultMonday();
 
-  const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{} };
+  const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{}, settings:{jump:5} };
   const list = $("daysList");
   list.innerHTML = "";
 
@@ -696,7 +713,6 @@ function renderSetup(){
       `;
       list.appendChild(div);
 
-      // show exercises
       const exDiv = document.createElement("div");
       exDiv.style.padding="0 12px 10px";
       exDiv.innerHTML = (day.exercises||[]).map(exId=>{
@@ -723,7 +739,6 @@ function renderSetup(){
     }
   }
 
-  // attach handlers
   list.querySelectorAll("button[data-act]").forEach(b=>{
     b.addEventListener("click", ()=>{
       const act=b.getAttribute("data-act");
@@ -740,16 +755,15 @@ function renderSetup(){
 }
 
 function deleteDay(dayId){
-  const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{} };
+  const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{}, settings:{jump:5} };
   p.split = p.split.filter(d => d.id !== dayId);
-  // (we keep exercises in library; removing from day only)
   state.program = p;
   save();
   render();
 }
 
 function addDay(){
-  const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{} };
+  const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{}, settings:{jump:5} };
   openModal("Add Day",
     `
       <div class="grid2">
@@ -782,7 +796,7 @@ function addDay(){
 }
 
 function addExerciseToDay(dayId){
-  const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{} };
+  const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{}, settings:{jump:5} };
   const day = p.split.find(d=>d.id===dayId);
   if(!day) return;
 
@@ -868,7 +882,11 @@ function addExerciseToDay(dayId){
       const ttype = document.getElementById("exTargetType").value;
       let target;
       if(ttype==="range"){
-        target = { type:"range", min: clamp(num(document.getElementById("exMin").value,6),1,50), max: clamp(num(document.getElementById("exMax").value,8),1,50) };
+        target = {
+          type:"range",
+          min: clamp(num(document.getElementById("exMin").value,6),1,50),
+          max: clamp(num(document.getElementById("exMax").value,8),1,50)
+        };
         if(target.max < target.min) target.max = target.min;
       } else {
         target = { type:"fixed", reps: clamp(num(document.getElementById("exFixed").value,3),1,50) };
@@ -898,7 +916,6 @@ function addExerciseToDay(dayId){
     ()=>{}
   );
 
-  // toggle fields in modal
   setTimeout(()=>{
     const tsel = document.getElementById("exTargetType");
     const rsel = document.getElementById("exRuleType");
@@ -938,14 +955,12 @@ function removeExerciseFromDay(dayId, exId){
 $("btnAddDay").addEventListener("click", addDay);
 
 $("btnFinishSetup").addEventListener("click", ()=>{
-  // build program from UI
   const units = $("setUnits").value;
   const startWeekDate = ($("setStartWeek").value||"").trim() || defaultMonday();
-  const p = state.program || { units, startWeekDate, split:[], exercises:{} };
+  const p = state.program || { units, startWeekDate, split:[], exercises:{}, settings:{jump:5} };
   p.units = units;
   p.startWeekDate = startWeekDate;
 
-  // require at least 1 day
   if(!p.split.length){
     alert("Add at least 1 training day.");
     return;
@@ -959,14 +974,9 @@ $("btnFinishSetup").addEventListener("click", ()=>{
 /* =========================
    Today + Logger
 ========================= */
-let sessionDraft = null; // current workout draft
-
-function getSessionByDate(date){
-  return state.sessions.find(s=>s.date===date) || null;
-}
+let sessionDraft = null;
 
 function weekKeyForDate(iso){
-  // derive Monday ISO for this week (simple)
   const d=new Date(iso+"T12:00:00");
   const dow=d.getDay();
   const diff = (dow===0? -6 : 1-dow);
@@ -983,7 +993,6 @@ function countWeekStats(){
 
   const doneThisWeek = state.sessions.filter(s => weekKeyForDate(s.date)===wk).length;
 
-  // streak = consecutive days with sessions ending today
   let streak=0;
   const datesSet = new Set(state.sessions.map(s=>s.date));
   let d = new Date(today+"T12:00:00");
@@ -1052,7 +1061,10 @@ function renderToday(){
 
 function buildSessionDraft(){
   const p=state.program;
-  const {date,dow,plan} = plannedWorkoutForToday();
+  const info = plannedWorkoutForToday();
+  if(!info?.plan) return null;
+  const {date,dow,plan} = info;
+
   const exLogs = (plan.exercises||[]).map(exId=>{
     const ex = p.exercises[exId];
     ensureExerciseState(exId, ex.startWeight);
@@ -1075,16 +1087,28 @@ function buildSessionDraft(){
 
 $("btnStartWorkout").addEventListener("click", ()=>{
   sessionDraft = buildSessionDraft();
+  if(!sessionDraft){ toast("No plan today"); return; }
   setActiveTab("logger");
 });
 
-$("btnBackToday").addEventListener("click", ()=>{
-  setActiveTab("today");
-});
+$("btnBackToday").addEventListener("click", ()=> setActiveTab("today"));
 
 /* =========================
    Logger rendering + controls
 ========================= */
+function ruleText(exDef, units){
+  const r=exDef.rule||{type:"double",inc:5};
+  const deload = (r.deloadOnMiss2 ?? true) ? " • deload -10% after 2 misses" : "";
+  if(r.type==="double"){
+    if(exDef.target.type==="range") return `Double progression: hit top reps on all sets → +${r.inc||5}${units}.${deload}`;
+    return `Fixed reps: complete all sets → +${r.inc||5}${units}.${deload}`;
+  }
+  if(r.type==="fixed"){
+    return `Weekly increase: if successful → +${r.inc||5}${units}.${deload}`;
+  }
+  return `Percent increase: if successful → +${r.pct||2.5}%.${deload}`;
+}
+
 function renderLogger(){
   const p=state.program;
   if(!sessionDraft || !p){
@@ -1172,7 +1196,6 @@ function renderLogger(){
       </div>
     `;
 
-    // event delegation inside card
     card.addEventListener("click", (ev)=>{
       const t = ev.target;
       if(!(t instanceof HTMLElement)) return;
@@ -1189,7 +1212,6 @@ function renderLogger(){
 
       if(act==="toggle" && set){
         set.done = !set.done;
-        // auto-fill reps if toggling on with 0 reps
         if(set.done && num(set.r,0)===0){
           if(exDef.target.type==="range") set.r = exDef.target.min;
           else set.r = exDef.target.reps;
@@ -1209,7 +1231,6 @@ function renderLogger(){
       }
     });
 
-    // inputs
     card.querySelectorAll("input[data-act='w']").forEach(inp=>{
       inp.addEventListener("input", ()=>{
         const e=num(inp.getAttribute("data-e"),-1), i=num(inp.getAttribute("data-i"),-1);
@@ -1232,26 +1253,12 @@ function renderLogger(){
     box.appendChild(card);
   });
 
-  $("fabAddExerciseToSession").classList.add("show"); // (MVP placeholder)
-}
-
-function ruleText(exDef, units){
-  const r=exDef.rule||{type:"double",inc:5};
-  const deload = (r.deloadOnMiss2 ?? true) ? " • deload -10% after 2 misses" : "";
-  if(r.type==="double"){
-    if(exDef.target.type==="range") return `Double progression: hit top reps on all sets → +${r.inc||5}${units}.${deload}`;
-    return `Fixed reps: complete all sets → +${r.inc||5}${units}.${deload}`;
-  }
-  if(r.type==="fixed"){
-    return `Weekly increase: if successful → +${r.inc||5}${units}.${deload}`;
-  }
-  return `Percent increase: if successful → +${r.pct||2.5}%.${deload}`;
+  $("fabAddExerciseToSession").classList.add("show");
 }
 
 $("btnFinishWorkout").addEventListener("click", ()=>{
   if(!sessionDraft) return;
 
-  // quick rating
   openModal("Finish Workout",
     `
       <div class="tiny">How did it feel?</div>
@@ -1270,17 +1277,13 @@ $("btnFinishWorkout").addEventListener("click", ()=>{
     ()=>{
       const note = (document.getElementById("sessNote").value||"").trim();
       sessionDraft.notes = note;
-      // default rating if not picked
       if(!sessionDraft.rating) sessionDraft.rating = "normal";
 
-      // compute + save session
       computeSession(sessionDraft);
       state.sessions.push(sessionDraft);
 
-      // PRs
       updatePRsFromSession(sessionDraft);
 
-      // progression (updates currentWeight/misses)
       for(const exLog of sessionDraft.exercises){
         const exDef = state.program.exercises[exLog.exId];
         if(exDef) applyProgression(exDef, exLog);
@@ -1302,12 +1305,10 @@ $("btnFinishWorkout").addEventListener("click", ()=>{
   }, 0);
 });
 
-$("fabAddExerciseToSession").addEventListener("click", ()=>{
-  toast("MVP: add exercises in Settings");
-});
+$("fabAddExerciseToSession").addEventListener("click", ()=> toast("MVP: add exercises in Settings"));
 
 /* =========================
-   Settings (simple)
+   Settings (FIXED: no duplicate handlers)
 ========================= */
 $("btnSettings").addEventListener("click", ()=>{
   const p = state.program;
@@ -1348,17 +1349,12 @@ $("btnSettings").addEventListener("click", ()=>{
     document.getElementById("goSetup").addEventListener("click", ()=>{
       closeModal();
       showScreen("screenSetup");
-      render();
+      renderSetup();
     });
 
-    document.getElementById("goSetup").addEventListener("click", ()=>{
-  closeModal();
-  state.ui.activeTab = "setup";   // ← force setup mode
-  save();
-  showScreen("screenSetup");
-  renderSetup();
-});
-
+    document.getElementById("exportBtn").addEventListener("click", ()=>{
+      prompt("Copy this backup JSON:", JSON.stringify(state));
+    });
 
     document.getElementById("importBtn").addEventListener("click", ()=>{
       const raw = prompt("Paste backup JSON:");
@@ -1423,13 +1419,11 @@ function renderCalendar(){
     cells.push({ off:true, day:dayNum, y: calCursor.m===11? calCursor.y+1 : calCursor.y, m: calCursor.m===11? 0 : calCursor.m+1 });
   }
 
-  // completed sessions map
   const doneMap = new Map();
   for(const s of state.sessions){
     doneMap.set(s.date, s);
   }
 
-  // planned workouts map (date -> title)
   const plannedMap = new Map();
   const p = state.program;
   if(p?.split?.length){
@@ -1455,9 +1449,6 @@ function renderCalendar(){
     const cell=document.createElement("div");
     cell.className = "calCell" + (c.off ? " off" : "");
 
-    // dot logic:
-    // - completed = green (or amber if hard)
-    // - planned only = blue
     let dotHtml = "";
     if(sess){
       dotHtml = `<span class="dot ${sess.rating==='hard'?'amber':''}"></span>`;
@@ -1465,8 +1456,6 @@ function renderCalendar(){
       dotHtml = `<span class="dot" style="background: var(--blue)"></span>`;
     }
 
-    // title logic:
-    // - show completed title, else planned title
     const title = sess ? sess.workoutTitle : (plannedTitle || "");
 
     cell.innerHTML = `
@@ -1477,9 +1466,6 @@ function renderCalendar(){
       <div class="calTitle">${title ? escapeHtml(title) : ""}</div>
     `;
 
-    // click behavior:
-    // - completed: show details
-    // - planned only: show message
     if(!c.off){
       cell.addEventListener("click", ()=>{
         if(sess){
@@ -1504,7 +1490,6 @@ function renderCalendar(){
     else $("calDetail").textContent="Tap a completed day.";
   }
 }
-
 
 function renderCalDetail(sess){
   const p = state.program;
@@ -1538,8 +1523,6 @@ function renderCalDetail(sess){
 }
 
 function getPRMessages(sess){
-  // quick PR messages by comparing session e1RM to stored PR after saving
-  // Here we just show "e1RM PR" for exercises where this session == best date
   const msgs=[];
   for(const exLog of sess.exercises){
     const exId = exLog.exId;
@@ -1548,7 +1531,6 @@ function getPRMessages(sess){
     if(pr?.bestWeight?.date === sess.date) msgs.push("New Weight PR");
     if(pr?.bestVolume?.date === sess.date) msgs.push("New Volume PR");
   }
-  // de-dupe
   return [...new Set(msgs)];
 }
 
@@ -1563,8 +1545,12 @@ $("calNext").addEventListener("click", ()=>{
   render();
 });
 
+/* =========================
+   PRs (FIXED: uses exId->name from program)
+========================= */
 function renderPRs(){
-  const targetNames = new Set(["smith flat bench", "smith squat"]);
+  const p = state.program;
+  if(!p){ $("prSummary").textContent="Finish setup first."; return; }
 
   const days = num($("prWindow")?.value, 30);
   const endIso = isoToday();
@@ -1577,15 +1563,19 @@ function renderPRs(){
     startIso = `${start.getFullYear()}-${String(start.getMonth()+1).padStart(2,"0")}-${String(start.getDate()).padStart(2,"0")}`;
   }
 
-  // Collect sets for the two lifts from sessions
-  function collect(exNameLower){
+  const targetNames = new Set(["smith flat bench", "smith squat"]);
+
+  function collect(targetLower){
     const inWindow = [];
     const before = [];
+
     for(const sess of (state.sessions || [])){
       if(!sess.exercises) continue;
+
       for(const exLog of sess.exercises){
-        const nm = (exLog.name || "").trim().toLowerCase();
-        if(nm !== exNameLower) continue;
+        const exDef = p.exercises?.[exLog.exId];
+        const nm = (exDef?.name || "").trim().toLowerCase();
+        if(nm !== targetLower) continue;
 
         for(const st of (exLog.sets || [])){
           const w = num(st.w,0), r = num(st.r,0);
@@ -1596,14 +1586,13 @@ function renderPRs(){
         }
       }
     }
+
     return { inWindow, before };
   }
 
   function bestStats(rows){
     let bestE = 0, bestERow=null;
     let heavyW = 0, heavyRow=null;
-
-    // best reps at the heaviest weight achieved in this set of rows
     let bestRepsAtHeavyW = 0;
 
     for(const x of rows){
@@ -1611,11 +1600,7 @@ function renderPRs(){
       if(x.w > heavyW){ heavyW = x.w; heavyRow = x; bestRepsAtHeavyW = x.r; }
       else if(x.w === heavyW){ bestRepsAtHeavyW = Math.max(bestRepsAtHeavyW, x.r); }
     }
-    return {
-      bestE, bestERow,
-      heavyW, heavyRow,
-      bestRepsAtHeavyW
-    };
+    return { bestE, bestERow, heavyW, heavyRow, bestRepsAtHeavyW };
   }
 
   function pctChange(newVal, oldVal){
@@ -1631,8 +1616,6 @@ function renderPRs(){
   let cardsHtml = "";
   let history = [];
 
-  let improvedCount = 0;
-
   for(const L of lifts){
     const { inWindow, before } = collect(L.key);
     inWindow.sort((a,b)=> a.date.localeCompare(b.date));
@@ -1641,12 +1624,10 @@ function renderPRs(){
     const win = bestStats(inWindow);
     const prev = bestStats(before);
 
-    // PR % change in window vs best before window
     let prPctStr = "—";
     const prPct = pctChange(win.bestE, prev.bestE);
     if(win.bestE > 0 && prev.bestE > 0){
       prPctStr = `${prPct>=0?"+":""}${prPct.toFixed(1)}%`;
-      improvedCount++;
     } else if(win.bestE > 0 && prev.bestE === 0){
       prPctStr = "NEW";
     }
@@ -1657,8 +1638,6 @@ function renderPRs(){
     const heavyTxt = win.heavyW ? `${win.heavyW} × ${win.bestRepsAtHeavyW}` : "—";
     const heavyDate = win.heavyRow ? prettyDate(win.heavyRow.date) : "—";
 
-    // Build PR history: record new all-time best e1RM events (only for these lifts)
-    // We detect by scanning all sets for this lift in date order.
     const all = [...before, ...inWindow].sort((a,b)=> a.date.localeCompare(b.date));
     let bestSoFar = 0;
     for(const x of all){
@@ -1699,11 +1678,9 @@ function renderPRs(){
 
   $("prCards").innerHTML = cardsHtml || `<div class="item"><div class="tiny muted">No PR data yet.</div></div>`;
 
-  // Summary
   const label = days===7?"this week":days===30?"this month":days===365?"this year":"all time";
-  $("prSummary").textContent = `Tracking 2 lifts (${label}). Log those lifts to see PR changes.`;
+  $("prSummary").textContent = `Tracking 2 lifts (${label}). Make sure the exercise names match exactly.`;
 
-  // History
   history.sort((a,b)=> b.date.localeCompare(a.date));
   if(history.length){
     $("prHistory").innerHTML = history
@@ -1719,7 +1696,7 @@ function renderPRs(){
 }
 
 /* =========================
-   Progress screen
+   Progress screen (FIXED duplicates)
 ========================= */
 function renderProgress(){
   const p = state.program;
@@ -1737,18 +1714,14 @@ function renderProgress(){
     return;
   }
 
-  // window days (default month)
-  const sel = $("progWindow");
-  const days = num(sel?.value, 30);
+  const days = num($("progWindow")?.value, 30);
 
-  // date range
   const endIso = isoToday();
   const end = new Date(endIso + "T12:00:00");
   const start = new Date(end);
   start.setDate(start.getDate() - (days - 1));
   const startIso = `${start.getFullYear()}-${String(start.getMonth()+1).padStart(2,"0")}-${String(start.getDate()).padStart(2,"0")}`;
 
-  // helper: get best e1RM for an exercise on a given session
   function bestE1rmFromSession(exLog){
     let best = 0;
     for(const s of exLog.sets || []){
@@ -1758,16 +1731,12 @@ function renderProgress(){
     return best;
   }
 
-  // prebuild maps:
-  // - window series: exId -> [{date, e1rm}]
-  // - before max PR: exId -> max e1rm before window start
   const series = {};
   const beforeMax = {};
   for(const exId of exIds){ series[exId] = []; beforeMax[exId] = 0; }
 
   for(const sess of (state.sessions || [])){
     const d = sess.date;
-    // ignore sessions without exercises
     if(!sess.exercises) continue;
 
     for(const exLog of sess.exercises){
@@ -1785,7 +1754,6 @@ function renderProgress(){
     }
   }
 
-  // overall summary numbers
   let counted = 0;
   let sumPct = 0;
 
@@ -1797,7 +1765,6 @@ function renderProgress(){
     const first = arr.length ? arr[0].e1rm : 0;
     const last  = arr.length ? arr[arr.length-1].e1rm : 0;
 
-    // % stronger in window (e1RM)
     let pctStr = "—";
     let pctNum = null;
     if(first > 0 && last > 0){
@@ -1807,34 +1774,23 @@ function renderProgress(){
       sumPct += pctNum;
     }
 
-    // PR % change in window (best in window vs best before window)
     const winBest = arr.reduce((m,x)=>Math.max(m,x.e1rm), 0);
     const prevBest = beforeMax[exId] || 0;
-    // PR % change ONLY for Bench + Squat (by name match)
-const exNameLower = (ex.name || "").toLowerCase();
-const exNameLower = (ex.name || "").trim().toLowerCase();
 
-// PRs only for THESE exact names
-const isPrimaryPR =
-  exNameLower === "flat bench press" ||
-  exNameLower === "smith squats";
+    // Only show PR% for Smith Flat Bench / Smith Squat (by name match)
+    const exNameLower = (ex.name || "").trim().toLowerCase();
+    const isPrimaryPR = (exNameLower === "smith flat bench" || exNameLower === "smith squat");
 
+    let prPctStr = "—";
+    if(isPrimaryPR){
+      if(winBest > 0 && prevBest > 0){
+        const prPct = ((winBest - prevBest) / prevBest) * 100;
+        prPctStr = `${prPct >= 0 ? "+" : ""}${prPct.toFixed(1)}%`;
+      } else if(winBest > 0 && prevBest === 0){
+        prPctStr = `NEW`;
+      }
+    }
 
-const winBest = arr.reduce((m,x)=>Math.max(m,x.e1rm), 0);
-const prevBest = beforeMax[exId] || 0;
-
-let prPctStr = "—";
-if(isPrimaryPR){
-  if(winBest > 0 && prevBest > 0){
-    const prPct = ((winBest - prevBest) / prevBest) * 100;
-    prPctStr = `${prPct >= 0 ? "+" : ""}${prPct.toFixed(1)}%`;
-  } else if(winBest > 0 && prevBest === 0){
-    prPctStr = `NEW`;
-  }
-}
-
-
-    // text for the right side
     const right = `
       <div class="right" style="flex-direction:column;align-items:flex-end;gap:2px">
         <span class="pill">Strength: <b>${pctStr}</b></span>
@@ -1858,90 +1814,83 @@ if(isPrimaryPR){
     box.appendChild(div);
   }
 
-  // summary line
   const avg = counted ? (sumPct / counted) : null;
   const label = days===7 ? "this week" : days===30 ? "this month" : "this year";
   $("progSummary").textContent =
     avg === null
-      ? `No enough data ${label} yet. Log a couple sessions and this will fill in.`
+      ? `Not enough data ${label} yet. Log a couple sessions and this will fill in.`
       : `Average strength change ${label}: ${avg >= 0 ? "+" : ""}${avg.toFixed(1)}% (across ${counted} exercise(s)).`;
 }
 
 /* =========================
-   Render + Init
+   Render + Init (FIXED)
 ========================= */
 function render(){
-  // setup default program if not exists (for editing screen)
   if(!state.program){
     showScreen("screenSetup");
     renderSetup();
-    // tabs states
     tabEl("tabToday", false);
     tabEl("tabLogger", false);
     tabEl("tabCalendar", false);
     tabEl("tabProgress", false);
+    tabEl("tabPRs", false);
     $("fabAddExerciseToSession").classList.remove("show");
     return;
   }
 
-  // active tab
   const t = state.ui.activeTab || "today";
   tabEl("tabToday", t==="today");
   tabEl("tabLogger", t==="logger");
   tabEl("tabCalendar", t==="calendar");
   tabEl("tabProgress", t==="progress");
+  tabEl("tabPRs", t==="prs");
 
   if(t==="today"){
     showScreen("screenToday");
     renderToday();
     $("fabAddExerciseToSession").classList.remove("show");
-  }
-  if(t==="logger"){
+  } else if(t==="logger"){
     showScreen("screenLogger");
     renderLogger();
-  }
-  if(t==="calendar"){
+  } else if(t==="calendar"){
     showScreen("screenCalendar");
     renderCalendar();
     $("fabAddExerciseToSession").classList.remove("show");
-  }
-  if(t==="progress"){
+  } else if(t==="progress"){
     showScreen("screenProgress");
     renderProgress();
     $("fabAddExerciseToSession").classList.remove("show");
+  } else if(t==="prs"){
+    showScreen("screenPRs");
+    renderPRs();
+    $("fabAddExerciseToSession").classList.remove("show");
+  } else {
+    // fallback
+    setActiveTab("today");
   }
 }
 
 // Tabs
 $("tabToday").addEventListener("click", ()=>setActiveTab("today"));
 $("tabLogger").addEventListener("click", ()=>{
-  // if no draft, bounce to today
   if(!sessionDraft) { toast("Start from Today"); setActiveTab("today"); return; }
   setActiveTab("logger");
 });
 $("tabCalendar").addEventListener("click", ()=>setActiveTab("calendar"));
 $("tabProgress").addEventListener("click", ()=>setActiveTab("progress"));
-$("tabPRs").addEventListener("click", ()=> setActiveTab("prs"));
+$("tabPRs").addEventListener("click", ()=>setActiveTab("prs"));
 
-// Progress window selector live-update
-setTimeout(()=>{
-  const sel = document.getElementById("progWindow");
-  if(sel){
-    sel.addEventListener("change", ()=>{
-      // re-render progress screen when window changes
-      if(state.ui.activeTab === "progress") render();
-    });
-  }
-}, 0);
+// Window selectors live-update
+$("progWindow").addEventListener("change", ()=>{ if(state.ui.activeTab==="progress") render(); });
+$("prWindow").addEventListener("change", ()=>{ if(state.ui.activeTab==="prs") render(); });
 
-// Setup screen first time
+// First time boot: make program shell so setup works
 if(!state.program){
-  // create a blank program shell so setup UI works
   state.program = { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{}, settings:{ jump:5 } };
   save();
 }
 
-// Render setup if they have no split yet
+// If no split -> force setup
 if(state.program && (!state.program.split || state.program.split.length===0)){
   showScreen("screenSetup");
   renderSetup();
@@ -1962,4 +1911,3 @@ function escapeAttr(s){ return escapeHtml(s).replace(/"/g,"&quot;"); }
 </script>
 </body>
 </html>
-
