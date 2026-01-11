@@ -1385,8 +1385,7 @@ function renderCalendar(){
   const startDow = first.getDay();
   const daysInMonth = new Date(calCursor.y, calCursor.m+1, 0).getDate();
 
-  // previous month padding
-  const prevDays = startDow; // number of cells before 1st
+  const prevDays = startDow;
   const prevMonthDays = new Date(calCursor.y, calCursor.m, 0).getDate();
 
   const cells = [];
@@ -1397,51 +1396,93 @@ function renderCalendar(){
   for(let d=1; d<=daysInMonth; d++){
     cells.push({ off:false, day:d, y: calCursor.y, m: calCursor.m });
   }
-  // next month padding to complete weeks
   while(cells.length % 7 !== 0){
     const dayNum = (cells.length - (prevDays+daysInMonth)) + 1;
     cells.push({ off:true, day:dayNum, y: calCursor.m===11? calCursor.y+1 : calCursor.y, m: calCursor.m===11? 0 : calCursor.m+1 });
   }
 
-  // session map
-  const map = new Map(); // date -> session
+  // completed sessions map
+  const doneMap = new Map();
   for(const s of state.sessions){
-    map.set(s.date, s);
+    doneMap.set(s.date, s);
+  }
+
+  // planned workouts map (date -> title)
+  const plannedMap = new Map();
+  const p = state.program;
+  if(p?.split?.length){
+    for(const c of cells){
+      if(c.off) continue;
+      const mm = String(c.m+1).padStart(2,"0");
+      const dd = String(c.day).padStart(2,"0");
+      const iso = `${c.y}-${mm}-${dd}`;
+      const dow = new Date(iso+"T12:00:00").getDay();
+      const plan = p.split.find(x => x.weekday === dow);
+      if(plan) plannedMap.set(iso, plan.title);
+    }
   }
 
   for(const c of cells){
-    const m = String(c.m+1).padStart(2,"0");
-    const d = String(c.day).padStart(2,"0");
-    const iso = `${c.y}-${m}-${d}`;
-    const sess = map.get(iso);
+    const mm = String(c.m+1).padStart(2,"0");
+    const dd = String(c.day).padStart(2,"0");
+    const iso = `${c.y}-${mm}-${dd}`;
+
+    const sess = doneMap.get(iso);
+    const plannedTitle = plannedMap.get(iso);
 
     const cell=document.createElement("div");
     cell.className = "calCell" + (c.off ? " off" : "");
+
+    // dot logic:
+    // - completed = green (or amber if hard)
+    // - planned only = blue
+    let dotHtml = "";
+    if(sess){
+      dotHtml = `<span class="dot ${sess.rating==='hard'?'amber':''}"></span>`;
+    } else if(plannedTitle){
+      dotHtml = `<span class="dot" style="background: var(--blue)"></span>`;
+    }
+
+    // title logic:
+    // - show completed title, else planned title
+    const title = sess ? sess.workoutTitle : (plannedTitle || "");
+
     cell.innerHTML = `
       <div class="calNum">
         <span>${c.day}</span>
-        <span>${sess ? `<span class="dot ${sess.rating==='hard'?'amber':''}"></span>` : ""}</span>
+        <span>${dotHtml}</span>
       </div>
-      <div class="calTitle">${sess ? escapeHtml(sess.workoutTitle) : ""}</div>
+      <div class="calTitle">${title ? escapeHtml(title) : ""}</div>
     `;
 
-    if(sess){
+    // click behavior:
+    // - completed: show details
+    // - planned only: show message
+    if(!c.off){
       cell.addEventListener("click", ()=>{
-        calSelected = sess.date;
-        renderCalDetail(sess);
+        if(sess){
+          calSelected = sess.date;
+          renderCalDetail(sess);
+        } else if(plannedTitle){
+          $("calDetail").innerHTML = `
+            <div class="tiny"><b>${prettyDate(iso)}</b> • Planned: <b>${escapeHtml(plannedTitle)}</b></div>
+            <div class="sep"></div>
+            <div class="tiny muted">Log the workout from the Today tab to make this a completed session.</div>
+          `;
+        }
       });
     }
 
     grid.appendChild(cell);
   }
 
-  // keep detail
   if(calSelected){
-    const sess = map.get(calSelected);
+    const sess = doneMap.get(calSelected);
     if(sess) renderCalDetail(sess);
     else $("calDetail").textContent="Tap a completed day.";
   }
 }
+
 
 function renderCalDetail(sess){
   const p = state.program;
