@@ -240,6 +240,11 @@
       <div style="width:80px"></div>
     </div>
   </div>
+  // Allow Settings from Setup even if no split yet (so Import works)
+  $("btnSettingsSetup")?.addEventListener("click", ()=>{
+  if(!$("btnSettings")) return;
+  $("btnSettings").click(); // reuse the same modal/settings logic
+  });
 
     <div class="content">
       <div class="card">
