@@ -135,17 +135,52 @@
     .calHead{display:flex;align-items:center;justify-content:space-between;gap:8px}
     .calGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:10px}
     .calCell{
-      border:1px solid rgba(42,42,62,.6);
-      border-radius:14px;
-      padding:8px;
-      min-height:64px;
-      background: rgba(12,12,18,.35);
-      cursor:pointer;
-    }
-    .calCell.off{opacity:.35;cursor:default}
-    .calNum{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
-    .dot{width:8px;height:8px;border-radius:99px;background:var(--green);display:inline-block}
-    .dot.amber{background:var(--amber)}
+  border:1px solid rgba(42,42,62,.6);
+  border-radius:14px;
+  padding:8px;
+  min-height:64px;
+  background: rgba(12,12,18,.35);
+  cursor:pointer;
+
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.calCell.off{opacity:.35;cursor:default}
+
+.calNum{
+  font-size:12px;
+  color:var(--muted);
+  display:flex;
+  justify-content:space-between;
+  align-items:center
+}
+
+.dot{
+  width:8px;height:8px;border-radius:99px;
+  background:var(--green);
+  display:inline-block
+}
+.dot.amber{background:var(--amber)}
+
+.calTitle{
+  margin-top:6px;
+  font-size:11px;
+  color:var(--text);
+  opacity:.9;
+
+  line-height: 1.2;
+  max-height: calc(11px * 1.2 * 2); /* 2 lines max */
+  overflow: hidden;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+
+  white-space: normal;
+}
+
     .calTitle{margin-top:6px;font-size:11px;color:var(--text);opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
     .overlay{
