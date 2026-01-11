@@ -1563,6 +1563,161 @@ $("calNext").addEventListener("click", ()=>{
   render();
 });
 
+function renderPRs(){
+  const targetNames = new Set(["smith flat bench", "smith squat"]);
+
+  const days = num($("prWindow")?.value, 30);
+  const endIso = isoToday();
+  const end = new Date(endIso + "T12:00:00");
+
+  let startIso = "0000-01-01";
+  if(days !== 99999){
+    const start = new Date(end);
+    start.setDate(start.getDate() - (days - 1));
+    startIso = `${start.getFullYear()}-${String(start.getMonth()+1).padStart(2,"0")}-${String(start.getDate()).padStart(2,"0")}`;
+  }
+
+  // Collect sets for the two lifts from sessions
+  function collect(exNameLower){
+    const inWindow = [];
+    const before = [];
+    for(const sess of (state.sessions || [])){
+      if(!sess.exercises) continue;
+      for(const exLog of sess.exercises){
+        const nm = (exLog.name || "").trim().toLowerCase();
+        if(nm !== exNameLower) continue;
+
+        for(const st of (exLog.sets || [])){
+          const w = num(st.w,0), r = num(st.r,0);
+          if(w<=0 || r<=0) continue;
+          const row = { date: sess.date, w, r, e1rm: e1rmEpley(w,r) };
+          if(sess.date >= startIso && sess.date <= endIso) inWindow.push(row);
+          else if(sess.date < startIso) before.push(row);
+        }
+      }
+    }
+    return { inWindow, before };
+  }
+
+  function bestStats(rows){
+    let bestE = 0, bestERow=null;
+    let heavyW = 0, heavyRow=null;
+
+    // best reps at the heaviest weight achieved in this set of rows
+    let bestRepsAtHeavyW = 0;
+
+    for(const x of rows){
+      if(x.e1rm > bestE){ bestE = x.e1rm; bestERow = x; }
+      if(x.w > heavyW){ heavyW = x.w; heavyRow = x; bestRepsAtHeavyW = x.r; }
+      else if(x.w === heavyW){ bestRepsAtHeavyW = Math.max(bestRepsAtHeavyW, x.r); }
+    }
+    return {
+      bestE, bestERow,
+      heavyW, heavyRow,
+      bestRepsAtHeavyW
+    };
+  }
+
+  function pctChange(newVal, oldVal){
+    if(newVal<=0 || oldVal<=0) return null;
+    return ((newVal-oldVal)/oldVal)*100;
+  }
+
+  const lifts = [
+    { key:"smith flat bench", label:"Smith Flat Bench" },
+    { key:"smith squat", label:"Smith Squat" }
+  ];
+
+  let cardsHtml = "";
+  let history = [];
+
+  let improvedCount = 0;
+
+  for(const L of lifts){
+    const { inWindow, before } = collect(L.key);
+    inWindow.sort((a,b)=> a.date.localeCompare(b.date));
+    before.sort((a,b)=> a.date.localeCompare(b.date));
+
+    const win = bestStats(inWindow);
+    const prev = bestStats(before);
+
+    // PR % change in window vs best before window
+    let prPctStr = "—";
+    const prPct = pctChange(win.bestE, prev.bestE);
+    if(win.bestE > 0 && prev.bestE > 0){
+      prPctStr = `${prPct>=0?"+":""}${prPct.toFixed(1)}%`;
+      improvedCount++;
+    } else if(win.bestE > 0 && prev.bestE === 0){
+      prPctStr = "NEW";
+    }
+
+    const bestE1rmTxt = win.bestE ? `${Math.round(win.bestE)} e1RM` : "—";
+    const bestE1rmDate = win.bestERow ? prettyDate(win.bestERow.date) : "—";
+
+    const heavyTxt = win.heavyW ? `${win.heavyW} × ${win.bestRepsAtHeavyW}` : "—";
+    const heavyDate = win.heavyRow ? prettyDate(win.heavyRow.date) : "—";
+
+    // Build PR history: record new all-time best e1RM events (only for these lifts)
+    // We detect by scanning all sets for this lift in date order.
+    const all = [...before, ...inWindow].sort((a,b)=> a.date.localeCompare(b.date));
+    let bestSoFar = 0;
+    for(const x of all){
+      if(x.e1rm > bestSoFar){
+        bestSoFar = x.e1rm;
+        history.push({
+          date: x.date,
+          text: `${L.label}: New e1RM PR ${Math.round(x.e1rm)} (from ${x.w}×${x.r})`
+        });
+      }
+    }
+
+    cardsHtml += `
+      <div class="card" style="margin-top:12px">
+        <div class="row" style="justify-content:space-between;align-items:flex-start">
+          <div>
+            <div class="name">${escapeHtml(L.label)}</div>
+            <div class="tiny muted">Window: ${days===7?"Week":days===30?"Month":days===365?"Year":"All time"}</div>
+          </div>
+          <div class="right">
+            <span class="pill">PR change: <b>${prPctStr}</b></span>
+          </div>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="row" style="gap:10px;flex-wrap:wrap">
+          <span class="pill">Best e1RM: <b>${bestE1rmTxt}</b> <span class="tiny muted">(${bestE1rmDate})</span></span>
+          <span class="pill">Heaviest set: <b>${heavyTxt}</b> <span class="tiny muted">(${heavyDate})</span></span>
+        </div>
+
+        <div class="tiny muted" style="margin-top:8px">
+          Uses Epley e1RM from your best set in the selected window.
+        </div>
+      </div>
+    `;
+  }
+
+  $("prCards").innerHTML = cardsHtml || `<div class="item"><div class="tiny muted">No PR data yet.</div></div>`;
+
+  // Summary
+  const label = days===7?"this week":days===30?"this month":days===365?"this year":"all time";
+  $("prSummary").textContent = `Tracking 2 lifts (${label}). Log those lifts to see PR changes.`;
+
+  // History
+  history.sort((a,b)=> b.date.localeCompare(a.date));
+  if(history.length){
+    $("prHistory").innerHTML = history
+      .slice(0, 25)
+      .map(h => `<div class="row" style="justify-content:space-between;gap:12px">
+        <span>${escapeHtml(h.text)}</span>
+        <span class="tiny muted">${prettyDate(h.date)}</span>
+      </div>`)
+      .join(`<div class="sep"></div>`);
+  } else {
+    $("prHistory").textContent = "No PRs yet — once you log bench/squat, PR history will appear here.";
+  }
+}
+
 /* =========================
    Progress screen
 ========================= */
