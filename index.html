@@ -1655,9 +1655,13 @@ function renderProgress(){
     const prevBest = beforeMax[exId] || 0;
     // PR % change ONLY for Bench + Squat (by name match)
 const exNameLower = (ex.name || "").toLowerCase();
-const isBench = exNameLower.includes("bench");
-const isSquat = exNameLower.includes("squat");
-const isPrimaryPR = isBench || isSquat;
+const exNameLower = (ex.name || "").trim().toLowerCase();
+
+// PRs only for THESE exact names
+const isPrimaryPR =
+  exNameLower === "flat bench press" ||
+  exNameLower === "smith squats";
+
 
 const winBest = arr.reduce((m,x)=>Math.max(m,x.e1rm), 0);
 const prevBest = beforeMax[exId] || 0;
