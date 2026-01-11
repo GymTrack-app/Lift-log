@@ -1,28 +1,29 @@
-<!doctype html> 
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <meta name="theme-color" content="#0b0b0f"/>
+  <meta name="theme-color" content="#0f1115"/>
   <title>LiftLog MVP</title>
+
   <style>
     :root{
-  --bg:#0f1115;
-  --panel:#12151c;
-  --card:#151a23;
-  --line:#262c3a;
+      /* Simple neutral theme (no neon green) */
+      --bg:#0f1115;
+      --panel:#141822;
+      --card:#171c28;
+      --line:rgba(255,255,255,.08);
+      --text:#eef2f7;
+      --muted:rgba(238,242,247,.65);
 
-  --text:#eef2f7;
-  --muted:#98a2b3;
+      --accent:#7aa7ff;     /* calm blue */
+      --accent2:#b9c6ff;    /* softer */
+      --danger:#ff6b81;
+      --warn:#ffbf5a;
 
-  --accent:#6aa9ff;   /* main accent */
-  --danger:#ff5b6e;
-  --warn:#ffbf5a;
-
-  --shadow: 0 10px 26px rgba(0,0,0,.28);
-  --radius: 16px;
-}
-
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 16px;
+    }
 
     *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;}
     body{
@@ -33,20 +34,20 @@
     .app{max-width:560px;margin:0 auto}
     .topbar{
       position:sticky;top:0;z-index:20;
-      background: rgba(11,11,15,.86);
+      background: rgba(15,17,21,.86);
       backdrop-filter: blur(12px);
-      border-bottom:1px solid rgba(42,42,62,.65);
+      border-bottom:1px solid var(--line);
       padding: 10px 12px;
     }
     .navrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
-    .title{font-size:17px;font-weight:800;text-align:center;flex:1}
+    .title{font-size:17px;font-weight:850;text-align:center;flex:1}
     .pill{
-      font-size:11px;color:var(--muted);border:1px solid rgba(42,42,62,.7);
+      font-size:11px;color:var(--muted);border:1px solid var(--line);
       padding:4px 8px;border-radius:999px
     }
     .content{padding:12px}
     .card{
-      background: linear-gradient(180deg, rgba(23,23,38,.92), rgba(18,18,26,.92));
+      background: linear-gradient(180deg, rgba(23,28,40,.92), rgba(20,24,34,.92));
       border:1px solid var(--line);
       border-radius: var(--radius);
       padding: 12px;
@@ -56,45 +57,50 @@
     .tiny{font-size:12px;color:var(--muted)}
     button, input, select, textarea{
       border:1px solid var(--line);
-      background:#0f0f18;color:var(--text);
+      background: rgba(255,255,255,.04);
+      color:var(--text);
       border-radius:14px;padding:10px 12px;font-size:14px;
+      outline:none;
     }
+    input:focus, select:focus, textarea:focus{border-color: rgba(122,167,255,.55); box-shadow: 0 0 0 3px rgba(122,167,255,.12);}
     textarea{min-height:80px;resize:vertical}
     button{cursor:pointer}
     button:active{transform:scale(.99)}
-    .btnGood{background: rgba(106,169,255,.16);border-color: rgba(106,169,255,.45);}
-    .btnDanger{background: rgba(255,91,110,.14);border-color: rgba(255,91,110,.45);}
+    .btnAccent{background: rgba(122,167,255,.16);border-color: rgba(122,167,255,.40);}
+    .btnDanger{background: rgba(255,107,129,.14);border-color: rgba(255,107,129,.38);}
     .btnGhost{background: rgba(255,255,255,.04);}
     .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
     .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     @media (max-width:520px){ .grid2{grid-template-columns:1fr} }
+
     .list{
       margin-top:12px;
       border-radius: var(--radius);
       overflow:hidden;
       border:1px solid var(--line);
-      background: rgba(15,15,24,.5);
+      background: rgba(255,255,255,.03);
     }
     .listHeader{
       padding:10px 12px;
       font-size:12px;
       color:var(--muted);
-      border-bottom:1px solid rgba(42,42,62,.65);
+      border-bottom:1px solid var(--line);
       display:flex;justify-content:space-between;align-items:center
     }
     .item{
       display:flex;align-items:center;justify-content:space-between;
       padding: 12px;
-      border-bottom:1px solid rgba(42,42,62,.35);
+      border-bottom:1px solid rgba(255,255,255,.05);
     }
     .item:last-child{border-bottom:none}
-    .name{font-weight:800}
+    .name{font-weight:850}
     .right{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+
     .tabs{
       position: fixed;left:0;right:0;bottom:0;z-index:30;
-      background: rgba(11,11,15,.92);
+      background: rgba(15,17,21,.92);
       backdrop-filter: blur(12px);
-      border-top:1px solid rgba(42,42,62,.65);
+      border-top:1px solid var(--line);
       padding: 8px 10px calc(10px + env(safe-area-inset-bottom));
     }
     .tabsInner{
@@ -102,73 +108,67 @@
       display:flex;justify-content:space-around;align-items:center;
       gap:10px;
     }
-    .tab{display:flex;flex-direction:column;align-items:center;gap:4px;color:#7e8596;font-size:11px;cursor:pointer;user-select:none}
-    .tab.active{color:var(--accent)}
-    .icon{width:22px;height:22px;border-radius:6px;border:1px solid rgba(42,42,62,.7);display:grid;place-items:center;font-weight:900}
-    .tab.active .icon{border-color: rgba(106,169,255,.65); box-shadow: 0 0 0 2px rgba(106,169,255,.10) inset;}
+    .tab{
+      display:flex;flex-direction:column;align-items:center;gap:4px;
+      color:rgba(238,242,247,.55);font-size:11px;cursor:pointer;user-select:none
+    }
+    .tab.active{color:var(--accent2)}
+    .icon{
+      width:26px;height:26px;border-radius:9px;border:1px solid var(--line);
+      display:grid;place-items:center;font-weight:900;font-size:12px;
+      background: rgba(255,255,255,.03);
+    }
+    .tab.active .icon{border-color: rgba(122,167,255,.55); box-shadow: 0 0 0 2px rgba(122,167,255,.10) inset;}
+
     .screen{display:none}
     .screen.show{display:block}
+
     .fab{
-      position: fixed;
-      left:50%;
+      position: fixed;left:50%;
       transform: translateX(-50%);
       bottom: calc(18px + env(safe-area-inset-bottom) + 44px);
-      width:66px;height:66px;border-radius:999px;
-      background: var(--green);
-      box-shadow: 0 14px 40px rgba(31,228,138,.25);
-      border:none;
-      color:#03110a;
-      font-size:36px;
-      display:none;
-      place-items:center;
-      z-index: 40;
+      width:62px;height:62px;border-radius:999px;
+      background: rgba(122,167,255,.95);
+      box-shadow: 0 14px 40px rgba(122,167,255,.22);
+      border:none;color:#0b1020;font-size:34px;
+      display:none;place-items:center;z-index: 40;
     }
     .fab.show{display:grid}
 
     table{width:100%;border-collapse:collapse}
-    th,td{border-bottom:1px solid rgba(42,42,62,.5);padding:8px 6px;font-size:13px;text-align:left;vertical-align:top}
+    th,td{border-bottom:1px solid rgba(255,255,255,.06);padding:8px 6px;font-size:13px;text-align:left;vertical-align:top}
     th{color:var(--muted);font-weight:700;font-size:12px}
-    .chk{width:20px;height:20px;border-radius:8px;border:1px solid rgba(42,42,62,.7);display:grid;place-items:center}
-    .chk.on{border-color: rgba(31,228,138,.6); background: rgba(31,228,138,.12); color: var(--green); font-weight:900}
+    .chk{width:20px;height:20px;border-radius:8px;border:1px solid var(--line);display:grid;place-items:center}
+    .chk.on{border-color: rgba(122,167,255,.6); background: rgba(122,167,255,.14); color: var(--accent2); font-weight:900}
     .miniBtns{display:flex;gap:6px;flex-wrap:wrap}
     .mini{padding:7px 9px;border-radius:12px;font-size:12px}
-    .sep{height:1px;background:rgba(42,42,62,.55);margin:12px 0}
-    .badge{font-size:11px;padding:4px 8px;border-radius:999px;border:1px solid rgba(42,42,62,.7);color:var(--muted)}
-    .badge.good{border-color: rgba(31,228,138,.45); color: var(--green); background: rgba(31,228,138,.10);}
-    .badge.hard{border-color: rgba(255,176,32,.45); color: var(--amber); background: rgba(255,176,32,.08);}
-    .badge.blue{border-color: rgba(87,184,255,.45); color: var(--blue); background: rgba(87,184,255,.08);}
+    .sep{height:1px;background:rgba(255,255,255,.07);margin:12px 0}
+    .badge{font-size:11px;padding:4px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+    .badge.good{border-color: rgba(122,167,255,.45); color: var(--accent2); background: rgba(122,167,255,.10);}
+    .badge.hard{border-color: rgba(255,191,90,.45); color: var(--warn); background: rgba(255,191,90,.08);}
+    .badge.tag{border-color: rgba(185,198,255,.35); color: rgba(185,198,255,.95); background: rgba(185,198,255,.07);}
 
     .calHead{display:flex;align-items:center;justify-content:space-between;gap:8px}
     .calGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:10px}
     .calCell{
-      border:1px solid rgba(42,42,62,.6);
+      border:1px solid rgba(255,255,255,.10);
       border-radius:14px;
       padding:8px;
       min-height:72px;
-      background: rgba(12,12,18,.35);
+      background: rgba(255,255,255,.03);
       cursor:pointer;
-
       overflow:hidden;
-      display:flex;
-      flex-direction:column;
-      gap:6px;
+      display:flex;flex-direction:column;gap:6px;
     }
     .calCell.off{opacity:.35;cursor:default}
     .calNum{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
-    .dot{width:8px;height:8px;border-radius:99px;background:var(--accent);display:inline-block}
-    .dot.amber{background:var(--warn)}
-    .dot.blue{background:var(--accent)}
-
-    /* Title fix (2-line clamp without breaking cell proportions) */
+    .dot{width:8px;height:8px;border-radius:99px;background:var(--accent2);display:inline-block}
+    .dot.warn{background:var(--warn)}
+    .dot.plan{background:rgba(185,198,255,.95)}
     .calTitle{
       font-size:11px;color:var(--text);opacity:.9;
-      line-height:1.2;
-      overflow:hidden;
-      display:-webkit-box;
-      -webkit-box-orient:vertical;
-      -webkit-line-clamp:2;
-      white-space:normal;
-      word-break:break-word;
+      line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;
+      -webkit-line-clamp:2;white-space:normal;word-break:break-word;
       min-height: calc(11px * 1.2 * 2);
     }
 
@@ -177,14 +177,11 @@
       margin-top:10px;
     }
     .wkDay{
-      border:1px solid rgba(42,42,62,.6);
-      border-radius:14px;
-      padding:8px;
-      min-height:54px;
-      background: rgba(12,12,18,.25);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;padding:8px;min-height:54px;
+      background: rgba(255,255,255,.03);
       display:flex;flex-direction:column;gap:6px;
-      cursor:pointer;
-      overflow:hidden;
+      cursor:pointer;overflow:hidden;
     }
     .wkTop{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted)}
     .wkTitle{
@@ -193,7 +190,7 @@
       line-height:1.2;white-space:normal;word-break:break-word;
       min-height: calc(11px * 1.2 * 2);
     }
-    .wkDay.today{border-color: rgba(31,228,138,.55); box-shadow: 0 0 0 2px rgba(31,228,138,.10) inset;}
+    .wkDay.today{border-color: rgba(122,167,255,.55); box-shadow: 0 0 0 2px rgba(122,167,255,.10) inset;}
 
     .overlay{
       position:fixed;inset:0;background:rgba(0,0,0,.55);
@@ -203,7 +200,7 @@
     .overlay.show{display:flex}
     .sheet{
       width:min(560px, 100%);
-      background: rgba(18,18,26,.96);
+      background: rgba(20,24,34,.98);
       border:1px solid var(--line);
       border-radius: 22px;
       box-shadow: var(--shadow);
@@ -213,13 +210,15 @@
     .toast{
       position:fixed;left:50%;bottom:calc(82px + env(safe-area-inset-bottom));
       transform:translateX(-50%);
-      background:#111122;border:1px solid rgba(42,42,62,.8);
+      background: rgba(20,24,34,.98);
+      border:1px solid var(--line);
       padding:10px 12px;border-radius:999px;font-size:12px;color:var(--text);
       opacity:0;pointer-events:none;transition:.18s;z-index:80
     }
     .toast.show{opacity:1}
   </style>
 </head>
+
 <body>
 <div class="app">
 
@@ -228,13 +227,14 @@
     <div class="topbar">
       <div class="navrow">
         <div style="width:80px"></div>
-        <div class="title">Setup</div>
+        <div class="title">Split Setup</div>
         <div style="width:80px"></div>
       </div>
     </div>
+
     <div class="content">
       <div class="card">
-        <div class="tiny">Set your split once. Then logging is fast + auto-progress.</div>
+        <div class="tiny">Build your split here (you can edit anytime later in Settings).</div>
         <div class="sep"></div>
 
         <div class="grid2">
@@ -258,17 +258,17 @@
             <div class="name">Your Split</div>
             <div class="tiny" id="setupProgress">0 days • 0 exercises</div>
           </div>
-          <button id="btnAddDay" class="btnGood">+ Day</button>
+          <button id="btnAddDay" class="btnAccent">+ Day</button>
         </div>
 
         <div id="daysBox" class="list" style="margin-top:10px">
-          <div class="listHeader"><span>Days</span><span class="tiny">tap to add exercises</span></div>
+          <div class="listHeader"><span>Days</span><span class="tiny">tap to manage</span></div>
           <div id="daysList"></div>
         </div>
 
         <div class="sep"></div>
-        <button id="btnFinishSetup" class="btnGood" style="width:100%">Finish Setup</button>
-        <div class="tiny" style="margin-top:10px">You can edit this later in Settings.</div>
+        <button id="btnFinishSetup" class="btnAccent" style="width:100%">Save Split</button>
+        <div class="tiny" style="margin-top:10px">Tip: If Today shows Rest, you probably didn’t add a day for that weekday.</div>
       </div>
     </div>
   </div>
@@ -297,7 +297,7 @@
 
         <div class="sep"></div>
         <div class="row" style="gap:10px">
-          <button id="btnStartWorkout" class="btnGood" style="flex:1">Start Workout</button>
+          <button id="btnStartWorkout" class="btnAccent" style="flex:1">Start Workout</button>
           <button id="btnEditSplitToday" class="btnGhost" style="flex:1">Edit Split</button>
         </div>
       </div>
@@ -308,9 +308,9 @@
         <div class="name">Quick stats</div>
         <div class="sep"></div>
         <div class="grid2">
-          <div class="tiny">Planned sessions this week: <b id="stPlanned">0</b></div>
+          <div class="tiny">Planned this week: <b id="stPlanned">0</b></div>
           <div class="tiny">Completed this week: <b id="stDone">0</b></div>
-          <div class="tiny">Streak (days trained): <b id="stStreak">0</b></div>
+          <div class="tiny">Streak: <b id="stStreak">0</b></div>
           <div class="tiny">Total sessions: <b id="stTotal">0</b></div>
         </div>
       </div>
@@ -322,8 +322,8 @@
     <div class="topbar">
       <div class="navrow">
         <button id="btnBackToday" class="btnGhost" style="width:80px">Back</button>
-        <div class="title" id="loggerTitle">Workout</div>
-        <button id="btnFinishWorkout" class="btnGood" style="width:100px">Finish</button>
+        <div class="title" id="loggerTitle">Log</div>
+        <button id="btnFinishWorkout" class="btnAccent" style="width:100px">Finish</button>
       </div>
     </div>
     <div class="content">
@@ -336,7 +336,7 @@
           <span class="pill" id="loggerDate">—</span>
         </div>
         <div class="sep"></div>
-        <div class="tiny">Tip: Enter on reps jumps to the next reps cell. Use quick buttons to fly.</div>
+        <div class="tiny">Tip: press Enter on reps to jump to the next reps box.</div>
       </div>
 
       <div id="loggerExercises"></div>
@@ -410,7 +410,7 @@
       <div class="card">
         <div class="row" style="justify-content:space-between;align-items:flex-start">
           <div>
-            <div class="name">How much stronger did you get?</div>
+            <div class="name">Strength change</div>
             <div class="tiny muted">e1RM (Epley) + best set changes.</div>
           </div>
           <div class="right">
@@ -447,7 +447,7 @@
         <div class="row" style="justify-content:space-between;align-items:flex-start">
           <div>
             <div class="name">PRs</div>
-            <div class="tiny muted">Uses PR tags (Bench/Squat/etc.) so names don’t need to match.</div>
+            <div class="tiny muted">Uses PR tags (Bench/Squat/etc.).</div>
           </div>
           <div class="right">
             <select id="prWindow">
@@ -477,12 +477,11 @@
 <!-- Tabs -->
 <div class="tabs">
   <div class="tabsInner">
-    <div class="tab" id="tabToday"><div class="icon">H</div><div>Today</div></div>
+    <div class="tab" id="tabToday"><div class="icon">H</div><div>Home</div></div>
     <div class="tab" id="tabLogger"><div class="icon">L</div><div>Log</div></div>
-    <div class="tab" id="tabCalendar"><div class="icon">C</div><div>Calendar</div></div>
-    <div class="tab" id="tabProgress"><div class="icon">P</div><div>Progress</div></div>
-    <div class="tab" id="tabPRs"><div class="icon">R</div><div>PRs</div></div>
-
+    <div class="tab" id="tabCalendar"><div class="icon">C</div><div>Cal</div></div>
+    <div class="tab" id="tabProgress"><div class="icon">P</div><div>Prog</div></div>
+    <div class="tab" id="tabPRs"><div class="icon">R</div><div>PR</div></div>
   </div>
 </div>
 
@@ -492,7 +491,7 @@
     <h3 id="sheetTitle">—</h3>
     <div id="sheetBody"></div>
     <div class="row" style="margin-top:12px">
-      <button id="sheetOk" class="btnGood" style="flex:1">OK</button>
+      <button id="sheetOk" class="btnAccent" style="flex:1">OK</button>
       <button id="sheetCancel" class="btnDanger" style="flex:1">Cancel</button>
     </div>
   </div>
@@ -504,7 +503,7 @@
 /* =========================
    Storage + State
 ========================= */
-const KEY = "liftlog_mvp_v2"; // bumped version (keeps old v1 separate)
+const KEY = "liftlog_mvp_v3";
 const AUTO_BACKUP_KEY = "liftlog_mvp_autobackup";
 const $ = (id) => document.getElementById(id);
 
@@ -540,6 +539,16 @@ function uid(){ return Math.random().toString(16).slice(2)+Date.now().toString(1
 function num(x, fb=0){ const n=Number(x); return Number.isFinite(n)?n:fb; }
 function clamp(n,a,b){ return Math.max(a,Math.min(b,n)); }
 
+function escapeHtml(s){
+  return String(s ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#39;");
+}
+function escapeAttr(s){ return escapeHtml(s); }
+
 function load(){
   try{
     const raw=localStorage.getItem(KEY);
@@ -558,7 +567,7 @@ function load(){
 }
 function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
 
-/* Auto weekly backup (localStorage safety copy) */
+/* Auto weekly backup */
 function maybeAutoBackup(){
   const now = Date.now();
   const last = state.meta?.lastBackupAt ? Number(state.meta.lastBackupAt) : 0;
@@ -593,7 +602,7 @@ const PR_TAGS = [
 function defaultMonday(){
   const d=new Date();
   const dow=d.getDay(); // Sun 0
-  const diff = (dow===0? -6 : 1-dow); // move to Monday
+  const diff = (dow===0? -6 : 1-dow);
   d.setDate(d.getDate()+diff);
   const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), day=String(d.getDate()).padStart(2,"0");
   return `${y}-${m}-${day}`;
@@ -711,14 +720,12 @@ function applyProgression(exDef, exLog){
   const success = isSuccessForExercise(exDef, exLog);
   const topHit = hitTopRangeAllSets(exDef, exLog);
 
-  // Bodyweight mode: reps-first when startWeight==0 AND setting enabled
   const repsFirstBW = !!(state.program?.settings?.repsFirstBW);
   const isBW = (num(exDef.startWeight,0) === 0);
 
   if(!success){
     st.misses = (st.misses || 0) + 1;
     if((rule.deloadOnMiss2 ?? true) && st.misses >= 2){
-      // If BW reps-first, don't deload weight (still 0). Just reset misses.
       if(!isBW){
         st.currentWeight = Math.max(0, Math.round(st.currentWeight * 0.9));
       }
@@ -730,7 +737,6 @@ function applyProgression(exDef, exLog){
   st.misses = 0;
 
   if(isBW && repsFirstBW){
-    // Increase target reps before adding weight
     if(exDef.target.type === "range"){
       if(topHit){
         exDef.target.min = clamp(num(exDef.target.min,6)+1,1,100);
@@ -766,14 +772,12 @@ function tabEl(id, active){
   if(!el) return;
   el.classList.toggle("active", active);
 }
-
 function showScreen(id){
   for(const s of ["screenSetup","screenToday","screenLogger","screenCalendar","screenProgress","screenPRs"]){
     const el = $(s);
     if(el) el.classList.toggle("show", s===id);
   }
 }
-
 function setActiveTab(tab){
   state.ui.activeTab = tab;
   save();
@@ -800,7 +804,7 @@ $("sheetOk").addEventListener("click", ()=>{ if(modal.onOk) modal.onOk(); else c
 $("sheetCancel").addEventListener("click", ()=>{ if(modal.onCancel) modal.onCancel(); closeModal(); });
 
 /* =========================
-   Setup Screen
+   Setup Screen (Edit split inside app)
 ========================= */
 function countSetupProgress(p){
   const days = (p.split||[]).length;
@@ -823,8 +827,9 @@ function renderSetup(){
   if(!p.split.length){
     list.innerHTML = `<div class="item"><div class="tiny muted">No days yet. Tap “+ Day”.</div></div>`;
   } else {
-    for(const day of p.split){
+    p.split.forEach((day, idx)=>{
       const exCount = (day.exercises||[]).length;
+
       const div = document.createElement("div");
       div.className="item";
       div.innerHTML = `
@@ -833,14 +838,13 @@ function renderSetup(){
           <div class="tiny muted">${exCount} exercise(s)</div>
         </div>
         <div class="right">
-          <button class="mini btnGhost" data-act="upDay" data-id="${day.id}">↑</button>
-          <button class="mini btnGhost" data-act="dnDay" data-id="${day.id}">↓</button>
+          <button class="mini btnGhost" data-act="up" data-id="${day.id}">↑</button>
+          <button class="mini btnGhost" data-act="dn" data-id="${day.id}">↓</button>
           <button class="mini btnGhost" data-act="editDay" data-id="${day.id}">Edit</button>
-          <button class="mini btnGhost" data-act="addEx" data-id="${day.id}">+ Exercise</button>
-          <button class="mini btnDanger" data-act="delDay" data-id="${day.id}">Delete</button>
+          <button class="mini btnAccent" data-act="addEx" data-id="${day.id}">+ Ex</button>
+          <button class="mini btnDanger" data-act="delDay" data-id="${day.id}">Del</button>
         </div>
       `;
-
       list.appendChild(div);
 
       const exDiv = document.createElement("div");
@@ -854,22 +858,22 @@ function renderSetup(){
                         rule==="fixed" ? `Weekly +${ex.rule.inc||5}` :
                         `+${ex.rule.pct||2.5}%`;
         const tag = ex.prTag && ex.prTag!=="none" ? PR_TAGS.find(x=>x.v===ex.prTag)?.t : "";
-        const tagBadge = tag ? `<span class="badge blue">${escapeHtml(tag)}</span>` : "";
+        const tagBadge = tag ? `<span class="badge tag">${escapeHtml(tag)}</span>` : "";
         return `
-          <div class="item" style="border-radius:14px;margin-top:8px;background:rgba(12,12,18,.35);border:1px solid rgba(42,42,62,.5)">
+          <div class="item" style="border-radius:14px;margin-top:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)">
             <div>
               <div class="name">${escapeHtml(ex.name)} ${tagBadge}</div>
               <div class="tiny muted">${ex.sets} sets • ${tgt} reps • start ${ex.startWeight}${p.units} • ${ruleTxt}</div>
             </div>
             <div class="right">
-              <button class="mini btnGhost" data-act="editEx" data-day="${day.id}" data-ex="${exId}">Edit</button>
+              <button class="mini btnGhost" data-act="editEx" data-ex="${exId}">Edit</button>
               <button class="mini btnDanger" data-act="delEx" data-day="${day.id}" data-ex="${exId}">Remove</button>
             </div>
           </div>
         `;
       }).join("");
       list.appendChild(exDiv);
-    }
+    });
   }
 
   list.querySelectorAll("button[data-act]").forEach(b=>{
@@ -877,18 +881,17 @@ function renderSetup(){
       const act=b.getAttribute("data-act");
       const id=b.getAttribute("data-id");
       if(act==="delDay") deleteDay(id);
-      if(act==="editDay") editDay(id);
-      if(act==="upDay") moveDay(id, -1);
-      if(act==="dnDay") moveDay(id, +1);
-
       if(act==="addEx") addExerciseToDay(id);
+      if(act==="editDay") editDay(id);
+      if(act==="up") moveDay(id, -1);
+      if(act==="dn") moveDay(id, +1);
+
       if(act==="delEx"){
         const dayId=b.getAttribute("data-day");
         const exId=b.getAttribute("data-ex");
         removeExerciseFromDay(dayId, exId);
       }
       if(act==="editEx"){
-        const dayId=b.getAttribute("data-day");
         const exId=b.getAttribute("data-ex");
         editExercise(exId);
       }
@@ -896,16 +899,70 @@ function renderSetup(){
   });
 }
 
-function deleteDay(dayId){
+function normalizeProgram(){
   const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{}, settings:{jump:5, microload:false, repsFirstBW:false} };
+  p.split ||= [];
+  p.exercises ||= {};
+  p.settings ||= {jump:5, microload:false, repsFirstBW:false};
+  p.settings.jump ??= 5;
+  p.settings.microload ??= false;
+  p.settings.repsFirstBW ??= false;
+  return p;
+}
+
+function deleteDay(dayId){
+  const p = normalizeProgram();
   p.split = p.split.filter(d => d.id !== dayId);
   state.program = p;
-  save();
-  render();
+  save(); render(); toast("Day deleted");
+}
+
+function moveDay(dayId, dir){
+  const p = normalizeProgram();
+  const idx = p.split.findIndex(d=>d.id===dayId);
+  if(idx<0) return;
+  const j = idx + dir;
+  if(j<0 || j>=p.split.length) return;
+  const tmp = p.split[idx];
+  p.split[idx] = p.split[j];
+  p.split[j] = tmp;
+  state.program = p;
+  save(); renderSetup(); toast("Moved");
+}
+
+function editDay(dayId){
+  const p = normalizeProgram();
+  const day = p.split.find(d=>d.id===dayId);
+  if(!day) return;
+
+  openModal("Edit Day",
+    `
+      <div class="grid2">
+        <div>
+          <div class="tiny">Weekday</div>
+          <select id="edDayWeekday">
+            ${WEEKDAYS.map((d,i)=>`<option value="${i}" ${i===day.weekday?"selected":""}>${d}</option>`).join("")}
+          </select>
+        </div>
+        <div>
+          <div class="tiny">Title</div>
+          <input id="edDayTitle" value="${escapeAttr(day.title||"Workout")}"/>
+        </div>
+      </div>
+      <div class="tiny muted" style="margin-top:10px">Change weekday so Today/Calendar matches your real split.</div>
+    `,
+    "Save","Cancel",
+    ()=>{
+      day.weekday = num(document.getElementById("edDayWeekday").value, day.weekday);
+      day.title = (document.getElementById("edDayTitle").value || day.title).trim() || "Workout";
+      save(); closeModal(); render(); toast("Day updated");
+    },
+    ()=>{}
+  );
 }
 
 function addDay(){
-  const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{}, settings:{jump:5, microload:false, repsFirstBW:false} };
+  const p = normalizeProgram();
   openModal("Add Day",
     `
       <div class="grid2">
@@ -928,76 +985,14 @@ function addDay(){
       const title = (document.getElementById("mTitle").value||"Workout").trim();
       p.split.push({ id: uid(), weekday: wd, title, exercises: [] });
       state.program = p;
-      save();
-      closeModal();
-      render();
-      toast("Day added");
-    },
-    ()=>{}
-  );
-}
-function moveDay(dayId, dir){
-  const p = state.program;
-  if(!p) return;
-  const idx = p.split.findIndex(d => d.id === dayId);
-  if(idx < 0) return;
-
-  const nidx = idx + dir;
-  if(nidx < 0 || nidx >= p.split.length) return;
-
-  const temp = p.split[idx];
-  p.split[idx] = p.split[nidx];
-  p.split[nidx] = temp;
-
-  save();
-  render();
-  toast("Reordered");
-}
-
-function editDay(dayId){
-  const p = state.program;
-  if(!p) return;
-  const day = p.split.find(d => d.id === dayId);
-  if(!day) return;
-
-  openModal("Edit Day",
-    `
-      <div class="grid2">
-        <div>
-          <div class="tiny">Weekday</div>
-          <select id="edDayWeekday">
-            ${WEEKDAYS.map((d,i)=>`<option value="${i}" ${i===day.weekday?"selected":""}>${d}</option>`).join("")}
-          </select>
-        </div>
-        <div>
-          <div class="tiny">Title</div>
-          <input id="edDayTitle" value="${escapeAttr(day.title||"Workout")}"/>
-        </div>
-      </div>
-
-      <div class="sep"></div>
-
-      <div class="tiny muted">This updates your split immediately (future workouts + calendar).</div>
-    `,
-    "Save","Cancel",
-    ()=>{
-      const wd = num(document.getElementById("edDayWeekday").value, day.weekday);
-      const title = (document.getElementById("edDayTitle").value||day.title||"Workout").trim();
-
-      day.weekday = clamp(wd, 0, 6);
-      day.title = title || "Workout";
-
-      save();
-      closeModal();
-      render();
-      toast("Day updated");
+      save(); closeModal(); render(); toast("Day added");
     },
     ()=>{}
   );
 }
 
 function addExerciseToDay(dayId){
-  const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{}, settings:{jump:5, microload:false, repsFirstBW:false} };
+  const p = normalizeProgram();
   const day = p.split.find(d=>d.id===dayId);
   if(!day) return;
 
@@ -1005,7 +1000,7 @@ function addExerciseToDay(dayId){
     `
       <div class="grid2">
         <div class="tiny" style="grid-column:1/-1">Name</div>
-        <input id="exName" class="full" placeholder="Bench Press / Squat / Pull-Ups"/>
+        <input id="exName" placeholder="Bench Press / Squat / Pull-Ups"/>
 
         <div>
           <div class="tiny">Sets</div>
@@ -1072,10 +1067,6 @@ function addExerciseToDay(dayId){
           </div>
           <div></div>
         </div>
-
-        <div class="tiny muted" style="grid-column:1/-1;margin-top:6px">
-          Tip: For bodyweight moves, start weight can be 0. If Settings → “Bodyweight reps-first” is on, your targets will auto-increase reps instead of weight.
-        </div>
       </div>
     `,
     "Add","Cancel",
@@ -1115,10 +1106,7 @@ function addExerciseToDay(dayId){
 
       ensureExerciseState(exId, startW);
 
-      save();
-      closeModal();
-      render();
-      toast("Exercise added");
+      save(); closeModal(); render(); toast("Exercise added");
     },
     ()=>{}
   );
@@ -1223,10 +1211,6 @@ function editExercise(exId){
           </div>
           <div></div>
         </div>
-
-        <div class="tiny muted" style="grid-column:1/-1;margin-top:6px">
-          Note: changing sets/targets affects future sessions (not past logs).
-        </div>
       </div>
     `,
     "Save","Cancel",
@@ -1257,10 +1241,7 @@ function editExercise(exId){
       }
 
       ensureExerciseState(exId, ex.startWeight);
-      save();
-      closeModal();
-      render();
-      toast("Updated");
+      save(); closeModal(); render(); toast("Updated");
     },
     ()=>{}
   );
@@ -1294,10 +1275,7 @@ function removeExerciseFromDay(dayId, exId){
   const day = p.split.find(d=>d.id===dayId);
   if(!day) return;
   day.exercises = (day.exercises||[]).filter(x=>x!==exId);
-  state.program = p;
-  save();
-  render();
-  toast("Removed");
+  save(); render(); toast("Removed");
 }
 
 $("btnAddDay").addEventListener("click", addDay);
@@ -1305,13 +1283,9 @@ $("btnAddDay").addEventListener("click", addDay);
 $("btnFinishSetup").addEventListener("click", ()=>{
   const units = $("setUnits").value;
   const startWeekDate = ($("setStartWeek").value||"").trim() || defaultMonday();
-  const p = state.program || { units, startWeekDate, split:[], exercises:{}, settings:{jump:5, microload:false, repsFirstBW:false} };
+  const p = normalizeProgram();
   p.units = units;
   p.startWeekDate = startWeekDate;
-  p.settings ||= {};
-  p.settings.jump ??= 5;
-  p.settings.microload ??= false;
-  p.settings.repsFirstBW ??= false;
 
   if(!p.split.length){
     alert("Add at least 1 training day.");
@@ -1319,7 +1293,7 @@ $("btnFinishSetup").addEventListener("click", ()=>{
   }
   state.program = p;
   save();
-  toast("Setup saved");
+  toast("Split saved");
   setActiveTab("today");
 });
 
@@ -1367,9 +1341,7 @@ function plannedWorkoutForDate(iso){
   const plan = getPlanForWeekday(dow);
   return { date:iso, dow, plan };
 }
-function plannedWorkoutForToday(){
-  return plannedWorkoutForDate(isoToday());
-}
+function plannedWorkoutForToday(){ return plannedWorkoutForDate(isoToday()); }
 
 function renderToday(){
   const p=state.program;
@@ -1379,7 +1351,7 @@ function renderToday(){
   $("todaySub").textContent = prettyDate(d);
 
   if(!p || !info?.plan){
-    $("todayTitle").textContent = "Rest Day ✅";
+    $("todayTitle").textContent = "Rest Day";
     $("todayBox").innerHTML = `No workout scheduled for today.`;
     $("btnStartWorkout").disabled = true;
   } else {
@@ -1399,7 +1371,7 @@ function renderToday(){
         const tag = ex.prTag && ex.prTag!=="none" ? PR_TAGS.find(x=>x.v===ex.prTag)?.t : "";
         return `<div class="item">
           <div>
-            <div class="name">${escapeHtml(ex.name)} ${tag?`<span class="badge blue">${escapeHtml(tag)}</span>`:""}</div>
+            <div class="name">${escapeHtml(ex.name)} ${tag?`<span class="badge tag">${escapeHtml(tag)}</span>`:""}</div>
             <div class="tiny muted">${ex.sets} sets • ${tgt} reps • target <b>${w}${p.units}</b></div>
           </div>
           <span class="pill">next: ${w}${p.units}</span>
@@ -1446,8 +1418,7 @@ $("btnStartWorkout").addEventListener("click", ()=>{
 });
 
 $("btnEditSplitToday").addEventListener("click", ()=>{
-  showScreen("screenSetup");
-  renderSetup();
+  setActiveTab("setup");
 });
 
 $("btnBackToday").addEventListener("click", ()=> setActiveTab("today"));
@@ -1455,24 +1426,10 @@ $("btnBackToday").addEventListener("click", ()=> setActiveTab("today"));
 /* =========================
    Logger rendering + controls
 ========================= */
-function ruleText(exDef, units){
-  const r=exDef.rule||{type:"double",inc:5};
-  const deload = (r.deloadOnMiss2 ?? true) ? " • deload -10% after 2 misses" : "";
-  if(r.type==="double"){
-    if(exDef.target.type==="range") return `Double:s: hit top reps on all sets → +${r.inc||5}${units}.${deload}`;
-    return `Fixed reps: complete all sets → +${r.inc||5}${units}.${deload}`;
-  }
-  if(r.type==="fixed"){
-    return `Weekly increase: if successful → +${r.inc||5}${units}.${deload}`;
-  }
-  return `Percent increase: if successful → +${r.pct||2.5}%.${deload}`;
-}
-
 function getJumpForExercise(exDef){
   const base = num(state.program?.settings?.jump ?? 5, 5);
   const micro = !!(state.program?.settings?.microload);
   const tag = (exDef.prTag||"none");
-  // Microload: bench/ohp default 2.5 (lb), squat/deadlift keep base
   if(micro && (tag==="bench" || tag==="ohp")) return 2.5;
   return base;
 }
@@ -1480,14 +1437,13 @@ function getJumpForExercise(exDef){
 function renderLogger(){
   const p=state.program;
   if(!sessionDraft || !p){
-    $("loggerExercises").innerHTML = `<div class="content"><div class="card"><div class="tiny muted">No active workout. Start from Today / Calendar planned day.</div></div></div>`;
+    $("loggerExercises").innerHTML = `<div class="card" style="margin-top:12px"><div class="tiny muted">No active workout. Start from Home / Calendar planned day.</div></div>`;
     $("fabAddExerciseToSession").classList.remove("show");
     return;
   }
 
-  $("loggerTitle").textContent = "Log";
   $("loggerName").textContent = sessionDraft.workoutTitle;
-  $("loggerMeta").textContent = `Targets in ${p.units}. Enter on reps jumps to next reps.`;
+  $("loggerMeta").textContent = `Units: ${p.units}`;
   $("loggerDate").textContent = sessionDraft.date;
 
   const box=$("loggerExercises");
@@ -1509,7 +1465,7 @@ function renderLogger(){
     card.innerHTML = `
       <div class="row" style="justify-content:space-between">
         <div>
-          <div class="name">${escapeHtml(exDef.name)} ${(exDef.prTag && exDef.prTag!=="none")?`<span class="badge blue">${escapeHtml(PR_TAGS.find(x=>x.v===exDef.prTag)?.t||"PR")}</span>`:""}</div>
+          <div class="name">${escapeHtml(exDef.name)} ${(exDef.prTag && exDef.prTag!=="none")?`<span class="badge tag">${escapeHtml(PR_TAGS.find(x=>x.v===exDef.prTag)?.t||"PR")}</span>`:""}</div>
           <div class="tiny muted">${exLog.sets.length} sets • ${tgt} reps • target <b>${targetW}${p.units}</b></div>
         </div>
         <div class="right">
@@ -1570,9 +1526,8 @@ function renderLogger(){
           <div class="tiny">Exercise note</div>
           <input value="${escapeAttr(exLog.note||"")}" data-act="note" data-e="${idx}" placeholder="felt heavy, form…"/>
         </div>
-        <div>
-          <div class="tiny">Rule</div>
-          <div class="tiny muted">${ruleText(exDef, p.units)}</div>
+        <div class="tiny muted">
+          Success = hit target reps on each set. Targets update after you Save.
         </div>
       </div>
     `;
@@ -1646,7 +1601,6 @@ function renderLogger(){
       }
     });
 
-    // Input handlers (including Enter auto-advance on reps)
     const inputsW = card.querySelectorAll("input[data-act='w']");
     const inputsR = card.querySelectorAll("input[data-act='r']");
 
@@ -1665,7 +1619,6 @@ function renderLogger(){
       inp.addEventListener("keydown", (ev)=>{
         if(ev.key==="Enter"){
           ev.preventDefault();
-          // Focus next reps cell
           const next = inputsR[idxR+1];
           if(next) next.focus();
           else toast("Last set");
@@ -1701,7 +1654,7 @@ $("btnFinishWorkout").addEventListener("click", ()=>{
       <div class="tiny">Workout notes (optional)</div>
       <textarea id="sessNote" placeholder="Anything to remember…"></textarea>
       <div class="sep"></div>
-      <div class="tiny muted">We’ll save your sets, compute volume, PRs, and update next targets automatically.</div>
+      <div class="tiny muted">We’ll save your sets, compute PRs, and update next targets automatically.</div>
     `,
     "Save","Cancel",
     ()=>{
@@ -1711,7 +1664,6 @@ $("btnFinishWorkout").addEventListener("click", ()=>{
 
       computeSession(sessionDraft);
       state.sessions.push(sessionDraft);
-
       updatePRsFromSession(sessionDraft);
 
       for(const exLog of sessionDraft.exercises){
@@ -1735,17 +1687,13 @@ $("btnFinishWorkout").addEventListener("click", ()=>{
   }, 0);
 });
 
-$("fabAddExerciseToSession").addEventListener("click", ()=> toast("Tip: add exercises in Setup (Edit Split)"));
+$("fabAddExerciseToSession").addEventListener("click", ()=> toast("Add exercises in Split Setup"));
 
 /* =========================
    Settings
 ========================= */
 $("btnSettings").addEventListener("click", ()=>{
-  const p = state.program;
-  p.settings ||= {};
-  p.settings.jump ??= 5;
-  p.settings.microload ??= false;
-  p.settings.repsFirstBW ??= false;
+  const p = normalizeProgram();
 
   openModal("Settings",
     `
@@ -1753,7 +1701,7 @@ $("btnSettings").addEventListener("click", ()=>{
         <div>
           <div class="tiny">Jump size (${p.units})</div>
           <input id="stJump" inputmode="decimal" value="${escapeAttr(p.settings.jump)}"/>
-          <div class="tiny muted" style="margin-top:6px">Used for quick +/– buttons (except microload rules).</div>
+          <div class="tiny muted" style="margin-top:6px">Used for quick +/– buttons.</div>
         </div>
         <div>
           <div class="tiny">Microload bench/OHP</div>
@@ -1761,7 +1709,6 @@ $("btnSettings").addEventListener("click", ()=>{
             <option value="off" ${p.settings.microload?"" :"selected"}>Off</option>
             <option value="on"  ${p.settings.microload?"selected":""}>On (2.5 for Bench/OHP)</option>
           </select>
-          <div class="tiny muted" style="margin-top:6px">If an exercise has PR tag Bench/OHP, quick weight buttons use 2.5.</div>
         </div>
       </div>
 
@@ -1774,11 +1721,10 @@ $("btnSettings").addEventListener("click", ()=>{
             <option value="off" ${p.settings.repsFirstBW?"" :"selected"}>Off</option>
             <option value="on"  ${p.settings.repsFirstBW?"selected":""}>On (increase reps)</option>
           </select>
-          <div class="tiny muted" style="margin-top:6px">If start weight = 0 and you succeed, targets increase reps instead of weight.</div>
         </div>
         <div>
           <div class="tiny">Edit split</div>
-          <button id="goSetup" class="btnGhost" style="width:100%">Open Setup</button>
+          <button id="goSetup" class="btnGhost" style="width:100%">Open Split Setup</button>
         </div>
       </div>
 
@@ -1792,10 +1738,6 @@ $("btnSettings").addEventListener("click", ()=>{
       <div class="sep"></div>
 
       <button id="wipeBtn" class="btnDanger" style="width:100%">Delete ALL data</button>
-
-      <div class="tiny muted" style="margin-top:10px">
-        Auto-backup is saved weekly on this device.
-      </div>
     `,
     "Save","Close",
     ()=>{
@@ -1817,8 +1759,7 @@ $("btnSettings").addEventListener("click", ()=>{
   setTimeout(()=>{
     document.getElementById("goSetup").addEventListener("click", ()=>{
       closeModal();
-      showScreen("screenSetup");
-      renderSetup();
+      setActiveTab("setup");
     });
 
     document.getElementById("exportBtn").addEventListener("click", ()=>{
@@ -1846,7 +1787,6 @@ $("btnSettings").addEventListener("click", ()=>{
           try{
             const parsed = JSON.parse(String(reader.result||""));
             state = parsed;
-            // normalize
             state.program ||= null;
             state.sessions ||= [];
             state.exerciseState ||= {};
@@ -1888,7 +1828,6 @@ function monthName(y,m){
   const mons=["January","February","March","April","May","June","July","August","September","October","November","December"];
   return `${mons[m]} ${y}`;
 }
-
 function weekStartISO(iso){
   const d=new Date(iso+"T12:00:00");
   const dow=d.getDay();
@@ -1896,7 +1835,6 @@ function weekStartISO(iso){
   const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), day=String(d.getDate()).padStart(2,"0");
   return `${y}-${m}-${day}`;
 }
-
 function addDays(iso, n){
   const d=new Date(iso+"T12:00:00");
   d.setDate(d.getDate()+n);
@@ -1919,7 +1857,7 @@ function renderWeekStrip(){
     const plan = p?.split?.find(x=>x.weekday===dow);
     const sess = doneMap.get(iso);
 
-    const dot = sess ? `<span class="dot ${sess.rating==='hard'?'amber':''}"></span>` : (plan ? `<span class="dot blue"></span>` : ``);
+    const dot = sess ? `<span class="dot ${sess.rating==='hard'?'warn':''}"></span>` : (plan ? `<span class="dot plan"></span>` : ``);
     const title = sess ? sess.workoutTitle : (plan ? plan.title : "Rest");
 
     const d=new Date(iso+"T12:00:00");
@@ -1951,11 +1889,11 @@ function renderPlannedDetail(iso, plannedTitle){
     <div class="tiny"><b>${prettyDate(iso)}</b> • Planned: <b>${escapeHtml(plannedTitle)}</b></div>
     <div class="sep"></div>
     <div class="row" style="gap:10px">
-      <button id="startPlannedBtn" class="btnGood" style="flex:1">Start this workout</button>
-      <button id="goTodayBtn" class="btnGhost" style="flex:1">Go to Today</button>
+      <button id="startPlannedBtn" class="btnAccent" style="flex:1">Start workout</button>
+      <button id="goTodayBtn" class="btnGhost" style="flex:1">Go Home</button>
     </div>
     <div class="sep"></div>
-    <div class="tiny muted">Starting this will create a draft session for that date.</div>
+    <div class="tiny muted">Starting creates a draft session for that date.</div>
   `;
   setTimeout(()=>{
     const b1=document.getElementById("startPlannedBtn");
@@ -2029,23 +1967,14 @@ function renderCalendar(){
     const showDone = !!sess;
     const showPlanned = !!plannedTitle && !sess;
 
-    if(!c.off){
-      if(filter==="done" && !showDone) {
-        // still render but no dot/title (keeps grid shape)
-      }
-      if(filter==="planned" && !(plannedTitle)) {
-        // still render but no dot/title
-      }
-    }
-
     const cell=document.createElement("div");
     cell.className = "calCell" + (c.off ? " off" : "");
 
     let dotHtml = "";
     if(showDone && (filter==="both" || filter==="done")){
-      dotHtml = `<span class="dot ${sess.rating==='hard'?'amber':''}"></span>`;
+      dotHtml = `<span class="dot ${sess.rating==='hard'?'warn':''}"></span>`;
     } else if(showPlanned && (filter==="both" || filter==="planned")){
-      dotHtml = `<span class="dot blue"></span>`;
+      dotHtml = `<span class="dot plan"></span>`;
     }
 
     const title =
@@ -2054,10 +1983,7 @@ function renderCalendar(){
       "";
 
     cell.innerHTML = `
-      <div class="calNum">
-        <span>${c.day}</span>
-        <span>${dotHtml}</span>
-      </div>
+      <div class="calNum"><span>${c.day}</span><span>${dotHtml}</span></div>
       <div class="calTitle">${title ? escapeHtml(title) : ""}</div>
     `;
 
@@ -2081,6 +2007,18 @@ function renderCalendar(){
     const sess = doneMap.get(calSelected);
     if(sess) renderCalDetail(sess);
   }
+}
+
+function getPRMessages(sess){
+  const msgs=[];
+  for(const exLog of sess.exercises){
+    const exId = exLog.exId;
+    const pr = state.prs[exId];
+    if(pr?.bestE1RM?.date === sess.date) msgs.push("New e1RM PR");
+    if(pr?.bestWeight?.date === sess.date) msgs.push("New Weight PR");
+    if(pr?.bestVolume?.date === sess.date) msgs.push("New Volume PR");
+  }
+  return [...new Set(msgs)];
 }
 
 function renderCalDetail(sess){
@@ -2114,18 +2052,6 @@ function renderCalDetail(sess){
   `;
 }
 
-function getPRMessages(sess){
-  const msgs=[];
-  for(const exLog of sess.exercises){
-    const exId = exLog.exId;
-    const pr = state.prs[exId];
-    if(pr?.bestE1RM?.date === sess.date) msgs.push("New e1RM PR");
-    if(pr?.bestWeight?.date === sess.date) msgs.push("New Weight PR");
-    if(pr?.bestVolume?.date === sess.date) msgs.push("New Volume PR");
-  }
-  return [...new Set(msgs)];
-}
-
 $("calPrev").addEventListener("click", ()=>{
   calCursor.m -= 1;
   if(calCursor.m<0){ calCursor.m=11; calCursor.y-=1; }
@@ -2147,16 +2073,15 @@ function renderPRs(){
 
   const days = num($("prWindow")?.value, 30);
   const endIso = isoToday();
-  const end = new Date(endIso + "T12:00:00");
 
   let startIso = "0000-01-01";
   if(days !== 99999){
+    const end = new Date(endIso + "T12:00:00");
     const start = new Date(end);
     start.setDate(start.getDate() - (days - 1));
     startIso = `${start.getFullYear()}-${String(start.getMonth()+1).padStart(2,"0")}-${String(start.getDate()).padStart(2,"0")}`;
   }
 
-  // Collect exercises by tag
   const exByTag = {};
   for(const exId of Object.keys(p.exercises||{})){
     const ex = p.exercises[exId];
@@ -2225,11 +2150,8 @@ function renderPRs(){
 
     let prPctStr = "—";
     const prPct = pctChange(win.bestE, prev.bestE);
-    if(win.bestE > 0 && prev.bestE > 0){
-      prPctStr = `${prPct>=0?"+":""}${prPct.toFixed(1)}%`;
-    } else if(win.bestE > 0 && prev.bestE === 0){
-      prPctStr = "NEW";
-    }
+    if(win.bestE > 0 && prev.bestE > 0) prPctStr = `${prPct>=0?"+":""}${prPct.toFixed(1)}%`;
+    else if(win.bestE > 0 && prev.bestE === 0) prPctStr = "NEW";
 
     const bestE1rmTxt = win.bestE ? `${Math.round(win.bestE)} e1RM` : "—";
     const bestE1rmDate = win.bestERow ? prettyDate(win.bestERow.date) : "—";
@@ -2239,7 +2161,6 @@ function renderPRs(){
     const heavyDate = win.heavyRow ? prettyDate(win.heavyRow.date) : "—";
     const heavyName = win.heavyRow ? win.heavyRow.exName : "—";
 
-    // PR history (e1RM) per tag across all time
     const all = [...before, ...inWindow].sort((a,b)=> a.date.localeCompare(b.date));
     let bestSoFar = 0;
     for(const x of all){
@@ -2257,298 +2178,212 @@ function renderPRs(){
         <div class="row" style="justify-content:space-between;align-items:flex-start">
           <div>
             <div class="name">${escapeHtml(label)}</div>
-            <div class="tiny muted">Exercises tagged: ${exByTag[tag].length}</div>
+            <div
+          <div class="tiny muted">Window: ${days===99999?"All time":`${days} days`} • e1RM change: <span class="badge good">${escapeHtml(prPctStr)}</span></div>
           </div>
           <div class="right">
-            <span class="pill">PR change: <b>${prPctStr}</b></span>
+            <span class="pill">${escapeHtml(p.units)}</span>
           </div>
         </div>
 
         <div class="sep"></div>
 
-        <div class="row" style="gap:10px;flex-wrap:wrap">
-          <span class="pill">Best e1RM: <b>${bestE1rmTxt}</b> <span class="tiny muted">(${bestE1rmDate})</span></span>
-          <span class="pill">Lift: <b>${escapeHtml(bestE1rmName)}</b></span>
+        <div class="grid2">
+          <div>
+            <div class="tiny muted">Best e1RM</div>
+            <div class="name">${escapeHtml(bestE1rmTxt)}</div>
+            <div class="tiny muted">${escapeHtml(bestE1rmName)} • ${escapeHtml(bestE1rmDate)}</div>
+          </div>
+          <div>
+            <div class="tiny muted">Heaviest set</div>
+            <div class="name">${escapeHtml(heavyTxt)}</div>
+            <div class="tiny muted">${escapeHtml(heavyName)} • ${escapeHtml(heavyDate)}</div>
+          </div>
         </div>
 
-        <div class="row" style="gap:10px;flex-wrap:wrap;margin-top:8px">
-          <span class="pill">Heaviest set: <b>${heavyTxt}</b> <span class="tiny muted">(${heavyDate})</span></span>
-          <span class="pill">Lift: <b>${escapeHtml(heavyName)}</b></span>
-        </div>
+        <div class="sep"></div>
 
-        <div class="tiny muted" style="margin-top:8px">PRs are computed from your best set (Epley e1RM).</div>
+        <div class="tiny muted">Exercises counted:</div>
+        <div class="row" style="margin-top:8px">
+          ${(exByTag[tag]||[]).slice(0,10).map(x=>`<span class="badge">${escapeHtml(x.name)}</span>`).join(" ")}
+          ${(exByTag[tag]||[]).length>10?`<span class="badge">+${(exByTag[tag]||[]).length-10} more</span>`:""}
+        </div>
       </div>
     `;
   }
 
-  if(!tagsToShow.length){
-    $("prCards").innerHTML = `<div class="card" style="margin-top:12px"><div class="tiny muted">No PR tags yet. Go to Setup and tag your Bench/Squat/etc.</div></div>`;
-    $("prSummary").textContent = "No tagged PR exercises yet.";
-  }else{
-    $("prCards").innerHTML = cardsHtml;
-    const label = days===7?"this week":days===30?"this month":days===365?"this year":"all time";
-    $("prSummary").textContent = `Showing tagged PRs (${label}).`;
-  }
+  $("prCards").innerHTML = cardsHtml || `<div class="card" style="margin-top:12px"><div class="tiny muted">No PR tags yet. Edit an exercise and set PR tag to Bench/Squat/etc.</div></div>`;
 
   history.sort((a,b)=> b.date.localeCompare(a.date));
-  if(history.length){
-    $("prHistory").innerHTML = history
-      .slice(0, 25)
-      .map(h => `<div class="row" style="justify-content:space-between;gap:12px">
-        <span>${escapeHtml(h.text)}</span>
-        <span class="tiny muted">${prettyDate(h.date)}</span>
-      </div>`)
-      .join(`<div class="sep"></div>`);
-  } else {
-    $("prHistory").textContent = "No PRs yet — once you log sets, PR history will appear here.";
-  }
+  const histTxt = history.length
+    ? history.slice(0,30).map(h=>`• ${prettyDate(h.date)} — ${escapeHtml(h.text)}`).join("<br/>")
+    : "No PR events yet.";
+  $("prHistory").innerHTML = `<div class="tiny">${histTxt}</div>`;
+
+  const prCount = history.filter(h=>{
+    if(days===99999) return true;
+    return h.date >= startIso && h.date <= endIso;
+  }).length;
+
+  $("prSummary").textContent = days===99999
+    ? `All-time PR events: ${prCount}`
+    : `PR events in last ${days} days: ${prCount}`;
 }
 
+$("prWindow").addEventListener("change", ()=> render());
+
 /* =========================
-   Progress screen (last 3 sessions + % + lbs)
+   Progress screen
 ========================= */
 function renderProgress(){
   const p = state.program;
-  const box = $("progList");
-  box.innerHTML = "";
-
-  if(!p){
-    box.innerHTML = `<div class="item"><div class="tiny muted">Finish setup first.</div></div>`;
-    return;
-  }
-
-  const exIds = Object.keys(p.exercises || {});
-  if(!exIds.length){
-    box.innerHTML = `<div class="item"><div class="tiny muted">No exercises.</div></div>`;
-    return;
-  }
+  if(!p){ $("progSummary").textContent="Finish setup first."; $("progList").innerHTML=""; return; }
 
   const days = num($("progWindow")?.value, 30);
-
   const endIso = isoToday();
-  const end = new Date(endIso + "T12:00:00");
+  const end = new Date(endIso+"T12:00:00");
   const start = new Date(end);
-  start.setDate(start.getDate() - (days - 1));
+  start.setDate(start.getDate()-(days-1));
   const startIso = `${start.getFullYear()}-${String(start.getMonth()+1).padStart(2,"0")}-${String(start.getDate()).padStart(2,"0")}`;
 
-  function bestFromExLog(exLog){
-    let bestE=0;
-    let bestSet=null; // {w,r}
-    for(const s of exLog.sets || []){
-      const w = num(s.w,0), r = num(s.r,0);
-            const w = num(s.w,0), r = num(s.r,0);
-      if(w<=0 || r<=0) continue;
-      const e = e1rmEpley(w,r);
-      if(e > bestE){
-        bestE = e;
-        bestSet = { w, r, e1rm: e };
+  const byEx = {};
+  for(const sess of state.sessions){
+    if(sess.date < startIso || sess.date > endIso) continue;
+    for(const exLog of (sess.exercises||[])){
+      const exDef = p.exercises?.[exLog.exId];
+      if(!exDef) continue;
+      let bestE=0, bestW=0;
+      for(const s of (exLog.sets||[])){
+        const w=num(s.w,0), r=num(s.r,0);
+        bestW = Math.max(bestW, w);
+        bestE = Math.max(bestE, e1rmEpley(w,r));
       }
-    }
-    return bestSet;
-  }
-
-  function lastNSessionsForExercise(exId, n, startIso, endIso){
-    const rows = [];
-    for(const s of (state.sessions||[])){
-      if(s.date < startIso || s.date > endIso) continue;
-      for(const exLog of (s.exercises||[])){
-        if(exLog.exId !== exId) continue;
-        const best = bestFromExLog(exLog);
-        if(best){
-          rows.push({ date: s.date, best, workoutTitle: s.workoutTitle });
-        }
-      }
-    }
-    rows.sort((a,b)=> b.date.localeCompare(a.date));
-    return rows.slice(0,n);
-  }
-
-  function bestBeforeWindow(exId, startIso){
-    let bestE = 0;
-    let bestRow = null;
-    for(const s of (state.sessions||[])){
-      if(s.date >= startIso) continue;
-      for(const exLog of (s.exercises||[])){
-        if(exLog.exId !== exId) continue;
-        const best = bestFromExLog(exLog);
-        if(best && best.e1rm > bestE){
-          bestE = best.e1rm;
-          bestRow = { date:s.date, best };
-        }
-      }
-    }
-    return bestRow; // {date, best:{w,r,e1rm}} or null
-  }
-
-  function pctChange(newVal, oldVal){
-    if(!newVal || !oldVal) return null;
-    if(oldVal<=0) return null;
-    return ((newVal-oldVal)/oldVal)*100;
-  }
-
-  // Summary: average e1RM change across all exercises that have any data in window
-  let sumPct = 0, countPct = 0, newPRs = 0;
-
-  for(const exId of exIds){
-    const ex = p.exercises[exId];
-    const recent = lastNSessionsForExercise(exId, 1, startIso, endIso);
-    if(!recent.length) continue;
-
-    const newest = recent[0].best.e1rm;
-    const prev = bestBeforeWindow(exId, startIso);
-    const prevE = prev ? prev.best.e1rm : 0;
-
-    const prAll = state.prs?.[exId]?.bestE1RM;
-    if(prAll?.date && prAll.date >= startIso && prAll.date <= endIso) newPRs++;
-
-    const pct = pctChange(newest, prevE);
-    if(pct !== null){
-      sumPct += pct;
-      countPct++;
+      byEx[exLog.exId] ||= [];
+      byEx[exLog.exId].push({ date:sess.date, bestE, bestW });
     }
   }
 
-  const windowLabel = days===7 ? "last 7 days" : days===30 ? "last 30 days" : days===365 ? "last 365 days" : `last ${days} days`;
-  const avgPct = countPct ? (sumPct/countPct) : null;
+  const rows = [];
+  for(const exId of Object.keys(p.exercises||{})){
+    const exDef = p.exercises[exId];
+    const pts = (byEx[exId]||[]).sort((a,b)=>a.date.localeCompare(b.date));
+    if(!pts.length) continue;
 
-  $("progSummary").innerHTML =
-    `Compared to before this window (${escapeHtml(windowLabel)}): ` +
-    (avgPct===null ? `<b>Not enough data yet</b>` : `<b>${avgPct>=0?"+":""}${avgPct.toFixed(1)}%</b> average e1RM change`) +
-    ` • New PRs: <b>${newPRs}</b>`;
+    const last3 = pts.slice(-3);
+    const first = pts[0];
+    const last = pts[pts.length-1];
 
-  // Render each exercise row
-  for(const exId of exIds){
-    const ex = p.exercises[exId];
-    const recent3 = lastNSessionsForExercise(exId, 3, startIso, endIso);
-    if(!recent3.length) continue;
+    const dE = (first.bestE>0) ? (last.bestE-first.bestE) : 0;
+    const dW = (last.bestW-first.bestW);
 
-    const newest = recent3[0].best.e1rm;
-    const prev = bestBeforeWindow(exId, startIso);
-    const prevE = prev ? prev.best.e1rm : 0;
+    rows.push({
+      exId,
+      name: exDef.name,
+      last3,
+      dE,
+      dW
+    });
+  }
 
-    const pct = pctChange(newest, prevE);
-    const pctTxt = (pct===null)
-      ? (prevE===0 ? "NEW" : "—")
-      : `${pct>=0?"+":""}${pct.toFixed(1)}%`;
+  rows.sort((a,b)=> (Math.abs(b.dE)-Math.abs(a.dE)));
 
-    const lastLines = recent3.map(r=>{
-      const setTxt = `${r.best.w}×${r.best.r} (e1RM ${Math.round(r.best.e1rm)})`;
-      return `<div class="tiny muted">${escapeHtml(prettyDate(r.date))}: ${escapeHtml(setTxt)}</div>`;
-    }).join("");
+  const improved = rows.filter(r=>r.dE>0).length;
+  const total = rows.length;
+  $("progSummary").textContent = total
+    ? `${improved}/${total} exercises improved e1RM in last ${days} days.`
+    : `No logs in last ${days} days yet.`;
 
-    const tag = ex.prTag && ex.prTag!=="none" ? (PR_TAGS.find(x=>x.v===ex.prTag)?.t || "PR") : "";
-    const tagBadge = tag ? `<span class="badge blue">${escapeHtml(tag)}</span>` : "";
-
-    const row = document.createElement("div");
-    row.className = "item";
-    row.innerHTML = `
-      <div>
-        <div class="name">${escapeHtml(ex.name)} ${tagBadge}</div>
-        <div class="tiny">Change: <b>${escapeHtml(pctTxt)}</b> • Latest e1RM: <b>${Math.round(newest)}</b></div>
-        <div style="margin-top:6px">${lastLines}</div>
-      </div>
-      <div class="right">
-        <button class="mini btnGhost" data-ex="${exId}">View</button>
+  const html = rows.map(r=>{
+    const pts = r.last3.map(p=>`${p.date.slice(5)}: ${Math.round(p.bestE)}e1RM`).join(" • ");
+    const sign = r.dE>=0?"+":"";
+    return `
+      <div class="item">
+        <div>
+          <div class="name">${escapeHtml(r.name)}</div>
+          <div class="tiny muted">${escapeHtml(pts)}</div>
+        </div>
+        <div class="right">
+          <span class="badge good">${sign}${Math.round(r.dE)} e1RM</span>
+          <span class="badge">${(r.dW>=0?"+":"")}${r.dW}${p.units}</span>
+        </div>
       </div>
     `;
-    row.querySelector("button").addEventListener("click", ()=>{
-      // jump to PRs tab and set window to "All time" to see it
-      $("prWindow").value = "99999";
-      setActiveTab("prs");
-    });
-    box.appendChild(row);
-  }
+  }).join("");
 
-  if(!box.children.length){
-    box.innerHTML = `<div class="item"><div class="tiny muted">No logs in this window yet.</div></div>`;
-  }
+  $("progList").innerHTML = html || `<div class="item"><div class="tiny muted">Log workouts to see progress here.</div></div>`;
 }
 
+$("progWindow").addEventListener("change", ()=> render());
+
 /* =========================
-   Tabs + Router
+   Tab wiring
 ========================= */
 function renderTabs(){
-  tabEl("tabToday", state.ui.activeTab==="today");
-  tabEl("tabLogger", state.ui.activeTab==="logger");
-  tabEl("tabCalendar", state.ui.activeTab==="calendar");
-  tabEl("tabProgress", state.ui.activeTab==="progress");
-  tabEl("tabPRs", state.ui.activeTab==="prs");
+  const tab = state.ui.activeTab || "today";
+  tabEl("tabToday", tab==="today");
+  tabEl("tabLogger", tab==="logger");
+  tabEl("tabCalendar", tab==="calendar");
+  tabEl("tabProgress", tab==="progress");
+  tabEl("tabPRs", tab==="prs");
+
+  // show relevant screen
+  if(!state.program){
+    showScreen("screenSetup");
+  } else {
+    if(tab==="setup") showScreen("screenSetup");
+    else if(tab==="today") showScreen("screenToday");
+    else if(tab==="logger") showScreen("screenLogger");
+    else if(tab==="calendar") showScreen("screenCalendar");
+    else if(tab==="progress") showScreen("screenProgress");
+    else if(tab==="prs") showScreen("screenPRs");
+    else showScreen("screenToday");
+  }
 }
 
 $("tabToday").addEventListener("click", ()=> setActiveTab("today"));
-$("tabLogger").addEventListener("click", ()=>{
-  // If no active draft, start today's if possible; otherwise show hint
-  if(!sessionDraft){
-    const info = plannedWorkoutForToday();
-    if(info?.plan && (info.plan.exercises||[]).length){
-      sessionDraft = buildSessionDraftForDate(isoToday());
-    }
-  }
-  setActiveTab("logger");
-});
+$("tabLogger").addEventListener("click", ()=> setActiveTab("logger"));
 $("tabCalendar").addEventListener("click", ()=> setActiveTab("calendar"));
 $("tabProgress").addEventListener("click", ()=> setActiveTab("progress"));
 $("tabPRs").addEventListener("click", ()=> setActiveTab("prs"));
 
-$("prWindow").addEventListener("change", ()=> render());
-$("progWindow").addEventListener("change", ()=> render());
-
 /* =========================
-   Boot / render
+   Boot + Main render()
 ========================= */
 function render(){
-  renderTabs();
-
-  // If no program, show setup always
+  // Decide initial route
   if(!state.program){
     showScreen("screenSetup");
+    renderTabs();
     renderSetup();
     return;
   }
 
-  if(state.ui.activeTab==="today"){
-    showScreen("screenToday");
-    renderToday();
-  } else if(state.ui.activeTab==="logger"){
-    showScreen("screenLogger");
-    renderLogger();
-  } else if(state.ui.activeTab==="calendar"){
-    showScreen("screenCalendar");
-    renderCalendar();
-  } else if(state.ui.activeTab==="progress"){
-    showScreen("screenProgress");
-    renderProgress();
-  } else if(state.ui.activeTab==="prs"){
-    showScreen("screenPRs");
-    renderPRs();
-  } else {
-    showScreen("screenToday");
-    renderToday();
-  }
+  renderTabs();
+
+  const tab = state.ui.activeTab || "today";
+  if(tab==="setup") renderSetup();
+  if(tab==="today") renderToday();
+  if(tab==="logger") renderLogger();
+  if(tab==="calendar") renderCalendar();
+  if(tab==="progress") renderProgress();
+  if(tab==="prs") renderPRs();
 }
 
-// If setup exists but startWeekDate empty, patch
-if(state.program){
-  state.program.startWeekDate ||= defaultMonday();
-  state.program.settings ||= {jump:5, microload:false, repsFirstBW:false};
-  save();
+// First-time setup defaults
+if(!state.program){
+  // prefill start week date on first open
+  if($("setStartWeek")) $("setStartWeek").value = defaultMonday();
 }
+
+// IMPORTANT: make sure some tab is set
+if(!state.ui) state.ui = { activeTab:"today" };
+if(!state.ui.activeTab) state.ui.activeTab = "today";
+
+// If they haven't setup yet, force setup tab
+if(!state.program) state.ui.activeTab = "setup";
 
 // Initial render
 render();
-
-/* =========================
-   Safe HTML helpers
-========================= */
-function escapeHtml(s){
-  return String(s ?? "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#39;");
-}
-function escapeAttr(s){ return escapeHtml(s); }
 </script>
 </body>
 </html>
