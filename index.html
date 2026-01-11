@@ -936,6 +936,65 @@ function addDay(){
     ()=>{}
   );
 }
+function moveDay(dayId, dir){
+  const p = state.program;
+  if(!p) return;
+  const idx = p.split.findIndex(d => d.id === dayId);
+  if(idx < 0) return;
+
+  const nidx = idx + dir;
+  if(nidx < 0 || nidx >= p.split.length) return;
+
+  const temp = p.split[idx];
+  p.split[idx] = p.split[nidx];
+  p.split[nidx] = temp;
+
+  save();
+  render();
+  toast("Reordered");
+}
+
+function editDay(dayId){
+  const p = state.program;
+  if(!p) return;
+  const day = p.split.find(d => d.id === dayId);
+  if(!day) return;
+
+  openModal("Edit Day",
+    `
+      <div class="grid2">
+        <div>
+          <div class="tiny">Weekday</div>
+          <select id="edDayWeekday">
+            ${WEEKDAYS.map((d,i)=>`<option value="${i}" ${i===day.weekday?"selected":""}>${d}</option>`).join("")}
+          </select>
+        </div>
+        <div>
+          <div class="tiny">Title</div>
+          <input id="edDayTitle" value="${escapeAttr(day.title||"Workout")}"/>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+
+      <div class="tiny muted">This updates your split immediately (future workouts + calendar).</div>
+    `,
+    "Save","Cancel",
+    ()=>{
+      const wd = num(document.getElementById("edDayWeekday").value, day.weekday);
+      const title = (document.getElementById("edDayTitle").value||day.title||"Workout").trim();
+
+      day.weekday = clamp(wd, 0, 6);
+      day.title = title || "Workout";
+
+      save();
+      closeModal();
+      render();
+      toast("Day updated");
+    },
+    ()=>{}
+  );
+}
 
 function addExerciseToDay(dayId){
   const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{}, settings:{jump:5, microload:false, repsFirstBW:false} };
