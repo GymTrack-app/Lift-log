@@ -1748,6 +1748,16 @@ $("tabLogger").addEventListener("click", ()=>{
 });
 $("tabCalendar").addEventListener("click", ()=>setActiveTab("calendar"));
 $("tabProgress").addEventListener("click", ()=>setActiveTab("progress"));
+// Progress window selector live-update
+setTimeout(()=>{
+  const sel = document.getElementById("progWindow");
+  if(sel){
+    sel.addEventListener("change", ()=>{
+      // re-render progress screen when window changes
+      if(state.ui.activeTab === "progress") render();
+    });
+  }
+}, 0);
 
 // Setup screen first time
 if(!state.program){
