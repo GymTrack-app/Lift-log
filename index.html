@@ -877,6 +877,10 @@ function renderSetup(){
       const act=b.getAttribute("data-act");
       const id=b.getAttribute("data-id");
       if(act==="delDay") deleteDay(id);
+      if(act==="editDay") editDay(id);
+      if(act==="upDay") moveDay(id, -1);
+      if(act==="dnDay") moveDay(id, +1);
+
       if(act==="addEx") addExerciseToDay(id);
       if(act==="delEx"){
         const dayId=b.getAttribute("data-day");
