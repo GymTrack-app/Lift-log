@@ -1328,15 +1328,14 @@ $("btnSettings").addEventListener("click", ()=>{
       render();
     });
 
-    document.getElementById("exportBtn").addEventListener("click", async ()=>{
-      const data = JSON.stringify(state, null, 2);
-      try{
-        await navigator.clipboard.writeText(data);
-        toast("Copied backup");
-      }catch{
-        toast("Copy blocked");
-      }
-    });
+    document.getElementById("goSetup").addEventListener("click", ()=>{
+  closeModal();
+  state.ui.activeTab = "setup";   // ← force setup mode
+  save();
+  showScreen("screenSetup");
+  renderSetup();
+});
+
 
     document.getElementById("importBtn").addEventListener("click", ()=>{
       const raw = prompt("Paste backup JSON:");
