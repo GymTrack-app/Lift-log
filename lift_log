@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <meta name="theme-color" content="#0b0b0f"/>
+  <title>LiftLog</title>
+  <style>
+    :root{
+      --bg:#0b0b0f;
+      --panel:#12121a;
+      --card:#171726;
+      --line:#2a2a3e;
+      --text:#f2f4f8;
+      --muted:#9aa0aa;
+      --green:#1fe48a;
+      --red:#ff4d6d;
+      --amber:#ffb020;
+      --blue:#57b8ff;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;}
+    body{
+      margin:0;background:var(--bg);color:var(--text);
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: calc(72px + env(safe-area-inset-bottom));
+    }
+    button, input, select{
+      border:1px solid var(--line);
+      background:#0f0f18;color:var(--text);
+      border-radius:14px;padding:10px 12px;font-size:14px;
+    }
+    button{cursor:pointer}
+    button:active{transform:scale(.99)}
+    .muted{color:var(--muted)}
+    .tiny{font-size:12px;color:var(--muted)}
+    .app{max-width:520px;margin:0 auto}
+    .topbar{
+      position:sticky;top:0;z-index:20;
+      background: rgba(11,11,15,.86);
+      backdrop-filter: blur(12px);
+      border-bottom:1px solid rgba(42,42,62,.65);
+      padding: 10px 12px;
+    }
+    .navrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .back{display:flex;align-items:center;gap:8px;color:var(--green);font-weight:600}
+    .back span{font-size:16px}
+    .title{font-size:17px;font-weight:700;text-align:center;flex:1}
+    .dots{width:34px;height:34px;border-radius:12px;display:grid;place-items:center;border:1px solid var(--line);color:var(--green)}
+    .content{padding:12px}
+    .sectionHead{
+      display:flex;align-items:center;justify-content:space-between;margin:6px 2px 10px;
+    }
+    .dateRow{
+      display:flex;align-items:center;gap:10px;margin:6px 2px 10px;
+      color:var(--muted);font-size:12px;letter-spacing:.4px;text-transform:uppercase
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(23,23,38,.92), rgba(18,18,26,.92));
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      box-shadow: var(--shadow);
+    }
+    .compareHead{
+      display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px;letter-spacing:.3px;text-transform:uppercase
+    }
+    .metrics{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    .metric{
+      border:1px solid rgba(42,42,62,.7);
+      border-radius:16px;
+      padding:10px;
+      background: rgba(12,12,18,.45);
+    }
+    .metric .label{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}
+    .bar{
+      width:6px;height:22px;border-radius:999px;background:var(--muted);display:inline-block
+    }
+    .bar.red{background:var(--red)}
+    .bar.green{background:var(--green)}
+    .bar.blue{background:var(--blue)}
+    .bar.amber{background:var(--amber)}
+    .metric .value{margin-top:6px;font-size:22px;font-weight:800;line-height:1}
+    .delta{margin-top:6px;font-size:12px}
+    .delta.up{color:var(--green)}
+    .delta.down{color:var(--red)}
+    .list{
+      margin-top:12px;
+      border-radius: var(--radius);
+      overflow:hidden;
+      border:1px solid var(--line);
+      background: rgba(15,15,24,.5);
+    }
+    .listHeader{
+      padding:10px 12px;
+      font-size:12px;
+      color:var(--muted);
+      border-bottom:1px solid rgba(42,42,62,.65);
+      display:flex;justify-content:space-between;align-items:center
+    }
+    .row{
+      display:flex;align-items:center;justify-content:space-between;
+      padding: 12px;
+      border-bottom:1px solid rgba(42,42,62,.4);
+    }
+    .row:last-child{border-bottom:none}
+    .time{color:var(--muted);font-size:12px;width:82px}
+    .rep{font-weight:800;color:var(--green);font-size:16px}
+    .wt{font-weight:800;color:var(--amber);font-size:16px}
+    .chev{color:#6f7687}
+    .fab{
+      position: fixed;
+      left:50%;
+      transform: translateX(-50%);
+      bottom: calc(18px + env(safe-area-inset-bottom) + 44px);
+      width:66px;height:66px;border-radius:999px;
+      background: var(--green);
+      box-shadow: 0 14px 40px rgba(31,228,138,.25);
+      border:none;
+      color:#03110a;
+      font-size:36px;
+      display:grid;place-items:center;
+      z-index: 40;
+    }
+    .tabs{
+      position: fixed;left:0;right:0;bottom:0;z-index:30;
+      background: rgba(11,11,15,.92);
+      backdrop-filter: blur(12px);
+      border-top:1px solid rgba(42,42,62,.65);
+      padding: 8px 10px calc(10px + env(safe-area-inset-bottom));
+    }
+    .tabsInner{
+      max-width:520px;margin:0 auto;
+      display:flex;justify-content:space-around;align-items:center;
+      gap:10px;
+    }
+    .tab{display:flex;flex-direction:column;align-items:center;gap:4px;color:#7e8596;font-size:11px}
+    .tab.active{color:var(--green)}
+    .icon{width:22px;height:22px;border-radius:6px;border:1px solid rgba(42,42,62,.7);display:grid;place-items:center;font-weight:800}
+    /* modal */
+    .overlay{
+      position:fixed;inset:0;background:rgba(0,0,0,.55);
+      display:none;z-index:60;align-items:flex-end;justify-content:center;
+      padding: 14px;
+    }
+    .overlay.show{display:flex}
+    .sheet{
+      width:min(520px, 100%);
+      background: rgba(18,18,26,.96);
+      border:1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+    .sheet h3{margin:4px 2px 10px;font-size:16px}
+    .grid{
+      display:grid;grid-template-columns:1fr 1fr;gap:10px;
+    }
+    .full{grid-column:1/-1}
+    .actions{display:flex;gap:10px;margin-top:12px}
+    .btnGood{background: rgba(31,228,138,.15);border-color: rgba(31,228,138,.35);color:var(--text)}
+    .btnDanger{background: rgba(255,77,109,.12);border-color: rgba(255,77,109,.35);color:var(--text)}
+    .chipRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+    .chip{
+      padding:8px 10px;border-radius:999px;border:1px solid rgba(42,42,62,.75);
+      background: rgba(12,12,18,.35);color:var(--muted);font-size:12px
+    }
+    .chip b{color:var(--text)}
+    /* screens */
+    .screen{display:none}
+    .screen.show{display:block}
+    .exerciseItem{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:12px;border-bottom:1px solid rgba(42,42,62,.35);
+    }
+    .exerciseItem:last-child{border-bottom:none}
+    .exerciseName{font-weight:750}
+    .pill{
+      font-size:11px;color:var(--muted);border:1px solid rgba(42,42,62,.7);
+      padding:4px 8px;border-radius:999px
+    }
+    .topActions{display:flex;gap:8px}
+    .miniBtn{padding:9px 10px;border-radius:14px}
+    .success{color:var(--green)}
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- EXERCISES SCREEN -->
+  <div id="screenExercises" class="screen show">
+    <div class="topbar">
+      <div class="navrow">
+        <div class="back" style="visibility:hidden"><span>‹</span> Back</div>
+        <div class="title">Exercises</div>
+        <div class="topActions">
+          <button id="btnAddExercise" class="miniBtn">+ Exercise</button>
+        </div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="tiny">Tap an exercise to log sets like your screenshots.</div>
+        <div class="chipRow" style="margin-top:10px">
+          <div class="chip"><b>Stores locally</b> (your phone)</div>
+          <div class="chip"><b>Compared to previous</b> auto</div>
+          <div class="chip"><b>Progress target</b> auto</div>
+        </div>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <div class="list">
+        <div class="listHeader">
+          <span>My Exercises</span>
+          <span class="tiny">Last session + target</span>
+        </div>
+        <div id="exerciseList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXERCISE DETAIL SCREEN -->
+  <div id="screenDetail" class="screen">
+    <div class="topbar">
+      <div class="navrow">
+        <div id="btnBack" class="back"><span>‹</span> Exercises</div>
+        <div id="detailTitle" class="title">Exercise</div>
+        <div class="dots" id="btnMore">•••</div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="dateRow">
+        <span id="detailDate"></span>
+      </div>
+
+      <div class="card">
+        <div class="compareHead">↔ Compared to previous</div>
+
+        <div class="metrics">
+          <div class="metric">
+            <div class="label"><span class="bar red"></span> Sets</div>
+            <div class="value" id="mSets">0</div>
+            <div class="delta" id="dSets">—</div>
+          </div>
+
+          <div class="metric">
+            <div class="label"><span class="bar green"></span> Repetitions</div>
+            <div class="value" id="mReps">0</div>
+            <div class="delta" id="dReps">—</div>
+          </div>
+
+          <div class="metric">
+            <div class="label"><span class="bar blue"></span> Volume (lb)</div>
+            <div class="value" id="mVol">0</div>
+            <div class="delta" id="dVol">—</div>
+          </div>
+
+          <div class="metric">
+            <div class="label"><span class="bar amber"></span> lb/rep</div>
+            <div class="value" id="mLbr">0</div>
+            <div class="delta" id="dLbr">—</div>
+          </div>
+        </div>
+
+        <div class="hr" style="height:1px;background:rgba(42,42,62,.55);margin:12px 0"></div>
+
+        <div class="tiny">Next time target:</div>
+        <div id="nextTarget" style="margin-top:6px;font-weight:800"></div>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <div class="list">
+        <div class="listHeader">
+          <span id="sessionLabel">Today</span>
+          <span class="tiny">tap to edit</span>
+        </div>
+        <div id="setList"></div>
+      </div>
+    </div>
+
+    <button class="fab" id="fabAddSet">+</button>
+  </div>
+
+</div>
+
+<!-- Bottom tabs (visual only, like your screenshot) -->
+<div class="tabs">
+  <div class="tabsInner">
+    <div class="tab active"><div class="icon">≡</div><div>Sets</div></div>
+    <div class="tab"><div class="icon">⏱</div><div>Sessions</div></div>
+    <div class="tab"><div class="icon">▦</div><div>Today</div></div>
+  </div>
+</div>
+
+<!-- Modal / sheet -->
+<div class="overlay" id="overlay">
+  <div class="sheet">
+    <h3 id="sheetTitle">Add Set</h3>
+    <div class="grid">
+      <div class="full tiny" id="sheetHint">Log your set. Weight optional for bodyweight moves.</div>
+      <input id="inReps" inputmode="numeric" placeholder="Reps (e.g., 10)"/>
+      <input id="inWeight" inputmode="decimal" placeholder="Weight lb (optional)"/>
+      <select id="inTime" class="full"></select>
+
+      <div class="full tiny">Progression rules</div>
+      <select id="inMode" class="full">
+        <option value="repRange">Rep range (double progression)</option>
+        <option value="fixedReps">Fixed reps (strength)</option>
+      </select>
+
+      <input id="inMin" inputmode="numeric" placeholder="Min reps (e.g., 6)"/>
+      <input id="inMax" inputmode="numeric" placeholder="Max reps (e.g., 10)"/>
+      <input id="inFixed" inputmode="numeric" placeholder="Fixed reps (e.g., 3)" style="display:none"/>
+      <input id="inInc" inputmode="numeric" placeholder="Increase lb (e.g., 5)"/>
+    </div>
+
+    <div class="actions">
+      <button id="btnSave" class="btnGood" style="flex:1">Save</button>
+      <button id="btnCancel" class="btnDanger" style="flex:1">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================
+   Data model (localStorage)
+========================= */
+const KEY = "liftlog_v2";
+const $ = (id) => document.getElementById(id);
+
+function todayKey(){
+  const d = new Date();
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,'0');
+  const day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function prettyDate(iso){
+  // THU, 16 JAN 2025 style-ish
+  const d = new Date(iso+"T12:00:00");
+  const days=["SUN","MON","TUE","WED","THU","FRI","SAT"];
+  const mons=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+  return `${days[d.getDay()]}, ${d.getDate()} ${mons[d.getMonth()]} ${d.getFullYear()}`;
+}
+function timeOptions(){
+  // Build times like 3:24 PM, in 5-min increments
+  const arr=[];
+  const now=new Date();
+  const base=new Date(now);
+  base.setSeconds(0); base.setMilliseconds(0);
+  // Offer last 60 minutes + now
+  for(let i=12;i>=0;i--){
+    const t=new Date(base.getTime() - i*5*60*1000);
+    arr.push(formatTime(t));
+  }
+  return arr;
+}
+function formatTime(d){
+  let h=d.getHours(); const m=String(d.getMinutes()).padStart(2,'0');
+  const ampm = h>=12 ? "PM":"AM";
+  h = h%12; if(h===0) h=12;
+  return `${h}:${m} ${ampm}`;
+}
+function uid(){ return Math.random().toString(16).slice(2)+Date.now().toString(16); }
+function num(x, fb=0){ const n=Number(x); return Number.isFinite(n)?n:fb; }
+
+function load(){
+  try{
+    const raw=localStorage.getItem(KEY);
+    if(!raw) throw 0;
+    const s=JSON.parse(raw);
+    // minimal defaults
+    s.exercises ||= [];
+    s.sessions ||= {}; // exerciseId -> [{date, sets:[{time,reps,weight}...], scheme...}]
+    return s;
+  }catch{
+    return {
+      exercises: [
+        // starter examples like screenshot
+        {id: uid(), name:"Pull-Ups", scheme:"repRange", min:6, max:10, fixed:5, inc:0, bodyweight:true},
+        {id: uid(), name:"Squat", scheme:"fixedReps", min:3, max:3, fixed:3, inc:5, bodyweight:false}
+      ],
+      sessions: {}
+    };
+  }
+}
+function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+
+let state = load();
+
+/* =========================
+   Navigation state
+========================= */
+let currentExerciseId = null;
+
+function showScreen(which){
+  $("screenExercises").classList.toggle("show", which==="exercises");
+  $("screenDetail").classList.toggle("show", which==="detail");
+}
+
+/* =========================
+   Calculations (compared card)
+========================= */
+function sessionStats(session){
+  const sets = session?.sets || [];
+  const setsCount = sets.length;
+  const reps = sets.reduce((a,s)=>a+num(s.reps,0),0);
+  const volume = sets.reduce((a,s)=>a + (num(s.weight,0)*num(s.reps,0)),0);
+  const lbr = reps>0 ? (volume/reps) : 0;
+  return {sets:setsCount, reps, volume, lbr};
+}
+function deltaText(curr, prev, decimals=0){
+  if(prev===0 && curr===0) return {txt:"▲ 0 (0%)", cls:""};
+  if(prev===0 && curr!==0) return {txt:`▲ ${fmt(curr,decimals)} (—)`, cls:"up"};
+  const diff = curr - prev;
+  const pct = (diff/prev)*100;
+  const arrow = diff>=0 ? "▲":"▼";
+  const cls = diff>=0 ? "up":"down";
+  return {txt:`${arrow} ${fmt(Math.abs(diff),decimals)} (${fmt(Math.abs(pct),1)}%)`, cls};
+}
+function fmt(n, decimals=0){
+  return (decimals===0) ? String(Math.round(n)) : n.toFixed(decimals);
+}
+
+/* =========================
+   Progression target
+========================= */
+function makeTarget(ex, lastSession){
+  if(!lastSession || !lastSession.sets?.length) return "Log your first session to get a target.";
+
+  const scheme = ex.scheme;
+  const inc = num(ex.inc, 5);
+  const sets = lastSession.sets;
+
+  // “working weight”: most common weight in that session (ignore 0 for bodyweight)
+  const weights = sets.map(s=>num(s.weight,0)).filter(w=>w>0);
+  let w = 0;
+  if(weights.length){
+    const freq=new Map();
+    for(const ww of weights) freq.set(ww,(freq.get(ww)||0)+1);
+    w = [...freq.entries()].sort((a,b)=>b[1]-a[1])[0][0];
+  }
+
+  if(ex.bodyweight || w===0){
+    // bodyweight progression: add reps first, then add weight if you start weighting
+    const top = scheme==="repRange" ? num(ex.max,10) : num(ex.fixed,5);
+    const allHit = sets.every(s => num(s.reps,0) >= top);
+    if(allHit) return `✅ Hit your reps on all sets → next time: +1 rep on 1–2 sets (or start adding +${inc} lb).`;
+    return `➡️ Next time: beat last session by +1 total rep across sets.`;
+  }
+
+  if(scheme==="repRange"){
+    const top=num(ex.max,10);
+    const allHitTop = sets.every(s => num(s.reps,0) >= top && num(s.weight,0) > 0);
+    if(allHitTop) return `✅ All sets hit ${top}+ reps → next time: ${w + inc} lb (same rep range).`;
+    return `➡️ Keep ${w} lb → add reps until all sets reach ${top}, then add +${inc} lb.`;
+  }
+
+  // fixed reps
+  const fixed=num(ex.fixed,3);
+  const allDone = sets.every(s => num(s.reps,0) >= fixed && num(s.weight,0) > 0);
+  if(allDone) return `✅ Completed all sets @ ${fixed} reps → next time: ${w + inc} lb.`;
+  return `➡️ Keep ${w} lb → complete all sets @ ${fixed} reps, then add +${inc} lb.`;
+}
+
+/* =========================
+   Rendering
+========================= */
+function renderExercises(){
+  const box = $("exerciseList");
+  box.innerHTML = "";
+  for(const ex of state.exercises){
+    const sess = (state.sessions[ex.id] || []).slice();
+    sess.sort((a,b)=> (a.date>b.date?1:-1));
+    const last = sess[sess.length-1] || null;
+    const lastStats = last ? sessionStats(last) : null;
+    const target = makeTarget(ex, last);
+
+    const div=document.createElement("div");
+    div.className="exerciseItem";
+    div.innerHTML = `
+      <div>
+        <div class="exerciseName">${escapeHtml(ex.name)}</div>
+        <div class="tiny">${lastStats ? `Last: ${lastStats.sets} sets • ${lastStats.reps} reps` : "No sessions yet"}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <span class="pill">${ex.scheme==="repRange" ? `${ex.min}-${ex.max}` : `${ex.fixed} reps`} • +${ex.inc||0}lb</span>
+        <span class="tiny" style="max-width:200px;text-align:right">${escapeHtml(target)}</span>
+      </div>
+    `;
+    div.addEventListener("click", ()=>openDetail(ex.id));
+    box.appendChild(div);
+  }
+}
+
+function renderDetail(){
+  const ex = state.exercises.find(e=>e.id===currentExerciseId);
+  if(!ex) return;
+
+  $("detailTitle").textContent = ex.name;
+  $("detailDate").textContent = prettyDate(todayKey());
+  $("sessionLabel").textContent = "Today";
+
+  // sessions sorted
+  const sess = (state.sessions[ex.id] || []).slice();
+  sess.sort((a,b)=> (a.date>b.date?1:-1));
+  const last = sess[sess.length-1] || null;
+  const prev = sess.length>=2 ? sess[sess.length-2] : null;
+
+  const lastStats = last ? sessionStats(last) : {sets:0,reps:0,volume:0,lbr:0};
+  const prevStats = prev ? sessionStats(prev) : {sets:0,reps:0,volume:0,lbr:0};
+
+  // metrics
+  $("mSets").textContent = lastStats.sets;
+  $("mReps").textContent = lastStats.reps;
+  $("mVol").textContent = Math.round(lastStats.volume);
+  $("mLbr").textContent = lastStats.reps>0 ? (lastStats.lbr.toFixed(1)) : "0";
+
+  setDelta("dSets", deltaText(lastStats.sets, prevStats.sets, 0));
+  setDelta("dReps", deltaText(lastStats.reps, prevStats.reps, 0));
+  setDelta("dVol",  deltaText(lastStats.volume, prevStats.volume, 0));
+  setDelta("dLbr",  deltaText(lastStats.lbr, prevStats.lbr, 1));
+
+  $("nextTarget").textContent = makeTarget(ex, last);
+
+  // set list
+  const list = $("setList");
+  list.innerHTML = "";
+
+  const sets = last?.sets || [];
+  if(!sets.length){
+    const empty=document.createElement("div");
+    empty.className="row";
+    empty.innerHTML = `<div class="tiny">No sets logged yet. Tap the green +.</div>`;
+    list.appendChild(empty);
+  }else{
+    // newest first like screenshot
+    const reversed = sets.slice().reverse();
+    for(let i=0;i<reversed.length;i++){
+      const s = reversed[i];
+      const row=document.createElement("div");
+      row.className="row";
+      row.innerHTML = `
+        <div class="time">${escapeHtml(s.time || "")}</div>
+        <div class="rep">${num(s.reps,0)} <span class="tiny">rep</span></div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <div class="wt">${num(s.weight,0) ? `${num(s.weight,0)} <span class="tiny">lb</span>` : `<span class="tiny muted">—</span>`}</div>
+          <div class="chev">›</div>
+        </div>
+      `;
+      row.addEventListener("click", ()=>openEditSetModal(s));
+      list.appendChild(row);
+    }
+  }
+}
+
+function setDelta(id, obj){
+  const el = $(id);
+  el.textContent = obj.txt;
+  el.className = `delta ${obj.cls||""}`;
+}
+
+function openDetail(id){
+  currentExerciseId=id;
+  showScreen("detail");
+  renderDetail();
+}
+
+function backToExercises(){
+  showScreen("exercises");
+  renderExercises();
+}
+
+/* =========================
+   Modal logic (Add/Edit Set)
+========================= */
+let editingSetRef = null; // {exerciseId, sessionDate, setIndex}
+
+function openAddSetModal(){
+  const ex = state.exercises.find(e=>e.id===currentExerciseId);
+  if(!ex) return;
+
+  editingSetRef = null;
+  $("sheetTitle").textContent = "Add Set";
+  $("sheetHint").textContent = ex.bodyweight
+    ? "Weight is optional (bodyweight). Log reps + time."
+    : "Log reps + weight + time.";
+
+  // fill time dropdown
+  const sel = $("inTime");
+  sel.innerHTML = "";
+  for(const t of timeOptions()){
+    const o=document.createElement("option");
+    o.value=t; o.textContent=t;
+    sel.appendChild(o);
+  }
+  sel.value = timeOptions().slice(-1)[0];
+
+  // clear inputs
+  $("inReps").value="";
+  $("inWeight").value= ex.bodyweight ? "" : "";
+
+  // progression settings
+  $("inMode").value = ex.scheme;
+  $("inMin").value = ex.min ?? 6;
+  $("inMax").value = ex.max ?? 10;
+  $("inFixed").value = ex.fixed ?? 3;
+  $("inInc").value = ex.inc ?? 5;
+  toggleProgInputs();
+
+  $("overlay").classList.add("show");
+  $("inReps").focus();
+}
+
+function openEditSetModal(setObj){
+  // We edit the most recent session’s set by matching object reference
+  const ex = state.exercises.find(e=>e.id===currentExerciseId);
+  const sess = (state.sessions[ex.id] || []).slice().sort((a,b)=> (a.date>b.date?1:-1));
+  const last = sess[sess.length-1];
+  if(!last) return;
+
+  const idx = last.sets.findIndex(s => s === setObj);
+  if(idx === -1) return;
+
+  editingSetRef = { exerciseId: ex.id, sessionDate: last.date, setIndex: idx };
+
+  $("sheetTitle").textContent = "Edit Set";
+  $("sheetHint").textContent = "Update reps/weight/time. Or delete this set.";
+
+  const sel = $("inTime");
+  sel.innerHTML = "";
+  // include set time + nearby options
+  const opts = new Set(timeOptions());
+  if(setObj.time) opts.add(setObj.time);
+  for(const t of [...opts]){
+    const o=document.createElement("option");
+    o.value=t; o.textContent=t;
+    sel.appendChild(o);
+  }
+  sel.value = setObj.time || timeOptions().slice(-1)[0];
+
+  $("inReps").value = num(setObj.reps,0) ? String(setObj.reps) : "";
+  $("inWeight").value = num(setObj.weight,0) ? String(setObj.weight) : "";
+
+  // show progression settings too (sync back)
+  $("inMode").value = ex.scheme;
+  $("inMin").value = ex.min ?? 6;
+  $("inMax").value = ex.max ?? 10;
+  $("inFixed").value = ex.fixed ?? 3;
+  $("inInc").value = ex.inc ?? 5;
+  toggleProgInputs();
+
+  $("overlay").classList.add("show");
+}
+
+function closeModal(){ $("overlay").classList.remove("show"); }
+
+function toggleProgInputs(){
+  const mode = $("inMode").value;
+  $("inMin").style.display = (mode==="repRange") ? "" : "none";
+  $("inMax").style.display = (mode==="repRange") ? "" : "none";
+  $("inFixed").style.display = (mode==="fixedReps") ? "" : "none";
+}
+
+$("inMode").addEventListener("change", toggleProgInputs);
+
+function upsertSessionAndSet(exId, setData){
+  const d = todayKey();
+  state.sessions[exId] ||= [];
+  let sess = state.sessions[exId].find(s => s.date === d);
+  if(!sess){
+    sess = { date: d, sets: [] };
+    state.sessions[exId].push(sess);
+  }
+  sess.sets.push(setData);
+}
+
+function saveSet(){
+  const ex = state.exercises.find(e=>e.id===currentExerciseId);
+  if(!ex) return;
+
+  // sync progression settings from sheet back to exercise
+  ex.scheme = $("inMode").value;
+  ex.min = num($("inMin").value, 6);
+  ex.max = num($("inMax").value, 10);
+  ex.fixed = num($("inFixed").value, 3);
+  ex.inc = num($("inInc").value, 5);
+
+  const reps = num($("inReps").value, 0);
+  const weight = num($("inWeight").value, 0);
+  const time = $("inTime").value;
+
+  if(reps <= 0){
+    alert("Enter reps (greater than 0).");
+    return;
+  }
+
+  if(editingSetRef){
+    // edit existing
+    const sess = (state.sessions[editingSetRef.exerciseId] || []).find(s=>s.date===editingSetRef.sessionDate);
+    if(sess && sess.sets[editingSetRef.setIndex]){
+      sess.sets[editingSetRef.setIndex].reps = reps;
+      sess.sets[editingSetRef.setIndex].weight = weight;
+      sess.sets[editingSetRef.setIndex].time = time;
+    }
+  }else{
+    // add new
+    upsertSessionAndSet(ex.id, { time, reps, weight });
+  }
+
+  save();
+  closeModal();
+  renderDetail();
+}
+
+function deleteEditingSet(){
+  if(!editingSetRef) return;
+  const sess = (state.sessions[editingSetRef.exerciseId] || []).find(s=>s.date===editingSetRef.sessionDate);
+  if(sess){
+    sess.sets.splice(editingSetRef.setIndex, 1);
+    // if empty session, remove it
+    if(sess.sets.length===0){
+      state.sessions[editingSetRef.exerciseId] = state.sessions[editingSetRef.exerciseId].filter(s=>s!==sess);
+    }
+  }
+  save();
+  closeModal();
+  renderDetail();
+}
+
+$("btnSave").addEventListener("click", saveSet);
+$("btnCancel").addEventListener("click", ()=>{
+  // if editing, offer delete quickly via confirm
+  if(editingSetRef && confirm("Delete this set? Press OK to delete, Cancel to keep.")){
+    deleteEditingSet();
+    return;
+  }
+  closeModal();
+});
+$("overlay").addEventListener("click", (e)=>{
+  if(e.target === $("overlay")) closeModal();
+});
+
+/* =========================
+   Exercise management
+========================= */
+$("btnAddExercise").addEventListener("click", ()=>{
+  const name = prompt("Exercise name (e.g., Bench Press):");
+  if(!name) return;
+  const bodyweight = confirm("Is it bodyweight (like Pull-Ups)? OK = Yes, Cancel = No");
+  state.exercises.push({
+    id: uid(),
+    name: name.trim(),
+    scheme: bodyweight ? "repRange" : "fixedReps",
+    min: 6,
+    max: 10,
+    fixed: 3,
+    inc: bodyweight ? 0 : 5,
+    bodyweight
+  });
+  save();
+  renderExercises();
+});
+
+$("btnBack").addEventListener("click", backToExercises);
+$("fabAddSet").addEventListener("click", openAddSetModal);
+
+$("btnMore").addEventListener("click", ()=>{
+  const ex = state.exercises.find(e=>e.id===currentExerciseId);
+  if(!ex) return;
+  const action = prompt(
+`Type:
+1 = Rename
+2 = Toggle bodyweight
+3 = Delete exercise`
+  );
+  if(action==="1"){
+    const n = prompt("New name:", ex.name);
+    if(n){ ex.name=n.trim(); save(); renderDetail(); renderExercises(); }
+  }else if(action==="2"){
+    ex.bodyweight = !ex.bodyweight;
+    save(); renderDetail(); renderExercises();
+  }else if(action==="3"){
+    if(confirm("Delete this exercise and all history?")){
+      state.exercises = state.exercises.filter(e=>e.id!==ex.id);
+      delete state.sessions[ex.id];
+      save();
+      backToExercises();
+    }
+  }
+});
+
+/* =========================
+   Escape helpers
+========================= */
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+
+/* =========================
+   Init
+========================= */
+renderExercises();
+
+// if first load has starters, open Exercises screen
+showScreen("exercises");
+</script>
+</body>
+</html>
