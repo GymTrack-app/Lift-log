@@ -1,4 +1,4 @@
-<!doctype html>
+<!doctype html> 
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
@@ -101,6 +101,7 @@
     .tab{display:flex;flex-direction:column;align-items:center;gap:4px;color:#7e8596;font-size:11px;cursor:pointer;user-select:none}
     .tab.active{color:var(--green)}
     .icon{width:22px;height:22px;border-radius:6px;border:1px solid rgba(42,42,62,.7);display:grid;place-items:center;font-weight:900}
+    .tab.active .icon{border-color: rgba(31,228,138,.6); box-shadow: 0 0 0 2px rgba(31,228,138,.10) inset;}
     .screen{display:none}
     .screen.show{display:block}
     .fab{
@@ -121,7 +122,7 @@
     .fab.show{display:grid}
 
     table{width:100%;border-collapse:collapse}
-    th,td{border-bottom:1px solid rgba(42,42,62,.5);padding:8px 6px;font-size:13px;text-align:left}
+    th,td{border-bottom:1px solid rgba(42,42,62,.5);padding:8px 6px;font-size:13px;text-align:left;vertical-align:top}
     th{color:var(--muted);font-weight:700;font-size:12px}
     .chk{width:20px;height:20px;border-radius:8px;border:1px solid rgba(42,42,62,.7);display:grid;place-items:center}
     .chk.on{border-color: rgba(31,228,138,.6); background: rgba(31,228,138,.12); color: var(--green); font-weight:900}
@@ -131,57 +132,63 @@
     .badge{font-size:11px;padding:4px 8px;border-radius:999px;border:1px solid rgba(42,42,62,.7);color:var(--muted)}
     .badge.good{border-color: rgba(31,228,138,.45); color: var(--green); background: rgba(31,228,138,.10);}
     .badge.hard{border-color: rgba(255,176,32,.45); color: var(--amber); background: rgba(255,176,32,.08);}
+    .badge.blue{border-color: rgba(87,184,255,.45); color: var(--blue); background: rgba(87,184,255,.08);}
 
     .calHead{display:flex;align-items:center;justify-content:space-between;gap:8px}
     .calGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:10px}
     .calCell{
-  border:1px solid rgba(42,42,62,.6);
-  border-radius:14px;
-  padding:8px;
-  min-height:64px;
-  background: rgba(12,12,18,.35);
-  cursor:pointer;
+      border:1px solid rgba(42,42,62,.6);
+      border-radius:14px;
+      padding:8px;
+      min-height:72px;
+      background: rgba(12,12,18,.35);
+      cursor:pointer;
 
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .calCell.off{opacity:.35;cursor:default}
+    .calNum{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+    .dot{width:8px;height:8px;border-radius:99px;background:var(--green);display:inline-block}
+    .dot.amber{background:var(--amber)}
+    .dot.blue{background:var(--blue)}
+    /* Title fix (2-line clamp without breaking cell proportions) */
+    .calTitle{
+      font-size:11px;color:var(--text);opacity:.9;
+      line-height:1.2;
+      overflow:hidden;
+      display:-webkit-box;
+      -webkit-box-orient:vertical;
+      -webkit-line-clamp:2;
+      white-space:normal;
+      word-break:break-word;
+      min-height: calc(11px * 1.2 * 2);
+    }
 
-.calCell.off{opacity:.35;cursor:default}
-
-.calNum{
-  font-size:12px;
-  color:var(--muted);
-  display:flex;
-  justify-content:space-between;
-  align-items:center
-}
-
-.dot{
-  width:8px;height:8px;border-radius:99px;
-  background:var(--green);
-  display:inline-block
-}
-.dot.amber{background:var(--amber)}
-
-.calTitle{
-  margin-top:6px;
-  font-size:11px;
-  color:var(--text);
-  opacity:.9;
-
-  line-height: 1.2;
-  max-height: calc(11px * 1.2 * 2); /* 2 lines max */
-  overflow: hidden;
-
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-
-  white-space: normal;
-}
-
-    .calTitle{margin-top:6px;font-size:11px;color:var(--text);opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .weekStrip{
+      display:grid;grid-template-columns:repeat(7,1fr);gap:8px;
+      margin-top:10px;
+    }
+    .wkDay{
+      border:1px solid rgba(42,42,62,.6);
+      border-radius:14px;
+      padding:8px;
+      min-height:54px;
+      background: rgba(12,12,18,.25);
+      display:flex;flex-direction:column;gap:6px;
+      cursor:pointer;
+      overflow:hidden;
+    }
+    .wkTop{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted)}
+    .wkTitle{
+      font-size:11px;opacity:.9;overflow:hidden;
+      display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+      line-height:1.2;white-space:normal;word-break:break-word;
+      min-height: calc(11px * 1.2 * 2);
+    }
+    .wkDay.today{border-color: rgba(31,228,138,.55); box-shadow: 0 0 0 2px rgba(31,228,138,.10) inset;}
 
     .overlay{
       position:fixed;inset:0;background:rgba(0,0,0,.55);
@@ -244,7 +251,7 @@
         <div class="row" style="justify-content:space-between">
           <div>
             <div class="name">Your Split</div>
-            <div class="tiny">Add days (Upper/Lower etc.) + exercises inside them.</div>
+            <div class="tiny" id="setupProgress">0 days • 0 exercises</div>
           </div>
           <button id="btnAddDay" class="btnGood">+ Day</button>
         </div>
@@ -284,7 +291,10 @@
         <div id="todayBox" class="tiny muted">—</div>
 
         <div class="sep"></div>
-        <button id="btnStartWorkout" class="btnGood" style="width:100%">Start Workout</button>
+        <div class="row" style="gap:10px">
+          <button id="btnStartWorkout" class="btnGood" style="flex:1">Start Workout</button>
+          <button id="btnEditSplitToday" class="btnGhost" style="flex:1">Edit Split</button>
+        </div>
       </div>
 
       <div style="height:12px"></div>
@@ -321,7 +331,7 @@
           <span class="pill" id="loggerDate">—</span>
         </div>
         <div class="sep"></div>
-        <div class="tiny">Tap cells to edit. Use quick buttons for speed.</div>
+        <div class="tiny">Tip: Enter on reps jumps to the next reps cell. Use quick buttons to fly.</div>
       </div>
 
       <div id="loggerExercises"></div>
@@ -345,13 +355,30 @@
           <div class="name" id="calMonth">—</div>
           <button id="calNext" class="btnGhost">›</button>
         </div>
+
         <div class="sep"></div>
+
+        <div class="row" style="justify-content:space-between;gap:10px">
+          <div class="tiny muted">Tap a day. Planned days can start a workout.</div>
+          <select id="calFilter">
+            <option value="both" selected>Show: Planned + Done</option>
+            <option value="planned">Show: Planned</option>
+            <option value="done">Show: Done</option>
+          </select>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="tiny muted">This week</div>
+        <div class="weekStrip" id="weekStrip"></div>
+
+        <div class="sep"></div>
+
         <div class="calGrid tiny muted" style="margin-top:0">
           <div style="text-align:center">S</div><div style="text-align:center">M</div><div style="text-align:center">T</div>
           <div style="text-align:center">W</div><div style="text-align:center">T</div><div style="text-align:center">F</div><div style="text-align:center">S</div>
         </div>
         <div class="calGrid" id="calGrid"></div>
-        <div class="tiny" style="margin-top:10px">Tap a day to view workout details.</div>
       </div>
 
       <div style="height:12px"></div>
@@ -359,7 +386,7 @@
       <div class="card">
         <div class="name">Selected Day</div>
         <div class="sep"></div>
-        <div id="calDetail" class="tiny muted">Tap a completed day.</div>
+        <div id="calDetail" class="tiny muted">Tap a day.</div>
       </div>
     </div>
   </div>
@@ -379,7 +406,7 @@
         <div class="row" style="justify-content:space-between;align-items:flex-start">
           <div>
             <div class="name">How much stronger did you get?</div>
-            <div class="tiny muted">Uses best estimated 1RM (Epley) per exercise per session.</div>
+            <div class="tiny muted">e1RM (Epley) + best set changes.</div>
           </div>
           <div class="right">
             <select id="progWindow">
@@ -394,7 +421,7 @@
       </div>
 
       <div class="list">
-        <div class="listHeader"><span>Exercises</span><span class="tiny">strength + PR</span></div>
+        <div class="listHeader"><span>Exercises</span><span class="tiny">last 3 + change</span></div>
         <div id="progList"></div>
       </div>
     </div>
@@ -415,7 +442,7 @@
         <div class="row" style="justify-content:space-between;align-items:flex-start">
           <div>
             <div class="name">PRs</div>
-            <div class="tiny muted">Tracks exact names (case-insensitive): <b>Smith Flat Bench</b> and <b>Smith Squat</b>.</div>
+            <div class="tiny muted">Uses PR tags (Bench/Squat/etc.) so names don’t need to match.</div>
           </div>
           <div class="right">
             <select id="prWindow">
@@ -471,13 +498,15 @@
 /* =========================
    Storage + State
 ========================= */
-const KEY = "liftlog_mvp_v1";
+const KEY = "liftlog_mvp_v2"; // bumped version (keeps old v1 separate)
+const AUTO_BACKUP_KEY = "liftlog_mvp_autobackup";
 const $ = (id) => document.getElementById(id);
 
 function toast(msg="Saved"){
   const t=$("toast");
   t.textContent=msg;
   t.classList.add("show");
+  if(navigator.vibrate) navigator.vibrate(10);
   setTimeout(()=>t.classList.remove("show"), 900);
 }
 
@@ -512,22 +541,48 @@ function load(){
     const s=JSON.parse(raw);
     s.program ||= null;
     s.sessions ||= [];
-    s.exerciseState ||= {}; // exId -> {currentWeight, misses}
-    s.prs ||= {}; // exId -> PRs
+    s.exerciseState ||= {};
+    s.prs ||= {};
     s.ui ||= { activeTab:"today" };
+    s.meta ||= { lastBackupAt: null };
     return s;
   }catch{
-    return { program:null, sessions:[], exerciseState:{}, prs:{}, ui:{activeTab:"today"} };
+    return { program:null, sessions:[], exerciseState:{}, prs:{}, ui:{activeTab:"today"}, meta:{ lastBackupAt:null } };
   }
 }
 function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
 
+/* Auto weekly backup (localStorage safety copy) */
+function maybeAutoBackup(){
+  const now = Date.now();
+  const last = state.meta?.lastBackupAt ? Number(state.meta.lastBackupAt) : 0;
+  const weekMs = 7*24*60*60*1000;
+  if(!last || (now - last) > weekMs){
+    try{
+      localStorage.setItem(AUTO_BACKUP_KEY, JSON.stringify({ at: now, state }));
+      state.meta ||= {};
+      state.meta.lastBackupAt = now;
+      save();
+    }catch{}
+  }
+}
+
 let state = load();
+maybeAutoBackup();
 
 /* =========================
    Program model helpers
 ========================= */
 const WEEKDAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const PR_TAGS = [
+  {v:"none", t:"No PR tag"},
+  {v:"bench", t:"Bench PR"},
+  {v:"squat", t:"Squat PR"},
+  {v:"deadlift", t:"Deadlift PR"},
+  {v:"ohp", t:"Overhead Press PR"},
+  {v:"row", t:"Row PR"},
+  {v:"pullup", t:"Pull-up PR"},
+];
 
 function defaultMonday(){
   const d=new Date();
@@ -650,16 +705,36 @@ function applyProgression(exDef, exLog){
   const success = isSuccessForExercise(exDef, exLog);
   const topHit = hitTopRangeAllSets(exDef, exLog);
 
+  // Bodyweight mode: reps-first when startWeight==0 AND setting enabled
+  const repsFirstBW = !!(state.program?.settings?.repsFirstBW);
+  const isBW = (num(exDef.startWeight,0) === 0);
+
   if(!success){
     st.misses = (st.misses || 0) + 1;
     if((rule.deloadOnMiss2 ?? true) && st.misses >= 2){
-      st.currentWeight = Math.max(0, Math.round(st.currentWeight * 0.9));
+      // If BW reps-first, don't deload weight (still 0). Just reset misses.
+      if(!isBW){
+        st.currentWeight = Math.max(0, Math.round(st.currentWeight * 0.9));
+      }
       st.misses = 0;
     }
     return;
   }
 
   st.misses = 0;
+
+  if(isBW && repsFirstBW){
+    // Increase target reps before adding weight
+    if(exDef.target.type === "range"){
+      if(topHit){
+        exDef.target.min = clamp(num(exDef.target.min,6)+1,1,100);
+        exDef.target.max = clamp(num(exDef.target.max,8)+1,1,100);
+      }
+    }else{
+      exDef.target.reps = clamp(num(exDef.target.reps,3)+1,1,100);
+    }
+    return;
+  }
 
   if(rule.type === "double"){
     const inc = num(rule.inc, 5);
@@ -678,7 +753,7 @@ function applyProgression(exDef, exLog){
 }
 
 /* =========================
-   UI Routing + Tabs (FIXED)
+   UI Routing + Tabs
 ========================= */
 function tabEl(id, active){
   const el=$(id);
@@ -721,11 +796,21 @@ $("sheetCancel").addEventListener("click", ()=>{ if(modal.onCancel) modal.onCanc
 /* =========================
    Setup Screen
 ========================= */
+function countSetupProgress(p){
+  const days = (p.split||[]).length;
+  let exTotal = 0;
+  for(const d of (p.split||[])) exTotal += (d.exercises||[]).length;
+  return { days, exTotal };
+}
+
 function renderSetup(){
   $("setUnits").value = state.program?.units || "lb";
   $("setStartWeek").value = state.program?.startWeekDate || defaultMonday();
 
-  const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{}, settings:{jump:5} };
+  const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{}, settings:{jump:5, microload:false, repsFirstBW:false} };
+  const {days, exTotal} = countSetupProgress(p);
+  $("setupProgress").textContent = `${days} day(s) • ${exTotal} exercise(s)`;
+
   const list = $("daysList");
   list.innerHTML = "";
 
@@ -758,13 +843,16 @@ function renderSetup(){
         const ruleTxt = rule==="double" ? `Double +${ex.rule.inc||5}` :
                         rule==="fixed" ? `Weekly +${ex.rule.inc||5}` :
                         `+${ex.rule.pct||2.5}%`;
+        const tag = ex.prTag && ex.prTag!=="none" ? PR_TAGS.find(x=>x.v===ex.prTag)?.t : "";
+        const tagBadge = tag ? `<span class="badge blue">${escapeHtml(tag)}</span>` : "";
         return `
           <div class="item" style="border-radius:14px;margin-top:8px;background:rgba(12,12,18,.35);border:1px solid rgba(42,42,62,.5)">
             <div>
-              <div class="name">${escapeHtml(ex.name)}</div>
+              <div class="name">${escapeHtml(ex.name)} ${tagBadge}</div>
               <div class="tiny muted">${ex.sets} sets • ${tgt} reps • start ${ex.startWeight}${p.units} • ${ruleTxt}</div>
             </div>
             <div class="right">
+              <button class="mini btnGhost" data-act="editEx" data-day="${day.id}" data-ex="${exId}">Edit</button>
               <button class="mini btnDanger" data-act="delEx" data-day="${day.id}" data-ex="${exId}">Remove</button>
             </div>
           </div>
@@ -785,12 +873,17 @@ function renderSetup(){
         const exId=b.getAttribute("data-ex");
         removeExerciseFromDay(dayId, exId);
       }
+      if(act==="editEx"){
+        const dayId=b.getAttribute("data-day");
+        const exId=b.getAttribute("data-ex");
+        editExercise(exId);
+      }
     });
   });
 }
 
 function deleteDay(dayId){
-  const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{}, settings:{jump:5} };
+  const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{}, settings:{jump:5, microload:false, repsFirstBW:false} };
   p.split = p.split.filter(d => d.id !== dayId);
   state.program = p;
   save();
@@ -798,7 +891,7 @@ function deleteDay(dayId){
 }
 
 function addDay(){
-  const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{}, settings:{jump:5} };
+  const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{}, settings:{jump:5, microload:false, repsFirstBW:false} };
   openModal("Add Day",
     `
       <div class="grid2">
@@ -831,7 +924,7 @@ function addDay(){
 }
 
 function addExerciseToDay(dayId){
-  const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{}, settings:{jump:5} };
+  const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{}, settings:{jump:5, microload:false, repsFirstBW:false} };
   const day = p.split.find(d=>d.id===dayId);
   if(!day) return;
 
@@ -850,6 +943,11 @@ function addExerciseToDay(dayId){
           <div class="tiny">Start weight (${p.units})</div>
           <input id="exW" inputmode="decimal" value="0"/>
         </div>
+
+        <div class="tiny" style="grid-column:1/-1">PR tag (optional)</div>
+        <select id="exPRTag">
+          ${PR_TAGS.map(x=>`<option value="${x.v}">${escapeHtml(x.t)}</option>`).join("")}
+        </select>
 
         <div class="tiny" style="grid-column:1/-1">Target</div>
         <select id="exTargetType">
@@ -903,7 +1001,7 @@ function addExerciseToDay(dayId){
         </div>
 
         <div class="tiny muted" style="grid-column:1/-1;margin-top:6px">
-          Tip: For bodyweight moves, start weight can be 0.
+          Tip: For bodyweight moves, start weight can be 0. If Settings → “Bodyweight reps-first” is on, your targets will auto-increase reps instead of weight.
         </div>
       </div>
     `,
@@ -911,20 +1009,21 @@ function addExerciseToDay(dayId){
     ()=>{
       const name = (document.getElementById("exName").value||"").trim();
       if(!name){ alert("Enter exercise name."); return; }
-      const sets = clamp(num(document.getElementById("exSets").value, 4), 1, 10);
+      const sets = clamp(num(document.getElementById("exSets").value, 4), 1, 20);
       const startW = num(document.getElementById("exW").value, 0);
+      const prTag = document.getElementById("exPRTag").value || "none";
 
       const ttype = document.getElementById("exTargetType").value;
       let target;
       if(ttype==="range"){
         target = {
           type:"range",
-          min: clamp(num(document.getElementById("exMin").value,6),1,50),
-          max: clamp(num(document.getElementById("exMax").value,8),1,50)
+          min: clamp(num(document.getElementById("exMin").value,6),1,200),
+          max: clamp(num(document.getElementById("exMax").value,8),1,200)
         };
         if(target.max < target.min) target.max = target.min;
       } else {
-        target = { type:"fixed", reps: clamp(num(document.getElementById("exFixed").value,3),1,50) };
+        target = { type:"fixed", reps: clamp(num(document.getElementById("exFixed").value,3),1,200) };
       }
 
       const rtype = document.getElementById("exRuleType").value;
@@ -937,7 +1036,7 @@ function addExerciseToDay(dayId){
       }
 
       const exId = "ex_"+uid();
-      p.exercises[exId] = { name, sets, target, startWeight:startW, rule };
+      p.exercises[exId] = { name, sets, target, startWeight:startW, rule, prTag };
       day.exercises.push(exId);
       state.program = p;
 
@@ -975,6 +1074,147 @@ function addExerciseToDay(dayId){
   }, 0);
 }
 
+function editExercise(exId){
+  const p = state.program;
+  const ex = p?.exercises?.[exId];
+  if(!ex) return;
+
+  openModal("Edit Exercise",
+    `
+      <div class="grid2">
+        <div class="tiny" style="grid-column:1/-1">Name</div>
+        <input id="edName" value="${escapeAttr(ex.name||"")}"/>
+
+        <div>
+          <div class="tiny">Sets</div>
+          <input id="edSets" inputmode="numeric" value="${escapeAttr(ex.sets)}"/>
+        </div>
+
+        <div>
+          <div class="tiny">Start weight (${p.units})</div>
+          <input id="edW" inputmode="decimal" value="${escapeAttr(ex.startWeight)}"/>
+        </div>
+
+        <div class="tiny" style="grid-column:1/-1">PR tag</div>
+        <select id="edPRTag">
+          ${PR_TAGS.map(x=>`<option value="${x.v}" ${x.v===(ex.prTag||"none")?"selected":""}>${escapeHtml(x.t)}</option>`).join("")}
+        </select>
+
+        <div class="tiny" style="grid-column:1/-1">Target</div>
+        <select id="edTargetType">
+          <option value="range" ${ex.target.type==="range"?"selected":""}>Rep range</option>
+          <option value="fixed" ${ex.target.type==="fixed"?"selected":""}>Fixed reps</option>
+        </select>
+
+        <div id="edRangeBox" class="grid2" style="grid-column:1/-1; ${ex.target.type==="range"?"":"display:none"}">
+          <div>
+            <div class="tiny">Min</div>
+            <input id="edMin" inputmode="numeric" value="${escapeAttr(ex.target.min ?? 6)}"/>
+          </div>
+          <div>
+            <div class="tiny">Max</div>
+            <input id="edMax" inputmode="numeric" value="${escapeAttr(ex.target.max ?? 8)}"/>
+          </div>
+        </div>
+
+        <div id="edFixedBox" style="grid-column:1/-1; ${ex.target.type==="fixed"?"":"display:none"}">
+          <div class="tiny">Reps</div>
+          <input id="edFixed" inputmode="numeric" value="${escapeAttr(ex.target.reps ?? 3)}"/>
+        </div>
+
+        <div class="tiny" style="grid-column:1/-1">Progression rule</div>
+        <select id="edRuleType">
+          <option value="double" ${(ex.rule?.type||"double")==="double"?"selected":""}>Double progression</option>
+          <option value="fixed" ${(ex.rule?.type||"double")==="fixed"?"selected":""}>Fixed weekly increase</option>
+          <option value="percent" ${(ex.rule?.type||"double")==="percent"?"selected":""}>Percent increase</option>
+        </select>
+
+        <div id="edIncBox" class="grid2" style="grid-column:1/-1; ${(ex.rule?.type||"double")==="percent"?"display:none":""}">
+          <div>
+            <div class="tiny">Increase (${p.units})</div>
+            <input id="edInc" inputmode="decimal" value="${escapeAttr(ex.rule?.inc ?? 5)}"/>
+          </div>
+          <div>
+            <div class="tiny">Deload after 2 misses</div>
+            <select id="edDeload">
+              <option value="yes" ${(ex.rule?.deloadOnMiss2 ?? true) ? "selected":""}>Yes (-10%)</option>
+              <option value="no" ${!(ex.rule?.deloadOnMiss2 ?? true) ? "selected":""}>No</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="edPctBox" class="grid2" style="grid-column:1/-1; ${(ex.rule?.type||"double")==="percent"?"":"display:none"}">
+          <div>
+            <div class="tiny">Percent (%)</div>
+            <input id="edPct" inputmode="decimal" value="${escapeAttr(ex.rule?.pct ?? 2.5)}"/>
+          </div>
+          <div></div>
+        </div>
+
+        <div class="tiny muted" style="grid-column:1/-1;margin-top:6px">
+          Note: changing sets/targets affects future sessions (not past logs).
+        </div>
+      </div>
+    `,
+    "Save","Cancel",
+    ()=>{
+      ex.name = (document.getElementById("edName").value||ex.name).trim();
+      ex.sets = clamp(num(document.getElementById("edSets").value, ex.sets), 1, 30);
+      ex.startWeight = num(document.getElementById("edW").value, ex.startWeight);
+      ex.prTag = document.getElementById("edPRTag").value || "none";
+
+      const ttype = document.getElementById("edTargetType").value;
+      if(ttype==="range"){
+        ex.target = {
+          type:"range",
+          min: clamp(num(document.getElementById("edMin").value, ex.target.min ?? 6),1,200),
+          max: clamp(num(document.getElementById("edMax").value, ex.target.max ?? 8),1,200),
+        };
+        if(ex.target.max < ex.target.min) ex.target.max = ex.target.min;
+      }else{
+        ex.target = { type:"fixed", reps: clamp(num(document.getElementById("edFixed").value, ex.target.reps ?? 3),1,200) };
+      }
+
+      const rtype = document.getElementById("edRuleType").value;
+      const deload = (document.getElementById("edDeload")?.value || "yes") === "yes";
+      if(rtype==="percent"){
+        ex.rule = { type:"percent", pct: num(document.getElementById("edPct").value, 2.5), deloadOnMiss2: deload };
+      }else{
+        ex.rule = { type: rtype, inc: num(document.getElementById("edInc").value, 5), deloadOnMiss2: deload };
+      }
+
+      ensureExerciseState(exId, ex.startWeight);
+      save();
+      closeModal();
+      render();
+      toast("Updated");
+    },
+    ()=>{}
+  );
+
+  setTimeout(()=>{
+    const tsel = document.getElementById("edTargetType");
+    const rsel = document.getElementById("edRuleType");
+    const rangeBox = document.getElementById("edRangeBox");
+    const fixedBox = document.getElementById("edFixedBox");
+    const incBox = document.getElementById("edIncBox");
+    const pctBox = document.getElementById("edPctBox");
+
+    const sync = ()=>{
+      const t = tsel.value;
+      rangeBox.style.display = (t==="range") ? "" : "none";
+      fixedBox.style.display = (t==="fixed") ? "" : "none";
+    };
+    const syncRule = ()=>{
+      const r = rsel.value;
+      incBox.style.display = (r==="percent") ? "none" : "";
+      pctBox.style.display = (r==="percent") ? "" : "none";
+    };
+    tsel.addEventListener("change", sync);
+    rsel.addEventListener("change", syncRule);
+  }, 0);
+}
+
 function removeExerciseFromDay(dayId, exId){
   const p = state.program;
   if(!p) return;
@@ -992,9 +1232,13 @@ $("btnAddDay").addEventListener("click", addDay);
 $("btnFinishSetup").addEventListener("click", ()=>{
   const units = $("setUnits").value;
   const startWeekDate = ($("setStartWeek").value||"").trim() || defaultMonday();
-  const p = state.program || { units, startWeekDate, split:[], exercises:{}, settings:{jump:5} };
+  const p = state.program || { units, startWeekDate, split:[], exercises:{}, settings:{jump:5, microload:false, repsFirstBW:false} };
   p.units = units;
   p.startWeekDate = startWeekDate;
+  p.settings ||= {};
+  p.settings.jump ??= 5;
+  p.settings.microload ??= false;
+  p.settings.repsFirstBW ??= false;
 
   if(!p.split.length){
     alert("Add at least 1 training day.");
@@ -1025,7 +1269,6 @@ function countWeekStats(){
   const wk = weekKeyForDate(today);
   const p = state.program;
   const planned = p ? p.split.length : 0;
-
   const doneThisWeek = state.sessions.filter(s => weekKeyForDate(s.date)===wk).length;
 
   let streak=0;
@@ -1044,13 +1287,15 @@ function countWeekStats(){
   $("stTotal").textContent = state.sessions.length;
 }
 
-function plannedWorkoutForToday(){
+function plannedWorkoutForDate(iso){
   const p=state.program;
   if(!p) return null;
-  const d=isoToday();
-  const dow=dayOfWeek(d);
+  const dow=dayOfWeek(iso);
   const plan = getPlanForWeekday(dow);
-  return { date:d, dow, plan };
+  return { date:iso, dow, plan };
+}
+function plannedWorkoutForToday(){
+  return plannedWorkoutForDate(isoToday());
 }
 
 function renderToday(){
@@ -1068,7 +1313,7 @@ function renderToday(){
     $("todayTitle").textContent = info.plan.title;
     const exIds = info.plan.exercises || [];
     if(!exIds.length){
-      $("todayBox").innerHTML = `No exercises in today’s plan. (Add in Settings)`;
+      $("todayBox").innerHTML = `No exercises in today’s plan. (Add in Edit Split)`;
       $("btnStartWorkout").disabled = true;
     } else {
       const lines = exIds.map(exId=>{
@@ -1078,9 +1323,10 @@ function renderToday(){
         const st=state.exerciseState[exId];
         const tgt = ex.target.type==="range" ? `${ex.target.min}-${ex.target.max}` : `${ex.target.reps}`;
         const w = st.currentWeight;
+        const tag = ex.prTag && ex.prTag!=="none" ? PR_TAGS.find(x=>x.v===ex.prTag)?.t : "";
         return `<div class="item">
           <div>
-            <div class="name">${escapeHtml(ex.name)}</div>
+            <div class="name">${escapeHtml(ex.name)} ${tag?`<span class="badge blue">${escapeHtml(tag)}</span>`:""}</div>
             <div class="tiny muted">${ex.sets} sets • ${tgt} reps • target <b>${w}${p.units}</b></div>
           </div>
           <span class="pill">next: ${w}${p.units}</span>
@@ -1094,9 +1340,9 @@ function renderToday(){
   countWeekStats();
 }
 
-function buildSessionDraft(){
+function buildSessionDraftForDate(iso){
   const p=state.program;
-  const info = plannedWorkoutForToday();
+  const info = plannedWorkoutForDate(iso);
   if(!info?.plan) return null;
   const {date,dow,plan} = info;
 
@@ -1121,9 +1367,14 @@ function buildSessionDraft(){
 }
 
 $("btnStartWorkout").addEventListener("click", ()=>{
-  sessionDraft = buildSessionDraft();
+  sessionDraft = buildSessionDraftForDate(isoToday());
   if(!sessionDraft){ toast("No plan today"); return; }
   setActiveTab("logger");
+});
+
+$("btnEditSplitToday").addEventListener("click", ()=>{
+  showScreen("screenSetup");
+  renderSetup();
 });
 
 $("btnBackToday").addEventListener("click", ()=> setActiveTab("today"));
@@ -1135,7 +1386,7 @@ function ruleText(exDef, units){
   const r=exDef.rule||{type:"double",inc:5};
   const deload = (r.deloadOnMiss2 ?? true) ? " • deload -10% after 2 misses" : "";
   if(r.type==="double"){
-    if(exDef.target.type==="range") return `Double progression: hit top reps on all sets → +${r.inc||5}${units}.${deload}`;
+    if(exDef.target.type==="range") return `Double:s: hit top reps on all sets → +${r.inc||5}${units}.${deload}`;
     return `Fixed reps: complete all sets → +${r.inc||5}${units}.${deload}`;
   }
   if(r.type==="fixed"){
@@ -1144,23 +1395,30 @@ function ruleText(exDef, units){
   return `Percent increase: if successful → +${r.pct||2.5}%.${deload}`;
 }
 
+function getJumpForExercise(exDef){
+  const base = num(state.program?.settings?.jump ?? 5, 5);
+  const micro = !!(state.program?.settings?.microload);
+  const tag = (exDef.prTag||"none");
+  // Microload: bench/ohp default 2.5 (lb), squat/deadlift keep base
+  if(micro && (tag==="bench" || tag==="ohp")) return 2.5;
+  return base;
+}
+
 function renderLogger(){
   const p=state.program;
   if(!sessionDraft || !p){
-    $("loggerExercises").innerHTML = `<div class="content"><div class="card"><div class="tiny muted">No active workout. Start from Today.</div></div></div>`;
+    $("loggerExercises").innerHTML = `<div class="content"><div class="card"><div class="tiny muted">No active workout. Start from Today / Calendar planned day.</div></div></div>`;
     $("fabAddExerciseToSession").classList.remove("show");
     return;
   }
 
   $("loggerTitle").textContent = "Log";
   $("loggerName").textContent = sessionDraft.workoutTitle;
-  $("loggerMeta").textContent = `Targets in ${p.units}. Quick buttons use your jump size in Settings.`;
+  $("loggerMeta").textContent = `Targets in ${p.units}. Enter on reps jumps to next reps.`;
   $("loggerDate").textContent = sessionDraft.date;
 
   const box=$("loggerExercises");
   box.innerHTML = "";
-
-  const jump = state.program?.settings?.jump ?? 5;
 
   sessionDraft.exercises.forEach((exLog, idx)=>{
     const exDef = p.exercises[exLog.exId];
@@ -1169,18 +1427,33 @@ function renderLogger(){
     const tgt = exDef.target.type==="range" ? `${exDef.target.min}-${exDef.target.max}` : `${exDef.target.reps}`;
     const st = state.exerciseState[exLog.exId] || { currentWeight: exDef.startWeight, misses:0 };
     const targetW = st.currentWeight;
+    const jump = getJumpForExercise(exDef);
 
     const card=document.createElement("div");
     card.className="card";
     card.style.marginTop="12px";
+
     card.innerHTML = `
       <div class="row" style="justify-content:space-between">
         <div>
-          <div class="name">${escapeHtml(exDef.name)}</div>
-          <div class="tiny muted">${exDef.sets} sets • ${tgt} reps • target <b>${targetW}${p.units}</b></div>
+          <div class="name">${escapeHtml(exDef.name)} ${(exDef.prTag && exDef.prTag!=="none")?`<span class="badge blue">${escapeHtml(PR_TAGS.find(x=>x.v===exDef.prTag)?.t||"PR")}</span>`:""}</div>
+          <div class="tiny muted">${exLog.sets.length} sets • ${tgt} reps • target <b>${targetW}${p.units}</b></div>
         </div>
         <div class="right">
           <span class="badge">misses: ${st.misses||0}</span>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+
+      <div class="row" style="justify-content:space-between;gap:10px">
+        <div class="miniBtns">
+          <button class="mini btnGhost" data-act="copySet1" data-e="${idx}">Copy set 1 → all</button>
+          <button class="mini btnGhost" data-act="fillMin" data-e="${idx}">Fill reps = min</button>
+        </div>
+        <div class="miniBtns">
+          <button class="mini btnGhost" data-act="addSet" data-e="${idx}">+ Set</button>
+          <button class="mini btnGhost" data-act="delSet" data-e="${idx}">– Set</button>
         </div>
       </div>
 
@@ -1242,21 +1515,55 @@ function renderLogger(){
       if(e<0) return;
 
       const exL = sessionDraft.exercises[e];
+      const exDefLocal = p.exercises[exL.exId];
       const set = (i>=0) ? exL.sets[i] : null;
-      const jump = state.program?.settings?.jump ?? 5;
+      const jumpLocal = getJumpForExercise(exDefLocal);
+
+      if(act==="copySet1"){
+        if(exL.sets.length){
+          const s0 = exL.sets[0];
+          for(let k=0;k<exL.sets.length;k++){
+            exL.sets[k].w = s0.w;
+            exL.sets[k].r = s0.r;
+          }
+          toast("Copied");
+          render();
+        }
+      }
+      if(act==="fillMin"){
+        const min = exDefLocal.target.type==="range" ? num(exDefLocal.target.min,6) : num(exDefLocal.target.reps,3);
+        for(const s of exL.sets){
+          if(num(s.r,0)===0) s.r = min;
+        }
+        toast("Filled");
+        render();
+      }
+      if(act==="addSet"){
+        const last = exL.sets[exL.sets.length-1] || {w: targetW, r: 0, done:false};
+        exL.sets.push({ w: num(last.w,targetW), r: num(last.r,0), done:false });
+        toast("+ Set");
+        render();
+      }
+      if(act==="delSet"){
+        if(exL.sets.length>1){
+          exL.sets.pop();
+          toast("– Set");
+          render();
+        }
+      }
 
       if(act==="toggle" && set){
         set.done = !set.done;
         if(set.done && num(set.r,0)===0){
-          if(exDef.target.type==="range") set.r = exDef.target.min;
-          else set.r = exDef.target.reps;
+          if(exDefLocal.target.type==="range") set.r = exDefLocal.target.min;
+          else set.r = exDefLocal.target.reps;
         }
         render();
       }
-      if(act==="repUp" && set){ set.r = clamp(num(set.r,0)+1, 0, 100); render(); }
-      if(act==="repDn" && set){ set.r = clamp(num(set.r,0)-1, 0, 100); render(); }
-      if(act==="wUp" && set){ set.w = num(set.w,0)+jump; render(); }
-      if(act==="wDn" && set){ set.w = Math.max(0, num(set.w,0)-jump); render(); }
+      if(act==="repUp" && set){ set.r = clamp(num(set.r,0)+1, 0, 200); render(); }
+      if(act==="repDn" && set){ set.r = clamp(num(set.r,0)-1, 0, 200); render(); }
+      if(act==="wUp" && set){ set.w = num(set.w,0)+jumpLocal; render(); }
+      if(act==="wDn" && set){ set.w = Math.max(0, num(set.w,0)-jumpLocal); render(); }
       if(act==="copyPrev" && set){
         if(i>0){
           set.w = exL.sets[i-1].w;
@@ -1266,18 +1573,33 @@ function renderLogger(){
       }
     });
 
-    card.querySelectorAll("input[data-act='w']").forEach(inp=>{
+    // Input handlers (including Enter auto-advance on reps)
+    const inputsW = card.querySelectorAll("input[data-act='w']");
+    const inputsR = card.querySelectorAll("input[data-act='r']");
+
+    inputsW.forEach(inp=>{
       inp.addEventListener("input", ()=>{
         const e=num(inp.getAttribute("data-e"),-1), i=num(inp.getAttribute("data-i"),-1);
         sessionDraft.exercises[e].sets[i].w = num(inp.value,0);
       });
     });
-    card.querySelectorAll("input[data-act='r']").forEach(inp=>{
+
+    inputsR.forEach((inp, idxR)=>{
       inp.addEventListener("input", ()=>{
         const e=num(inp.getAttribute("data-e"),-1), i=num(inp.getAttribute("data-i"),-1);
         sessionDraft.exercises[e].sets[i].r = num(inp.value,0);
       });
+      inp.addEventListener("keydown", (ev)=>{
+        if(ev.key==="Enter"){
+          ev.preventDefault();
+          // Focus next reps cell
+          const next = inputsR[idxR+1];
+          if(next) next.focus();
+          else toast("Last set");
+        }
+      });
     });
+
     card.querySelectorAll("input[data-act='note']").forEach(inp=>{
       inp.addEventListener("input", ()=>{
         const e=num(inp.getAttribute("data-e"),-1);
@@ -1340,38 +1662,77 @@ $("btnFinishWorkout").addEventListener("click", ()=>{
   }, 0);
 });
 
-$("fabAddExerciseToSession").addEventListener("click", ()=> toast("MVP: add exercises in Settings"));
+$("fabAddExerciseToSession").addEventListener("click", ()=> toast("Tip: add exercises in Setup (Edit Split)"));
 
 /* =========================
-   Settings (FIXED: no duplicate handlers)
+   Settings
 ========================= */
 $("btnSettings").addEventListener("click", ()=>{
   const p = state.program;
+  p.settings ||= {};
+  p.settings.jump ??= 5;
+  p.settings.microload ??= false;
+  p.settings.repsFirstBW ??= false;
+
   openModal("Settings",
     `
       <div class="grid2">
         <div>
           <div class="tiny">Jump size (${p.units})</div>
-          <input id="stJump" inputmode="decimal" value="${escapeAttr(p.settings?.jump ?? 5)}"/>
+          <input id="stJump" inputmode="decimal" value="${escapeAttr(p.settings.jump)}"/>
+          <div class="tiny muted" style="margin-top:6px">Used for quick +/– buttons (except microload rules).</div>
+        </div>
+        <div>
+          <div class="tiny">Microload bench/OHP</div>
+          <select id="stMicro">
+            <option value="off" ${p.settings.microload?"" :"selected"}>Off</option>
+            <option value="on"  ${p.settings.microload?"selected":""}>On (2.5 for Bench/OHP)</option>
+          </select>
+          <div class="tiny muted" style="margin-top:6px">If an exercise has PR tag Bench/OHP, quick weight buttons use 2.5.</div>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+
+      <div class="grid2">
+        <div>
+          <div class="tiny">Bodyweight reps-first</div>
+          <select id="stBW">
+            <option value="off" ${p.settings.repsFirstBW?"" :"selected"}>Off</option>
+            <option value="on"  ${p.settings.repsFirstBW?"selected":""}>On (increase reps)</option>
+          </select>
+          <div class="tiny muted" style="margin-top:6px">If start weight = 0 and you succeed, targets increase reps instead of weight.</div>
         </div>
         <div>
           <div class="tiny">Edit split</div>
           <button id="goSetup" class="btnGhost" style="width:100%">Open Setup</button>
         </div>
       </div>
+
       <div class="sep"></div>
+
       <div class="row">
-        <button id="exportBtn" class="btnGhost" style="flex:1">Export backup</button>
+        <button id="exportBtn" class="btnGhost" style="flex:1">Download backup</button>
         <button id="importBtn" class="btnGhost" style="flex:1">Import backup</button>
       </div>
+
       <div class="sep"></div>
+
       <button id="wipeBtn" class="btnDanger" style="width:100%">Delete ALL data</button>
+
+      <div class="tiny muted" style="margin-top:10px">
+        Auto-backup is saved weekly on this device.
+      </div>
     `,
     "Save","Close",
     ()=>{
       const jump = num(document.getElementById("stJump").value, 5);
+      const micro = (document.getElementById("stMicro").value === "on");
+      const bw = (document.getElementById("stBW").value === "on");
       state.program.settings ||= {};
       state.program.settings.jump = jump;
+      state.program.settings.microload = micro;
+      state.program.settings.repsFirstBW = bw;
       save();
       closeModal();
       toast("Settings saved");
@@ -1388,22 +1749,48 @@ $("btnSettings").addEventListener("click", ()=>{
     });
 
     document.getElementById("exportBtn").addEventListener("click", ()=>{
-      prompt("Copy this backup JSON:", JSON.stringify(state));
+      const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `liftlog-backup-${isoToday()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast("Downloaded");
     });
 
     document.getElementById("importBtn").addEventListener("click", ()=>{
-      const raw = prompt("Paste backup JSON:");
-      if(!raw) return;
-      try{
-        const parsed = JSON.parse(raw);
-        state = parsed;
-        save();
-        toast("Imported");
-        closeModal();
-        render();
-      }catch{
-        alert("Import failed.");
-      }
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "application/json";
+      input.onchange = ()=>{
+        const file = input.files && input.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = ()=>{
+          try{
+            const parsed = JSON.parse(String(reader.result||""));
+            state = parsed;
+            // normalize
+            state.program ||= null;
+            state.sessions ||= [];
+            state.exerciseState ||= {};
+            state.prs ||= {};
+            state.ui ||= {activeTab:"today"};
+            state.meta ||= {lastBackupAt:null};
+            save();
+            toast("Imported");
+            closeModal();
+            render();
+          }catch{
+            alert("Import failed.");
+          }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
     });
 
     document.getElementById("wipeBtn").addEventListener("click", ()=>{
@@ -1429,8 +1816,91 @@ function monthName(y,m){
   return `${mons[m]} ${y}`;
 }
 
+function weekStartISO(iso){
+  const d=new Date(iso+"T12:00:00");
+  const dow=d.getDay();
+  d.setDate(d.getDate()-dow);
+  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), day=String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+
+function addDays(iso, n){
+  const d=new Date(iso+"T12:00:00");
+  d.setDate(d.getDate()+n);
+  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), day=String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+
+function renderWeekStrip(){
+  const start = weekStartISO(isoToday());
+  const p = state.program;
+  const doneMap = new Map();
+  for(const s of state.sessions) doneMap.set(s.date, s);
+
+  const box = $("weekStrip");
+  box.innerHTML = "";
+
+  for(let i=0;i<7;i++){
+    const iso = addDays(start, i);
+    const dow = dayOfWeek(iso);
+    const plan = p?.split?.find(x=>x.weekday===dow);
+    const sess = doneMap.get(iso);
+
+    const dot = sess ? `<span class="dot ${sess.rating==='hard'?'amber':''}"></span>` : (plan ? `<span class="dot blue"></span>` : ``);
+    const title = sess ? sess.workoutTitle : (plan ? plan.title : "Rest");
+
+    const d=new Date(iso+"T12:00:00");
+    const label=["S","M","T","W","T","F","S"][d.getDay()];
+
+    const el=document.createElement("div");
+    el.className="wkDay" + (iso===isoToday() ? " today" : "");
+    el.innerHTML = `
+      <div class="wkTop"><span>${label} ${d.getDate()}</span><span>${dot}</span></div>
+      <div class="wkTitle">${escapeHtml(title||"")}</div>
+    `;
+    el.addEventListener("click", ()=>{
+      if(sess){
+        calSelected = sess.date;
+        renderCalDetail(sess);
+        toast("Selected");
+      }else if(plan){
+        renderPlannedDetail(iso, plan.title);
+      }else{
+        $("calDetail").innerHTML = `<div class="tiny"><b>${prettyDate(iso)}</b></div><div class="sep"></div><div class="tiny muted">Rest day.</div>`;
+      }
+    });
+    box.appendChild(el);
+  }
+}
+
+function renderPlannedDetail(iso, plannedTitle){
+  $("calDetail").innerHTML = `
+    <div class="tiny"><b>${prettyDate(iso)}</b> • Planned: <b>${escapeHtml(plannedTitle)}</b></div>
+    <div class="sep"></div>
+    <div class="row" style="gap:10px">
+      <button id="startPlannedBtn" class="btnGood" style="flex:1">Start this workout</button>
+      <button id="goTodayBtn" class="btnGhost" style="flex:1">Go to Today</button>
+    </div>
+    <div class="sep"></div>
+    <div class="tiny muted">Starting this will create a draft session for that date.</div>
+  `;
+  setTimeout(()=>{
+    const b1=document.getElementById("startPlannedBtn");
+    const b2=document.getElementById("goTodayBtn");
+    if(b1) b1.addEventListener("click", ()=>{
+      sessionDraft = buildSessionDraftForDate(iso);
+      if(!sessionDraft){ toast("No plan"); return; }
+      toast("Started");
+      setActiveTab("logger");
+    });
+    if(b2) b2.addEventListener("click", ()=> setActiveTab("today"));
+  }, 0);
+}
+
 function renderCalendar(){
   $("calMonth").textContent = monthName(calCursor.y, calCursor.m);
+  renderWeekStrip();
+
   const grid = $("calGrid");
   grid.innerHTML = "";
 
@@ -1473,6 +1943,8 @@ function renderCalendar(){
     }
   }
 
+  const filter = $("calFilter")?.value || "both";
+
   for(const c of cells){
     const mm = String(c.m+1).padStart(2,"0");
     const dd = String(c.day).padStart(2,"0");
@@ -1481,17 +1953,32 @@ function renderCalendar(){
     const sess = doneMap.get(iso);
     const plannedTitle = plannedMap.get(iso);
 
+    const showDone = !!sess;
+    const showPlanned = !!plannedTitle && !sess;
+
+    if(!c.off){
+      if(filter==="done" && !showDone) {
+        // still render but no dot/title (keeps grid shape)
+      }
+      if(filter==="planned" && !(plannedTitle)) {
+        // still render but no dot/title
+      }
+    }
+
     const cell=document.createElement("div");
     cell.className = "calCell" + (c.off ? " off" : "");
 
     let dotHtml = "";
-    if(sess){
+    if(showDone && (filter==="both" || filter==="done")){
       dotHtml = `<span class="dot ${sess.rating==='hard'?'amber':''}"></span>`;
-    } else if(plannedTitle){
-      dotHtml = `<span class="dot" style="background: var(--blue)"></span>`;
+    } else if(showPlanned && (filter==="both" || filter==="planned")){
+      dotHtml = `<span class="dot blue"></span>`;
     }
 
-    const title = sess ? sess.workoutTitle : (plannedTitle || "");
+    const title =
+      (showDone && (filter==="both" || filter==="done")) ? sess.workoutTitle :
+      (showPlanned && (filter==="both" || filter==="planned")) ? plannedTitle :
+      "";
 
     cell.innerHTML = `
       <div class="calNum">
@@ -1507,11 +1994,9 @@ function renderCalendar(){
           calSelected = sess.date;
           renderCalDetail(sess);
         } else if(plannedTitle){
-          $("calDetail").innerHTML = `
-            <div class="tiny"><b>${prettyDate(iso)}</b> • Planned: <b>${escapeHtml(plannedTitle)}</b></div>
-            <div class="sep"></div>
-            <div class="tiny muted">Log the workout from the Today tab to make this a completed session.</div>
-          `;
+          renderPlannedDetail(iso, plannedTitle);
+        } else {
+          $("calDetail").innerHTML = `<div class="tiny"><b>${prettyDate(iso)}</b></div><div class="sep"></div><div class="tiny muted">Rest day.</div>`;
         }
       });
     }
@@ -1522,7 +2007,6 @@ function renderCalendar(){
   if(calSelected){
     const sess = doneMap.get(calSelected);
     if(sess) renderCalDetail(sess);
-    else $("calDetail").textContent="Tap a completed day.";
   }
 }
 
@@ -1579,9 +2063,10 @@ $("calNext").addEventListener("click", ()=>{
   if(calCursor.m>11){ calCursor.m=0; calCursor.y+=1; }
   render();
 });
+$("calFilter").addEventListener("change", ()=> render());
 
 /* =========================
-   PRs (FIXED: uses exId->name from program)
+   PRs (BY TAG)
 ========================= */
 function renderPRs(){
   const p = state.program;
@@ -1598,9 +2083,17 @@ function renderPRs(){
     startIso = `${start.getFullYear()}-${String(start.getMonth()+1).padStart(2,"0")}-${String(start.getDate()).padStart(2,"0")}`;
   }
 
-  const targetNames = new Set(["smith flat bench", "smith squat"]);
+  // Collect exercises by tag
+  const exByTag = {};
+  for(const exId of Object.keys(p.exercises||{})){
+    const ex = p.exercises[exId];
+    const tag = ex.prTag || "none";
+    if(tag==="none") continue;
+    exByTag[tag] ||= [];
+    exByTag[tag].push({exId, name: ex.name});
+  }
 
-  function collect(targetLower){
+  function collect(tag){
     const inWindow = [];
     const before = [];
 
@@ -1609,19 +2102,18 @@ function renderPRs(){
 
       for(const exLog of sess.exercises){
         const exDef = p.exercises?.[exLog.exId];
-        const nm = (exDef?.name || "").trim().toLowerCase();
-        if(nm !== targetLower) continue;
+        if(!exDef) continue;
+        if((exDef.prTag||"none") !== tag) continue;
 
         for(const st of (exLog.sets || [])){
           const w = num(st.w,0), r = num(st.r,0);
           if(w<=0 || r<=0) continue;
-          const row = { date: sess.date, w, r, e1rm: e1rmEpley(w,r) };
+          const row = { date: sess.date, w, r, e1rm: e1rmEpley(w,r), exName: exDef.name };
           if(sess.date >= startIso && sess.date <= endIso) inWindow.push(row);
           else if(sess.date < startIso) before.push(row);
         }
       }
     }
-
     return { inWindow, before };
   }
 
@@ -1643,16 +2135,15 @@ function renderPRs(){
     return ((newVal-oldVal)/oldVal)*100;
   }
 
-  const lifts = [
-    { key:"smith flat bench", label:"Smith Flat Bench" },
-    { key:"smith squat", label:"Smith Squat" }
-  ];
+  const order = ["bench","squat","deadlift","ohp","row","pullup"];
+  const tagsToShow = order.filter(t=>exByTag[t]?.length).concat(Object.keys(exByTag).filter(t=>!order.includes(t)));
 
   let cardsHtml = "";
   let history = [];
 
-  for(const L of lifts){
-    const { inWindow, before } = collect(L.key);
+  for(const tag of tagsToShow){
+    const label = PR_TAGS.find(x=>x.v===tag)?.t || tag;
+    const { inWindow, before } = collect(tag);
     inWindow.sort((a,b)=> a.date.localeCompare(b.date));
     before.sort((a,b)=> a.date.localeCompare(b.date));
 
@@ -1669,10 +2160,13 @@ function renderPRs(){
 
     const bestE1rmTxt = win.bestE ? `${Math.round(win.bestE)} e1RM` : "—";
     const bestE1rmDate = win.bestERow ? prettyDate(win.bestERow.date) : "—";
+    const bestE1rmName = win.bestERow ? win.bestERow.exName : "—";
 
     const heavyTxt = win.heavyW ? `${win.heavyW} × ${win.bestRepsAtHeavyW}` : "—";
     const heavyDate = win.heavyRow ? prettyDate(win.heavyRow.date) : "—";
+    const heavyName = win.heavyRow ? win.heavyRow.exName : "—";
 
+    // PR history (e1RM) per tag across all time
     const all = [...before, ...inWindow].sort((a,b)=> a.date.localeCompare(b.date));
     let bestSoFar = 0;
     for(const x of all){
@@ -1680,7 +2174,7 @@ function renderPRs(){
         bestSoFar = x.e1rm;
         history.push({
           date: x.date,
-          text: `${L.label}: New e1RM PR ${Math.round(x.e1rm)} (from ${x.w}×${x.r})`
+          text: `${label}: New e1RM PR ${Math.round(x.e1rm)} (${x.exName}: ${x.w}×${x.r})`
         });
       }
     }
@@ -1689,8 +2183,8 @@ function renderPRs(){
       <div class="card" style="margin-top:12px">
         <div class="row" style="justify-content:space-between;align-items:flex-start">
           <div>
-            <div class="name">${escapeHtml(L.label)}</div>
-            <div class="tiny muted">Window: ${days===7?"Week":days===30?"Month":days===365?"Year":"All time"}</div>
+            <div class="name">${escapeHtml(label)}</div>
+            <div class="tiny muted">Exercises tagged: ${exByTag[tag].length}</div>
           </div>
           <div class="right">
             <span class="pill">PR change: <b>${prPctStr}</b></span>
@@ -1701,20 +2195,27 @@ function renderPRs(){
 
         <div class="row" style="gap:10px;flex-wrap:wrap">
           <span class="pill">Best e1RM: <b>${bestE1rmTxt}</b> <span class="tiny muted">(${bestE1rmDate})</span></span>
-          <span class="pill">Heaviest set: <b>${heavyTxt}</b> <span class="tiny muted">(${heavyDate})</span></span>
+          <span class="pill">Lift: <b>${escapeHtml(bestE1rmName)}</b></span>
         </div>
 
-        <div class="tiny muted" style="margin-top:8px">
-          Uses Epley e1RM from your best set in the selected window.
+        <div class="row" style="gap:10px;flex-wrap:wrap;margin-top:8px">
+          <span class="pill">Heaviest set: <b>${heavyTxt}</b> <span class="tiny muted">(${heavyDate})</span></span>
+          <span class="pill">Lift: <b>${escapeHtml(heavyName)}</b></span>
         </div>
+
+        <div class="tiny muted" style="margin-top:8px">PRs are computed from your best set (Epley e1RM).</div>
       </div>
     `;
   }
 
-  $("prCards").innerHTML = cardsHtml || `<div class="item"><div class="tiny muted">No PR data yet.</div></div>`;
-
-  const label = days===7?"this week":days===30?"this month":days===365?"this year":"all time";
-  $("prSummary").textContent = `Tracking 2 lifts (${label}). Make sure the exercise names match exactly.`;
+  if(!tagsToShow.length){
+    $("prCards").innerHTML = `<div class="card" style="margin-top:12px"><div class="tiny muted">No PR tags yet. Go to Setup and tag your Bench/Squat/etc.</div></div>`;
+    $("prSummary").textContent = "No tagged PR exercises yet.";
+  }else{
+    $("prCards").innerHTML = cardsHtml;
+    const label = days===7?"this week":days===30?"this month":days===365?"this year":"all time";
+    $("prSummary").textContent = `Showing tagged PRs (${label}).`;
+  }
 
   history.sort((a,b)=> b.date.localeCompare(a.date));
   if(history.length){
@@ -1726,12 +2227,12 @@ function renderPRs(){
       </div>`)
       .join(`<div class="sep"></div>`);
   } else {
-    $("prHistory").textContent = "No PRs yet — once you log bench/squat, PR history will appear here.";
+    $("prHistory").textContent = "No PRs yet — once you log sets, PR history will appear here.";
   }
 }
 
 /* =========================
-   Progress screen (FIXED duplicates)
+   Progress screen (last 3 sessions + % + lbs)
 ========================= */
 function renderProgress(){
   const p = state.program;
@@ -1757,192 +2258,224 @@ function renderProgress(){
   start.setDate(start.getDate() - (days - 1));
   const startIso = `${start.getFullYear()}-${String(start.getMonth()+1).padStart(2,"0")}-${String(start.getDate()).padStart(2,"0")}`;
 
-  function bestE1rmFromSession(exLog){
-    let best = 0;
+  function bestFromExLog(exLog){
+    let bestE=0;
+    let bestSet=null; // {w,r}
     for(const s of exLog.sets || []){
       const w = num(s.w,0), r = num(s.r,0);
-      best = Math.max(best, e1rmEpley(w,r));
-    }
-    return best;
-  }
-
-  const series = {};
-  const beforeMax = {};
-  for(const exId of exIds){ series[exId] = []; beforeMax[exId] = 0; }
-
-  for(const sess of (state.sessions || [])){
-    const d = sess.date;
-    if(!sess.exercises) continue;
-
-    for(const exLog of sess.exercises){
-      const exId = exLog.exId;
-      if(!series[exId]) continue;
-
-      const best = bestE1rmFromSession(exLog);
-      if(best <= 0) continue;
-
-      if(d >= startIso && d <= endIso){
-        series[exId].push({ date: d, e1rm: best });
-      } else if(d < startIso){
-        beforeMax[exId] = Math.max(beforeMax[exId], best);
+            const w = num(s.w,0), r = num(s.r,0);
+      if(w<=0 || r<=0) continue;
+      const e = e1rmEpley(w,r);
+      if(e > bestE){
+        bestE = e;
+        bestSet = { w, r, e1rm: e };
       }
     }
+    return bestSet;
   }
 
-  let counted = 0;
-  let sumPct = 0;
+  function lastNSessionsForExercise(exId, n, startIso, endIso){
+    const rows = [];
+    for(const s of (state.sessions||[])){
+      if(s.date < startIso || s.date > endIso) continue;
+      for(const exLog of (s.exercises||[])){
+        if(exLog.exId !== exId) continue;
+        const best = bestFromExLog(exLog);
+        if(best){
+          rows.push({ date: s.date, best, workoutTitle: s.workoutTitle });
+        }
+      }
+    }
+    rows.sort((a,b)=> b.date.localeCompare(a.date));
+    return rows.slice(0,n);
+  }
+
+  function bestBeforeWindow(exId, startIso){
+    let bestE = 0;
+    let bestRow = null;
+    for(const s of (state.sessions||[])){
+      if(s.date >= startIso) continue;
+      for(const exLog of (s.exercises||[])){
+        if(exLog.exId !== exId) continue;
+        const best = bestFromExLog(exLog);
+        if(best && best.e1rm > bestE){
+          bestE = best.e1rm;
+          bestRow = { date:s.date, best };
+        }
+      }
+    }
+    return bestRow; // {date, best:{w,r,e1rm}} or null
+  }
+
+  function pctChange(newVal, oldVal){
+    if(!newVal || !oldVal) return null;
+    if(oldVal<=0) return null;
+    return ((newVal-oldVal)/oldVal)*100;
+  }
+
+  // Summary: average e1RM change across all exercises that have any data in window
+  let sumPct = 0, countPct = 0, newPRs = 0;
 
   for(const exId of exIds){
     const ex = p.exercises[exId];
-    const arr = series[exId] || [];
-    arr.sort((a,b)=> a.date.localeCompare(b.date));
+    const recent = lastNSessionsForExercise(exId, 1, startIso, endIso);
+    if(!recent.length) continue;
 
-    const first = arr.length ? arr[0].e1rm : 0;
-    const last  = arr.length ? arr[arr.length-1].e1rm : 0;
+    const newest = recent[0].best.e1rm;
+    const prev = bestBeforeWindow(exId, startIso);
+    const prevE = prev ? prev.best.e1rm : 0;
 
-    let pctStr = "—";
-    let pctNum = null;
-    if(first > 0 && last > 0){
-      pctNum = ((last - first) / first) * 100;
-      pctStr = `${pctNum >= 0 ? "+" : ""}${pctNum.toFixed(1)}%`;
-      counted++;
-      sumPct += pctNum;
+    const prAll = state.prs?.[exId]?.bestE1RM;
+    if(prAll?.date && prAll.date >= startIso && prAll.date <= endIso) newPRs++;
+
+    const pct = pctChange(newest, prevE);
+    if(pct !== null){
+      sumPct += pct;
+      countPct++;
     }
-
-    const winBest = arr.reduce((m,x)=>Math.max(m,x.e1rm), 0);
-    const prevBest = beforeMax[exId] || 0;
-
-    // Only show PR% for Smith Flat Bench / Smith Squat (by name match)
-    const exNameLower = (ex.name || "").trim().toLowerCase();
-    const isPrimaryPR = (exNameLower === "smith flat bench" || exNameLower === "smith squat");
-
-    let prPctStr = "—";
-    if(isPrimaryPR){
-      if(winBest > 0 && prevBest > 0){
-        const prPct = ((winBest - prevBest) / prevBest) * 100;
-        prPctStr = `${prPct >= 0 ? "+" : ""}${prPct.toFixed(1)}%`;
-      } else if(winBest > 0 && prevBest === 0){
-        prPctStr = `NEW`;
-      }
-    }
-
-    const right = `
-      <div class="right" style="flex-direction:column;align-items:flex-end;gap:2px">
-        <span class="pill">Strength: <b>${pctStr}</b></span>
-        <span class="pill">PR: <b>${prPctStr}</b></span>
-      </div>
-    `;
-
-    const div = document.createElement("div");
-    div.className = "item";
-    div.innerHTML = `
-      <div>
-        <div class="name">${escapeHtml(ex.name)}</div>
-        <div class="tiny muted">
-          Window: ${days===7?"Week":days===30?"Month":"Year"} •
-          e1RM ${first?Math.round(first):"—"} → ${last?Math.round(last):"—"} •
-          Best in window: ${winBest?Math.round(winBest):"—"}
-        </div>
-      </div>
-      ${right}
-    `;
-    box.appendChild(div);
   }
 
-  const avg = counted ? (sumPct / counted) : null;
-  const label = days===7 ? "this week" : days===30 ? "this month" : "this year";
-  $("progSummary").textContent =
-    avg === null
-      ? `Not enough data ${label} yet. Log a couple sessions and this will fill in.`
-      : `Average strength change ${label}: ${avg >= 0 ? "+" : ""}${avg.toFixed(1)}% (across ${counted} exercise(s)).`;
+  const windowLabel = days===7 ? "last 7 days" : days===30 ? "last 30 days" : days===365 ? "last 365 days" : `last ${days} days`;
+  const avgPct = countPct ? (sumPct/countPct) : null;
+
+  $("progSummary").innerHTML =
+    `Compared to before this window (${escapeHtml(windowLabel)}): ` +
+    (avgPct===null ? `<b>Not enough data yet</b>` : `<b>${avgPct>=0?"+":""}${avgPct.toFixed(1)}%</b> average e1RM change`) +
+    ` • New PRs: <b>${newPRs}</b>`;
+
+  // Render each exercise row
+  for(const exId of exIds){
+    const ex = p.exercises[exId];
+    const recent3 = lastNSessionsForExercise(exId, 3, startIso, endIso);
+    if(!recent3.length) continue;
+
+    const newest = recent3[0].best.e1rm;
+    const prev = bestBeforeWindow(exId, startIso);
+    const prevE = prev ? prev.best.e1rm : 0;
+
+    const pct = pctChange(newest, prevE);
+    const pctTxt = (pct===null)
+      ? (prevE===0 ? "NEW" : "—")
+      : `${pct>=0?"+":""}${pct.toFixed(1)}%`;
+
+    const lastLines = recent3.map(r=>{
+      const setTxt = `${r.best.w}×${r.best.r} (e1RM ${Math.round(r.best.e1rm)})`;
+      return `<div class="tiny muted">${escapeHtml(prettyDate(r.date))}: ${escapeHtml(setTxt)}</div>`;
+    }).join("");
+
+    const tag = ex.prTag && ex.prTag!=="none" ? (PR_TAGS.find(x=>x.v===ex.prTag)?.t || "PR") : "";
+    const tagBadge = tag ? `<span class="badge blue">${escapeHtml(tag)}</span>` : "";
+
+    const row = document.createElement("div");
+    row.className = "item";
+    row.innerHTML = `
+      <div>
+        <div class="name">${escapeHtml(ex.name)} ${tagBadge}</div>
+        <div class="tiny">Change: <b>${escapeHtml(pctTxt)}</b> • Latest e1RM: <b>${Math.round(newest)}</b></div>
+        <div style="margin-top:6px">${lastLines}</div>
+      </div>
+      <div class="right">
+        <button class="mini btnGhost" data-ex="${exId}">View</button>
+      </div>
+    `;
+    row.querySelector("button").addEventListener("click", ()=>{
+      // jump to PRs tab and set window to "All time" to see it
+      $("prWindow").value = "99999";
+      setActiveTab("prs");
+    });
+    box.appendChild(row);
+  }
+
+  if(!box.children.length){
+    box.innerHTML = `<div class="item"><div class="tiny muted">No logs in this window yet.</div></div>`;
+  }
 }
 
 /* =========================
-   Render + Init (FIXED)
+   Tabs + Router
+========================= */
+function renderTabs(){
+  tabEl("tabToday", state.ui.activeTab==="today");
+  tabEl("tabLogger", state.ui.activeTab==="logger");
+  tabEl("tabCalendar", state.ui.activeTab==="calendar");
+  tabEl("tabProgress", state.ui.activeTab==="progress");
+  tabEl("tabPRs", state.ui.activeTab==="prs");
+}
+
+$("tabToday").addEventListener("click", ()=> setActiveTab("today"));
+$("tabLogger").addEventListener("click", ()=>{
+  // If no active draft, start today's if possible; otherwise show hint
+  if(!sessionDraft){
+    const info = plannedWorkoutForToday();
+    if(info?.plan && (info.plan.exercises||[]).length){
+      sessionDraft = buildSessionDraftForDate(isoToday());
+    }
+  }
+  setActiveTab("logger");
+});
+$("tabCalendar").addEventListener("click", ()=> setActiveTab("calendar"));
+$("tabProgress").addEventListener("click", ()=> setActiveTab("progress"));
+$("tabPRs").addEventListener("click", ()=> setActiveTab("prs"));
+
+$("prWindow").addEventListener("change", ()=> render());
+$("progWindow").addEventListener("change", ()=> render());
+
+/* =========================
+   Boot / render
 ========================= */
 function render(){
+  renderTabs();
+
+  // If no program, show setup always
   if(!state.program){
     showScreen("screenSetup");
     renderSetup();
-    tabEl("tabToday", false);
-    tabEl("tabLogger", false);
-    tabEl("tabCalendar", false);
-    tabEl("tabProgress", false);
-    tabEl("tabPRs", false);
-    $("fabAddExerciseToSession").classList.remove("show");
     return;
   }
 
-  const t = state.ui.activeTab || "today";
-  tabEl("tabToday", t==="today");
-  tabEl("tabLogger", t==="logger");
-  tabEl("tabCalendar", t==="calendar");
-  tabEl("tabProgress", t==="progress");
-  tabEl("tabPRs", t==="prs");
-
-  if(t==="today"){
+  if(state.ui.activeTab==="today"){
     showScreen("screenToday");
     renderToday();
-    $("fabAddExerciseToSession").classList.remove("show");
-  } else if(t==="logger"){
+  } else if(state.ui.activeTab==="logger"){
     showScreen("screenLogger");
     renderLogger();
-  } else if(t==="calendar"){
+  } else if(state.ui.activeTab==="calendar"){
     showScreen("screenCalendar");
     renderCalendar();
-    $("fabAddExerciseToSession").classList.remove("show");
-  } else if(t==="progress"){
+  } else if(state.ui.activeTab==="progress"){
     showScreen("screenProgress");
     renderProgress();
-    $("fabAddExerciseToSession").classList.remove("show");
-  } else if(t==="prs"){
+  } else if(state.ui.activeTab==="prs"){
     showScreen("screenPRs");
     renderPRs();
-    $("fabAddExerciseToSession").classList.remove("show");
   } else {
-    // fallback
-    setActiveTab("today");
+    showScreen("screenToday");
+    renderToday();
   }
 }
 
-// Tabs
-$("tabToday").addEventListener("click", ()=>setActiveTab("today"));
-$("tabLogger").addEventListener("click", ()=>{
-  if(!sessionDraft) { toast("Start from Today"); setActiveTab("today"); return; }
-  setActiveTab("logger");
-});
-$("tabCalendar").addEventListener("click", ()=>setActiveTab("calendar"));
-$("tabProgress").addEventListener("click", ()=>setActiveTab("progress"));
-$("tabPRs").addEventListener("click", ()=>setActiveTab("prs"));
-
-// Window selectors live-update
-$("progWindow").addEventListener("change", ()=>{ if(state.ui.activeTab==="progress") render(); });
-$("prWindow").addEventListener("change", ()=>{ if(state.ui.activeTab==="prs") render(); });
-
-// First time boot: make program shell so setup works
-if(!state.program){
-  state.program = { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{}, settings:{ jump:5 } };
+// If setup exists but startWeekDate empty, patch
+if(state.program){
+  state.program.startWeekDate ||= defaultMonday();
+  state.program.settings ||= {jump:5, microload:false, repsFirstBW:false};
   save();
 }
 
-// If no split -> force setup
-if(state.program && (!state.program.split || state.program.split.length===0)){
-  showScreen("screenSetup");
-  renderSetup();
-} else {
-  render();
-}
+// Initial render
+render();
 
-// If setup screen is open, keep it rendered
-const obs = new MutationObserver(()=>{
-  if($("screenSetup").classList.contains("show")) renderSetup();
-});
-obs.observe(document.body, { attributes:true, subtree:true, attributeFilter:["class"] });
-
+/* =========================
+   Safe HTML helpers
+========================= */
 function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+  return String(s ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#39;");
 }
-function escapeAttr(s){ return escapeHtml(s).replace(/"/g,"&quot;"); }
+function escapeAttr(s){ return escapeHtml(s); }
 </script>
 </body>
 </html>
