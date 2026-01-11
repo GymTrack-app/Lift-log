@@ -4,7 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#0b0b0f"/>
-  <title>LiftLog</title>
+  <title>LiftLog MVP</title>
   <style>
     :root{
       --bg:#0b0b0f;
@@ -26,16 +26,7 @@
       padding-top: env(safe-area-inset-top);
       padding-bottom: calc(72px + env(safe-area-inset-bottom));
     }
-    button, input, select{
-      border:1px solid var(--line);
-      background:#0f0f18;color:var(--text);
-      border-radius:14px;padding:10px 12px;font-size:14px;
-    }
-    button{cursor:pointer}
-    button:active{transform:scale(.99)}
-    .muted{color:var(--muted)}
-    .tiny{font-size:12px;color:var(--muted)}
-    .app{max-width:520px;margin:0 auto}
+    .app{max-width:560px;margin:0 auto}
     .topbar{
       position:sticky;top:0;z-index:20;
       background: rgba(11,11,15,.86);
@@ -44,18 +35,12 @@
       padding: 10px 12px;
     }
     .navrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
-    .back{display:flex;align-items:center;gap:8px;color:var(--green);font-weight:600}
-    .back span{font-size:16px}
-    .title{font-size:17px;font-weight:700;text-align:center;flex:1}
-    .dots{width:34px;height:34px;border-radius:12px;display:grid;place-items:center;border:1px solid var(--line);color:var(--green)}
+    .title{font-size:17px;font-weight:800;text-align:center;flex:1}
+    .pill{
+      font-size:11px;color:var(--muted);border:1px solid rgba(42,42,62,.7);
+      padding:4px 8px;border-radius:999px
+    }
     .content{padding:12px}
-    .sectionHead{
-      display:flex;align-items:center;justify-content:space-between;margin:6px 2px 10px;
-    }
-    .dateRow{
-      display:flex;align-items:center;gap:10px;margin:6px 2px 10px;
-      color:var(--muted);font-size:12px;letter-spacing:.4px;text-transform:uppercase
-    }
     .card{
       background: linear-gradient(180deg, rgba(23,23,38,.92), rgba(18,18,26,.92));
       border:1px solid var(--line);
@@ -63,33 +48,22 @@
       padding: 12px;
       box-shadow: var(--shadow);
     }
-    .compareHead{
-      display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px;letter-spacing:.3px;text-transform:uppercase
+    .muted{color:var(--muted)}
+    .tiny{font-size:12px;color:var(--muted)}
+    button, input, select, textarea{
+      border:1px solid var(--line);
+      background:#0f0f18;color:var(--text);
+      border-radius:14px;padding:10px 12px;font-size:14px;
     }
-    .metrics{
-      margin-top:10px;
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-    }
-    .metric{
-      border:1px solid rgba(42,42,62,.7);
-      border-radius:16px;
-      padding:10px;
-      background: rgba(12,12,18,.45);
-    }
-    .metric .label{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}
-    .bar{
-      width:6px;height:22px;border-radius:999px;background:var(--muted);display:inline-block
-    }
-    .bar.red{background:var(--red)}
-    .bar.green{background:var(--green)}
-    .bar.blue{background:var(--blue)}
-    .bar.amber{background:var(--amber)}
-    .metric .value{margin-top:6px;font-size:22px;font-weight:800;line-height:1}
-    .delta{margin-top:6px;font-size:12px}
-    .delta.up{color:var(--green)}
-    .delta.down{color:var(--red)}
+    textarea{min-height:80px;resize:vertical}
+    button{cursor:pointer}
+    button:active{transform:scale(.99)}
+    .btnGood{background: rgba(31,228,138,.15);border-color: rgba(31,228,138,.35);}
+    .btnDanger{background: rgba(255,77,109,.12);border-color: rgba(255,77,109,.35);}
+    .btnGhost{background: rgba(255,255,255,.04);}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media (max-width:520px){ .grid2{grid-template-columns:1fr} }
     .list{
       margin-top:12px;
       border-radius: var(--radius);
@@ -104,16 +78,31 @@
       border-bottom:1px solid rgba(42,42,62,.65);
       display:flex;justify-content:space-between;align-items:center
     }
-    .row{
+    .item{
       display:flex;align-items:center;justify-content:space-between;
       padding: 12px;
-      border-bottom:1px solid rgba(42,42,62,.4);
+      border-bottom:1px solid rgba(42,42,62,.35);
     }
-    .row:last-child{border-bottom:none}
-    .time{color:var(--muted);font-size:12px;width:82px}
-    .rep{font-weight:800;color:var(--green);font-size:16px}
-    .wt{font-weight:800;color:var(--amber);font-size:16px}
-    .chev{color:#6f7687}
+    .item:last-child{border-bottom:none}
+    .name{font-weight:800}
+    .right{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+    .tabs{
+      position: fixed;left:0;right:0;bottom:0;z-index:30;
+      background: rgba(11,11,15,.92);
+      backdrop-filter: blur(12px);
+      border-top:1px solid rgba(42,42,62,.65);
+      padding: 8px 10px calc(10px + env(safe-area-inset-bottom));
+    }
+    .tabsInner{
+      max-width:560px;margin:0 auto;
+      display:flex;justify-content:space-around;align-items:center;
+      gap:10px;
+    }
+    .tab{display:flex;flex-direction:column;align-items:center;gap:4px;color:#7e8596;font-size:11px;cursor:pointer;user-select:none}
+    .tab.active{color:var(--green)}
+    .icon{width:22px;height:22px;border-radius:6px;border:1px solid rgba(42,42,62,.7);display:grid;place-items:center;font-weight:900}
+    .screen{display:none}
+    .screen.show{display:block}
     .fab{
       position: fixed;
       left:50%;
@@ -125,25 +114,43 @@
       border:none;
       color:#03110a;
       font-size:36px;
-      display:grid;place-items:center;
+      display:none;
+      place-items:center;
       z-index: 40;
     }
-    .tabs{
-      position: fixed;left:0;right:0;bottom:0;z-index:30;
-      background: rgba(11,11,15,.92);
-      backdrop-filter: blur(12px);
-      border-top:1px solid rgba(42,42,62,.65);
-      padding: 8px 10px calc(10px + env(safe-area-inset-bottom));
+    .fab.show{display:grid}
+
+    /* Logger table */
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid rgba(42,42,62,.5);padding:8px 6px;font-size:13px;text-align:left}
+    th{color:var(--muted);font-weight:700;font-size:12px}
+    .chk{width:20px;height:20px;border-radius:8px;border:1px solid rgba(42,42,62,.7);display:grid;place-items:center}
+    .chk.on{border-color: rgba(31,228,138,.6); background: rgba(31,228,138,.12); color: var(--green); font-weight:900}
+    .miniBtns{display:flex;gap:6px;flex-wrap:wrap}
+    .mini{padding:7px 9px;border-radius:12px;font-size:12px}
+    .sep{height:1px;background:rgba(42,42,62,.55);margin:12px 0}
+    .badge{font-size:11px;padding:4px 8px;border-radius:999px;border:1px solid rgba(42,42,62,.7);color:var(--muted)}
+    .badge.good{border-color: rgba(31,228,138,.45); color: var(--green); background: rgba(31,228,138,.10);}
+    .badge.hard{border-color: rgba(255,176,32,.45); color: var(--amber); background: rgba(255,176,32,.08);}
+
+    /* Calendar */
+    .calHead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .calGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:10px}
+    .calCell{
+      border:1px solid rgba(42,42,62,.6);
+      border-radius:14px;
+      padding:8px;
+      min-height:64px;
+      background: rgba(12,12,18,.35);
+      cursor:pointer;
     }
-    .tabsInner{
-      max-width:520px;margin:0 auto;
-      display:flex;justify-content:space-around;align-items:center;
-      gap:10px;
-    }
-    .tab{display:flex;flex-direction:column;align-items:center;gap:4px;color:#7e8596;font-size:11px}
-    .tab.active{color:var(--green)}
-    .icon{width:22px;height:22px;border-radius:6px;border:1px solid rgba(42,42,62,.7);display:grid;place-items:center;font-weight:800}
-    /* modal */
+    .calCell.off{opacity:.35;cursor:default}
+    .calNum{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+    .dot{width:8px;height:8px;border-radius:99px;background:var(--green);display:inline-block}
+    .dot.amber{background:var(--amber)}
+    .calTitle{margin-top:6px;font-size:11px;color:var(--text);opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    /* Modal */
     .overlay{
       position:fixed;inset:0;background:rgba(0,0,0,.55);
       display:none;z-index:60;align-items:flex-end;justify-content:center;
@@ -151,7 +158,7 @@
     }
     .overlay.show{display:flex}
     .sheet{
-      width:min(520px, 100%);
+      width:min(560px, 100%);
       background: rgba(18,18,26,.96);
       border:1px solid var(--line);
       border-radius: 22px;
@@ -159,238 +166,273 @@
       padding: 14px;
     }
     .sheet h3{margin:4px 2px 10px;font-size:16px}
-    .grid{
-      display:grid;grid-template-columns:1fr 1fr;gap:10px;
+    .toast{
+      position:fixed;left:50%;bottom:calc(82px + env(safe-area-inset-bottom));
+      transform:translateX(-50%);
+      background:#111122;border:1px solid rgba(42,42,62,.8);
+      padding:10px 12px;border-radius:999px;font-size:12px;color:var(--text);
+      opacity:0;pointer-events:none;transition:.18s;z-index:80
     }
-    .full{grid-column:1/-1}
-    .actions{display:flex;gap:10px;margin-top:12px}
-    .btnGood{background: rgba(31,228,138,.15);border-color: rgba(31,228,138,.35);color:var(--text)}
-    .btnDanger{background: rgba(255,77,109,.12);border-color: rgba(255,77,109,.35);color:var(--text)}
-    .chipRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
-    .chip{
-      padding:8px 10px;border-radius:999px;border:1px solid rgba(42,42,62,.75);
-      background: rgba(12,12,18,.35);color:var(--muted);font-size:12px
-    }
-    .chip b{color:var(--text)}
-    /* screens */
-    .screen{display:none}
-    .screen.show{display:block}
-    .exerciseItem{
-      display:flex;align-items:center;justify-content:space-between;
-      padding:12px;border-bottom:1px solid rgba(42,42,62,.35);
-    }
-    .exerciseItem:last-child{border-bottom:none}
-    .exerciseName{font-weight:750}
-    .pill{
-      font-size:11px;color:var(--muted);border:1px solid rgba(42,42,62,.7);
-      padding:4px 8px;border-radius:999px
-    }
-    .topActions{display:flex;gap:8px}
-    .miniBtn{padding:9px 10px;border-radius:14px}
-    .success{color:var(--green)}
+    .toast.show{opacity:1}
   </style>
 </head>
 <body>
 <div class="app">
 
-  <!-- EXERCISES SCREEN -->
-  <div id="screenExercises" class="screen show">
+  <!-- SETUP -->
+  <div id="screenSetup" class="screen">
     <div class="topbar">
       <div class="navrow">
-        <div class="back" style="visibility:hidden"><span>‹</span> Back</div>
-        <div class="title">Exercises</div>
-        <div class="topActions">
-          <button id="btnAddExercise" class="miniBtn">+ Exercise</button>
-        </div>
+        <div style="width:80px"></div>
+        <div class="title">Setup</div>
+        <div style="width:80px"></div>
       </div>
     </div>
     <div class="content">
       <div class="card">
-        <div class="tiny">Tap an exercise to log sets like your screenshots.</div>
-        <div class="chipRow" style="margin-top:10px">
-          <div class="chip"><b>Stores locally</b> (your phone)</div>
-          <div class="chip"><b>Compared to previous</b> auto</div>
-          <div class="chip"><b>Progress target</b> auto</div>
-        </div>
-      </div>
+        <div class="tiny">Set your split once. Then logging is fast + auto-progress.</div>
+        <div class="sep"></div>
 
-      <div style="height:12px"></div>
-
-      <div class="list">
-        <div class="listHeader">
-          <span>My Exercises</span>
-          <span class="tiny">Last session + target</span>
+        <div class="grid2">
+          <div>
+            <div class="tiny">Units</div>
+            <select id="setUnits">
+              <option value="lb">lbs</option>
+              <option value="kg">kg</option>
+            </select>
+          </div>
+          <div>
+            <div class="tiny">Start week date (Monday)</div>
+            <input id="setStartWeek" placeholder="YYYY-MM-DD"/>
+          </div>
         </div>
-        <div id="exerciseList"></div>
+
+        <div class="sep"></div>
+
+        <div class="row" style="justify-content:space-between">
+          <div>
+            <div class="name">Your Split</div>
+            <div class="tiny">Add days (Upper/Lower etc.) + exercises inside them.</div>
+          </div>
+          <button id="btnAddDay" class="btnGood">+ Day</button>
+        </div>
+
+        <div id="daysBox" class="list" style="margin-top:10px">
+          <div class="listHeader"><span>Days</span><span class="tiny">tap to add exercises</span></div>
+          <div id="daysList"></div>
+        </div>
+
+        <div class="sep"></div>
+        <button id="btnFinishSetup" class="btnGood" style="width:100%">Finish Setup</button>
+        <div class="tiny" style="margin-top:10px">You can edit this later in Settings.</div>
       </div>
     </div>
   </div>
 
-  <!-- EXERCISE DETAIL SCREEN -->
-  <div id="screenDetail" class="screen">
+  <!-- TODAY -->
+  <div id="screenToday" class="screen">
     <div class="topbar">
       <div class="navrow">
-        <div id="btnBack" class="back"><span>‹</span> Exercises</div>
-        <div id="detailTitle" class="title">Exercise</div>
-        <div class="dots" id="btnMore">•••</div>
+        <div style="width:80px"></div>
+        <div class="title">Today</div>
+        <button id="btnSettings" class="btnGhost" style="width:80px">Settings</button>
       </div>
     </div>
-
     <div class="content">
-      <div class="dateRow">
-        <span id="detailDate"></span>
-      </div>
-
       <div class="card">
-        <div class="compareHead">↔ Compared to previous</div>
-
-        <div class="metrics">
-          <div class="metric">
-            <div class="label"><span class="bar red"></span> Sets</div>
-            <div class="value" id="mSets">0</div>
-            <div class="delta" id="dSets">—</div>
+        <div class="row" style="justify-content:space-between">
+          <div>
+            <div class="name" id="todayTitle">—</div>
+            <div class="tiny" id="todaySub">—</div>
           </div>
-
-          <div class="metric">
-            <div class="label"><span class="bar green"></span> Repetitions</div>
-            <div class="value" id="mReps">0</div>
-            <div class="delta" id="dReps">—</div>
-          </div>
-
-          <div class="metric">
-            <div class="label"><span class="bar blue"></span> Volume (lb)</div>
-            <div class="value" id="mVol">0</div>
-            <div class="delta" id="dVol">—</div>
-          </div>
-
-          <div class="metric">
-            <div class="label"><span class="bar amber"></span> lb/rep</div>
-            <div class="value" id="mLbr">0</div>
-            <div class="delta" id="dLbr">—</div>
-          </div>
+          <span class="pill" id="todayDatePill">—</span>
         </div>
 
-        <div class="hr" style="height:1px;background:rgba(42,42,62,.55);margin:12px 0"></div>
+        <div class="sep"></div>
 
-        <div class="tiny">Next time target:</div>
-        <div id="nextTarget" style="margin-top:6px;font-weight:800"></div>
+        <div id="todayBox" class="tiny muted">—</div>
+
+        <div class="sep"></div>
+        <button id="btnStartWorkout" class="btnGood" style="width:100%">Start Workout</button>
       </div>
 
       <div style="height:12px"></div>
 
-      <div class="list">
-        <div class="listHeader">
-          <span id="sessionLabel">Today</span>
-          <span class="tiny">tap to edit</span>
+      <div class="card">
+        <div class="name">Quick stats</div>
+        <div class="sep"></div>
+        <div class="grid2">
+          <div class="tiny">Planned sessions this week: <b id="stPlanned">0</b></div>
+          <div class="tiny">Completed this week: <b id="stDone">0</b></div>
+          <div class="tiny">Streak (days trained): <b id="stStreak">0</b></div>
+          <div class="tiny">Total sessions: <b id="stTotal">0</b></div>
         </div>
-        <div id="setList"></div>
       </div>
     </div>
+  </div>
 
-    <button class="fab" id="fabAddSet">+</button>
+  <!-- LOGGER -->
+  <div id="screenLogger" class="screen">
+    <div class="topbar">
+      <div class="navrow">
+        <button id="btnBackToday" class="btnGhost" style="width:80px">Back</button>
+        <div class="title" id="loggerTitle">Workout</div>
+        <button id="btnFinishWorkout" class="btnGood" style="width:100px">Finish</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="row" style="justify-content:space-between">
+          <div>
+            <div class="name" id="loggerName">—</div>
+            <div class="tiny" id="loggerMeta">—</div>
+          </div>
+          <span class="pill" id="loggerDate">—</span>
+        </div>
+        <div class="sep"></div>
+        <div class="tiny">Tap cells to edit. Use quick buttons for speed.</div>
+      </div>
+
+      <div id="loggerExercises"></div>
+    </div>
+    <button class="fab" id="fabAddExerciseToSession">+</button>
+  </div>
+
+  <!-- CALENDAR -->
+  <div id="screenCalendar" class="screen">
+    <div class="topbar">
+      <div class="navrow">
+        <div style="width:80px"></div>
+        <div class="title">Calendar</div>
+        <div style="width:80px"></div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="calHead">
+          <button id="calPrev" class="btnGhost">‹</button>
+          <div class="name" id="calMonth">—</div>
+          <button id="calNext" class="btnGhost">›</button>
+        </div>
+        <div class="sep"></div>
+        <div class="calGrid tiny muted" style="margin-top:0">
+          <div style="text-align:center">S</div><div style="text-align:center">M</div><div style="text-align:center">T</div>
+          <div style="text-align:center">W</div><div style="text-align:center">T</div><div style="text-align:center">F</div><div style="text-align:center">S</div>
+        </div>
+        <div class="calGrid" id="calGrid"></div>
+        <div class="tiny" style="margin-top:10px">Tap a day to view workout details.</div>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <div class="card">
+        <div class="name">Selected Day</div>
+        <div class="sep"></div>
+        <div id="calDetail" class="tiny muted">Tap a completed day.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div id="screenProgress" class="screen">
+    <div class="topbar">
+      <div class="navrow">
+        <div style="width:80px"></div>
+        <div class="title">Progress</div>
+        <div style="width:80px"></div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="name">How much stronger did you get?</div>
+        <div class="sep"></div>
+        <div class="tiny muted">Uses estimated 1RM (Epley) + PR tracking.</div>
+      </div>
+
+      <div class="list">
+        <div class="listHeader"><span>Exercises</span><span class="tiny">best e1RM</span></div>
+        <div id="progList"></div>
+      </div>
+    </div>
   </div>
 
 </div>
 
-<!-- Bottom tabs (visual only, like your screenshot) -->
+<!-- Tabs -->
 <div class="tabs">
   <div class="tabsInner">
-    <div class="tab active"><div class="icon">≡</div><div>Sets</div></div>
-    <div class="tab"><div class="icon">⏱</div><div>Sessions</div></div>
-    <div class="tab"><div class="icon">▦</div><div>Today</div></div>
+    <div class="tab" id="tabToday"><div class="icon">▦</div><div>Today</div></div>
+    <div class="tab" id="tabLogger"><div class="icon">≡</div><div>Log</div></div>
+    <div class="tab" id="tabCalendar"><div class="icon">📅</div><div>Calendar</div></div>
+    <div class="tab" id="tabProgress"><div class="icon">📈</div><div>Progress</div></div>
   </div>
 </div>
 
-<!-- Modal / sheet -->
+<!-- Modal -->
 <div class="overlay" id="overlay">
-  <div class="sheet">
-    <h3 id="sheetTitle">Add Set</h3>
-    <div class="grid">
-      <div class="full tiny" id="sheetHint">Log your set. Weight optional for bodyweight moves.</div>
-      <input id="inReps" inputmode="numeric" placeholder="Reps (e.g., 10)"/>
-      <input id="inWeight" inputmode="decimal" placeholder="Weight lb (optional)"/>
-      <select id="inTime" class="full"></select>
-
-      <div class="full tiny">Progression rules</div>
-      <select id="inMode" class="full">
-        <option value="repRange">Rep range (double progression)</option>
-        <option value="fixedReps">Fixed reps (strength)</option>
-      </select>
-
-      <input id="inMin" inputmode="numeric" placeholder="Min reps (e.g., 6)"/>
-      <input id="inMax" inputmode="numeric" placeholder="Max reps (e.g., 10)"/>
-      <input id="inFixed" inputmode="numeric" placeholder="Fixed reps (e.g., 3)" style="display:none"/>
-      <input id="inInc" inputmode="numeric" placeholder="Increase lb (e.g., 5)"/>
-    </div>
-
-    <div class="actions">
-      <button id="btnSave" class="btnGood" style="flex:1">Save</button>
-      <button id="btnCancel" class="btnDanger" style="flex:1">Cancel</button>
+  <div class="sheet" id="sheet">
+    <h3 id="sheetTitle">—</h3>
+    <div id="sheetBody"></div>
+    <div class="row" style="margin-top:12px">
+      <button id="sheetOk" class="btnGood" style="flex:1">OK</button>
+      <button id="sheetCancel" class="btnDanger" style="flex:1">Cancel</button>
     </div>
   </div>
 </div>
+
+<div class="toast" id="toast">Saved</div>
 
 <script>
 /* =========================
-   Data model (localStorage)
+   Storage + State
 ========================= */
-const KEY = "liftlog_v2";
+const KEY = "liftlog_mvp_v1";
 const $ = (id) => document.getElementById(id);
 
-function todayKey(){
-  const d = new Date();
+function toast(msg="Saved"){
+  const t=$("toast");
+  t.textContent=msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), 900);
+}
+
+function isoToday(){
+  const d=new Date();
   const y=d.getFullYear();
-  const m=String(d.getMonth()+1).padStart(2,'0');
-  const day=String(d.getDate()).padStart(2,'0');
+  const m=String(d.getMonth()+1).padStart(2,"0");
+  const day=String(d.getDate()).padStart(2,"0");
   return `${y}-${m}-${day}`;
 }
+
+function dayOfWeek(iso){ // 0=Sun..6=Sat
+  const d=new Date(iso+"T12:00:00");
+  return d.getDay();
+}
+
 function prettyDate(iso){
-  // THU, 16 JAN 2025 style-ish
-  const d = new Date(iso+"T12:00:00");
+  const d=new Date(iso+"T12:00:00");
   const days=["SUN","MON","TUE","WED","THU","FRI","SAT"];
   const mons=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
   return `${days[d.getDay()]}, ${d.getDate()} ${mons[d.getMonth()]} ${d.getFullYear()}`;
 }
-function timeOptions(){
-  // Build times like 3:24 PM, in 5-min increments
-  const arr=[];
-  const now=new Date();
-  const base=new Date(now);
-  base.setSeconds(0); base.setMilliseconds(0);
-  // Offer last 60 minutes + now
-  for(let i=12;i>=0;i--){
-    const t=new Date(base.getTime() - i*5*60*1000);
-    arr.push(formatTime(t));
-  }
-  return arr;
-}
-function formatTime(d){
-  let h=d.getHours(); const m=String(d.getMinutes()).padStart(2,'0');
-  const ampm = h>=12 ? "PM":"AM";
-  h = h%12; if(h===0) h=12;
-  return `${h}:${m} ${ampm}`;
-}
+
 function uid(){ return Math.random().toString(16).slice(2)+Date.now().toString(16); }
 function num(x, fb=0){ const n=Number(x); return Number.isFinite(n)?n:fb; }
+function clamp(n,a,b){ return Math.max(a,Math.min(b,n)); }
 
 function load(){
   try{
     const raw=localStorage.getItem(KEY);
     if(!raw) throw 0;
     const s=JSON.parse(raw);
-    // minimal defaults
-    s.exercises ||= [];
-    s.sessions ||= {}; // exerciseId -> [{date, sets:[{time,reps,weight}...], scheme...}]
+    s.program ||= null;
+    s.sessions ||= [];
+    s.exerciseState ||= {}; // exId -> {currentWeight, misses}
+    s.prs ||= {}; // exId -> PRs
+    s.ui ||= { activeTab:"today" };
     return s;
   }catch{
-    return {
-      exercises: [
-        // starter examples like screenshot
-        {id: uid(), name:"Pull-Ups", scheme:"repRange", min:6, max:10, fixed:5, inc:0, bodyweight:true},
-        {id: uid(), name:"Squat", scheme:"fixedReps", min:3, max:3, fixed:3, inc:5, bodyweight:false}
-      ],
-      sessions: {}
-    };
+    return { program:null, sessions:[], exerciseState:{}, prs:{}, ui:{activeTab:"today"} };
   }
 }
 function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
@@ -398,421 +440,1194 @@ function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
 let state = load();
 
 /* =========================
-   Navigation state
+   Program model helpers
 ========================= */
-let currentExerciseId = null;
+const WEEKDAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
-function showScreen(which){
-  $("screenExercises").classList.toggle("show", which==="exercises");
-  $("screenDetail").classList.toggle("show", which==="detail");
+function defaultMonday(){
+  // set to current week Monday
+  const d=new Date();
+  const dow=d.getDay(); // Sun 0
+  const diff = (dow===0? -6 : 1-dow); // move to Monday
+  d.setDate(d.getDate()+diff);
+  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), day=String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+
+function ensureExerciseState(exId, startWeight){
+  if(!state.exerciseState[exId]){
+    state.exerciseState[exId] = { currentWeight: startWeight, misses: 0 };
+  }
+}
+
+function getPlanForWeekday(dow){
+  const p=state.program;
+  if(!p) return null;
+  return p.split.find(s => s.weekday === dow) || null;
 }
 
 /* =========================
-   Calculations (compared card)
+   Progress + PR calculations
 ========================= */
-function sessionStats(session){
-  const sets = session?.sets || [];
-  const setsCount = sets.length;
-  const reps = sets.reduce((a,s)=>a+num(s.reps,0),0);
-  const volume = sets.reduce((a,s)=>a + (num(s.weight,0)*num(s.reps,0)),0);
-  const lbr = reps>0 ? (volume/reps) : 0;
-  return {sets:setsCount, reps, volume, lbr};
+function e1rmEpley(w, r){
+  if(w<=0 || r<=0) return 0;
+  return w * (1 + (r/30));
 }
-function deltaText(curr, prev, decimals=0){
-  if(prev===0 && curr===0) return {txt:"▲ 0 (0%)", cls:""};
-  if(prev===0 && curr!==0) return {txt:`▲ ${fmt(curr,decimals)} (—)`, cls:"up"};
-  const diff = curr - prev;
-  const pct = (diff/prev)*100;
-  const arrow = diff>=0 ? "▲":"▼";
-  const cls = diff>=0 ? "up":"down";
-  return {txt:`${arrow} ${fmt(Math.abs(diff),decimals)} (${fmt(Math.abs(pct),1)}%)`, cls};
+
+function computeSession(session){
+  let totalVol=0;
+  const e1rms = {};
+  for(const exLog of session.exercises){
+    let best = { w:0, r:0, e1:0 };
+    for(const set of exLog.sets){
+      const w=num(set.w,0), r=num(set.r,0);
+      totalVol += w*r;
+      const e1 = e1rmEpley(w,r);
+      if(e1 > best.e1){
+        best = { w, r, e1 };
+      }
+    }
+    e1rms[exLog.exId] = best.e1;
+  }
+  session.computed = session.computed || {};
+  session.computed.volume = Math.round(totalVol);
+  session.computed.e1rm = e1rms;
+  return session;
 }
-function fmt(n, decimals=0){
-  return (decimals===0) ? String(Math.round(n)) : n.toFixed(decimals);
+
+function updatePRsFromSession(session){
+  for(const exLog of session.exercises){
+    const exId = exLog.exId;
+    const sets = exLog.sets;
+    if(!sets.length) continue;
+
+    state.prs[exId] ||= {
+      bestWeight:{value:0,date:null},
+      bestE1RM:{value:0,date:null},
+      bestVolume:{value:0,date:null},
+      bestRepsAtWeight:{weight:0,reps:0,date:null}
+    };
+
+    let bestW=0, bestE1=0, exVol=0;
+
+    for(const s of sets){
+      const w=num(s.w,0), r=num(s.r,0);
+      bestW = Math.max(bestW, w);
+      bestE1 = Math.max(bestE1, e1rmEpley(w,r));
+      exVol += w*r;
+
+      // reps at weight PR (simple: if same weight and higher reps)
+      if(w>0){
+        const cur = state.prs[exId].bestRepsAtWeight;
+        if(cur.weight===0 || w > cur.weight || (w===cur.weight && r>cur.reps)){
+          state.prs[exId].bestRepsAtWeight = { weight:w, reps:r, date: session.date };
+        }
+      }
+    }
+
+    if(bestW > state.prs[exId].bestWeight.value){
+      state.prs[exId].bestWeight = { value: bestW, date: session.date };
+    }
+    if(bestE1 > state.prs[exId].bestE1RM.value){
+      state.prs[exId].bestE1RM = { value: Math.round(bestE1), date: session.date };
+    }
+    if(exVol > state.prs[exId].bestVolume.value){
+      state.prs[exId].bestVolume = { value: Math.round(exVol), date: session.date };
+    }
+  }
 }
 
 /* =========================
-   Progression target
+   Progression engine
 ========================= */
-function makeTarget(ex, lastSession){
-  if(!lastSession || !lastSession.sets?.length) return "Log your first session to get a target.";
+function isSuccessForExercise(exDef, exLog){
+  const sets = exLog.sets;
+  if(!sets.length) return false;
 
-  const scheme = ex.scheme;
-  const inc = num(ex.inc, 5);
-  const sets = lastSession.sets;
+  // consider a set "attempted" if reps >0
+  const attempted = sets.filter(s => num(s.r,0) > 0);
+  if(!attempted.length) return false;
 
-  // “working weight”: most common weight in that session (ignore 0 for bodyweight)
-  const weights = sets.map(s=>num(s.weight,0)).filter(w=>w>0);
-  let w = 0;
-  if(weights.length){
-    const freq=new Map();
-    for(const ww of weights) freq.set(ww,(freq.get(ww)||0)+1);
-    w = [...freq.entries()].sort((a,b)=>b[1]-a[1])[0][0];
+  if(exDef.target.type === "range"){
+    const min = num(exDef.target.min, 6);
+    return attempted.every(s => num(s.r,0) >= min);
+  } else {
+    const reps = num(exDef.target.reps, 3);
+    return attempted.every(s => num(s.r,0) >= reps);
+  }
+}
+
+function hitTopRangeAllSets(exDef, exLog){
+  if(exDef.target.type !== "range") return false;
+  const max = num(exDef.target.max, 10);
+  const attempted = exLog.sets.filter(s => num(s.r,0) > 0);
+  if(!attempted.length) return false;
+  return attempted.every(s => num(s.r,0) >= max);
+}
+
+function applyProgression(exDef, exLog){
+  const exId = exLog.exId;
+  ensureExerciseState(exId, exDef.startWeight);
+  const st = state.exerciseState[exId];
+  const rule = exDef.rule || {type:"double", inc:5};
+
+  const success = isSuccessForExercise(exDef, exLog);
+  const topHit = hitTopRangeAllSets(exDef, exLog);
+
+  // deload rule: if miss 2 times in a row -> -10%
+  if(!success){
+    st.misses = (st.misses || 0) + 1;
+    if((rule.deloadOnMiss2 ?? true) && st.misses >= 2){
+      st.currentWeight = Math.max(0, Math.round(st.currentWeight * 0.9));
+      st.misses = 0;
+    }
+    return;
   }
 
-  if(ex.bodyweight || w===0){
-    // bodyweight progression: add reps first, then add weight if you start weighting
-    const top = scheme==="repRange" ? num(ex.max,10) : num(ex.fixed,5);
-    const allHit = sets.every(s => num(s.reps,0) >= top);
-    if(allHit) return `✅ Hit your reps on all sets → next time: +1 rep on 1–2 sets (or start adding +${inc} lb).`;
-    return `➡️ Next time: beat last session by +1 total rep across sets.`;
-  }
+  // success resets misses
+  st.misses = 0;
 
-  if(scheme==="repRange"){
-    const top=num(ex.max,10);
-    const allHitTop = sets.every(s => num(s.reps,0) >= top && num(s.weight,0) > 0);
-    if(allHitTop) return `✅ All sets hit ${top}+ reps → next time: ${w + inc} lb (same rep range).`;
-    return `➡️ Keep ${w} lb → add reps until all sets reach ${top}, then add +${inc} lb.`;
+  if(rule.type === "double"){
+    const inc = num(rule.inc, 5);
+    if(exDef.target.type === "range"){
+      if(topHit) st.currentWeight = st.currentWeight + inc;
+    }else{
+      // fixed reps strength: if success, add
+      st.currentWeight = st.currentWeight + inc;
+    }
+  } else if(rule.type === "fixed"){
+    const inc = num(rule.inc, 5);
+    st.currentWeight = st.currentWeight + inc;
+  } else if(rule.type === "percent"){
+    const pct = num(rule.pct, 2.5)/100;
+    st.currentWeight = Math.round(st.currentWeight * (1+pct));
   }
-
-  // fixed reps
-  const fixed=num(ex.fixed,3);
-  const allDone = sets.every(s => num(s.reps,0) >= fixed && num(s.weight,0) > 0);
-  if(allDone) return `✅ Completed all sets @ ${fixed} reps → next time: ${w + inc} lb.`;
-  return `➡️ Keep ${w} lb → complete all sets @ ${fixed} reps, then add +${inc} lb.`;
 }
 
 /* =========================
-   Rendering
+   UI Routing + Tabs
 ========================= */
-function renderExercises(){
-  const box = $("exerciseList");
-  box.innerHTML = "";
-  for(const ex of state.exercises){
-    const sess = (state.sessions[ex.id] || []).slice();
-    sess.sort((a,b)=> (a.date>b.date?1:-1));
-    const last = sess[sess.length-1] || null;
-    const lastStats = last ? sessionStats(last) : null;
-    const target = makeTarget(ex, last);
+function setActiveTab(tab){
+  state.ui.activeTab = tab;
+  save();
+  render();
+}
 
-    const div=document.createElement("div");
-    div.className="exerciseItem";
-    div.innerHTML = `
-      <div>
-        <div class="exerciseName">${escapeHtml(ex.name)}</div>
-        <div class="tiny">${lastStats ? `Last: ${lastStats.sets} sets • ${lastStats.reps} reps` : "No sessions yet"}</div>
+function tabEl(id, active){
+  const el=$(id);
+  el.classList.toggle("active", active);
+}
+
+function showScreen(id){
+  for(const s of ["screenSetup","screenToday","screenLogger","screenCalendar","screenProgress"]){
+    $(s).classList.toggle("show", s===id);
+  }
+}
+
+/* =========================
+   Modal helpers
+========================= */
+let modal = { onOk:null, onCancel:null };
+
+function openModal(title, bodyHtml, okText="OK", cancelText="Cancel", onOk=null, onCancel=null){
+  $("sheetTitle").textContent = title;
+  $("sheetBody").innerHTML = bodyHtml;
+  $("sheetOk").textContent = okText;
+  $("sheetCancel").textContent = cancelText;
+  modal.onOk = onOk;
+  modal.onCancel = onCancel;
+  $("overlay").classList.add("show");
+}
+function closeModal(){ $("overlay").classList.remove("show"); modal.onOk=null; modal.onCancel=null; }
+$("overlay").addEventListener("click", (e)=>{ if(e.target === $("overlay")) closeModal(); });
+$("sheetOk").addEventListener("click", ()=>{ if(modal.onOk) modal.onOk(); else closeModal(); });
+$("sheetCancel").addEventListener("click", ()=>{ if(modal.onCancel) modal.onCancel(); closeModal(); });
+
+/* =========================
+   Setup Screen
+========================= */
+function renderSetup(){
+  $("setUnits").value = state.program?.units || "lb";
+  $("setStartWeek").value = state.program?.startWeekDate || defaultMonday();
+
+  const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{} };
+  const list = $("daysList");
+  list.innerHTML = "";
+
+  if(!p.split.length){
+    list.innerHTML = `<div class="item"><div class="tiny muted">No days yet. Tap “+ Day”.</div></div>`;
+  } else {
+    for(const day of p.split){
+      const exCount = (day.exercises||[]).length;
+      const div = document.createElement("div");
+      div.className="item";
+      div.innerHTML = `
+        <div>
+          <div class="name">${escapeHtml(WEEKDAYS[day.weekday])} — ${escapeHtml(day.title)}</div>
+          <div class="tiny muted">${exCount} exercise(s)</div>
+        </div>
+        <div class="right">
+          <button class="mini btnGhost" data-act="addEx" data-id="${day.id}">+ Exercise</button>
+          <button class="mini btnDanger" data-act="delDay" data-id="${day.id}">Delete</button>
+        </div>
+      `;
+      list.appendChild(div);
+
+      // show exercises
+      const exDiv = document.createElement("div");
+      exDiv.style.padding="0 12px 10px";
+      exDiv.innerHTML = (day.exercises||[]).map(exId=>{
+        const ex = p.exercises[exId];
+        if(!ex) return "";
+        const tgt = ex.target.type==="range" ? `${ex.target.min}-${ex.target.max}` : `${ex.target.reps}`;
+        const rule = ex.rule?.type || "double";
+        const ruleTxt = rule==="double" ? `Double +${ex.rule.inc||5}` :
+                        rule==="fixed" ? `Weekly +${ex.rule.inc||5}` :
+                        `+${ex.rule.pct||2.5}%`;
+        return `
+          <div class="item" style="border-radius:14px;margin-top:8px;background:rgba(12,12,18,.35);border:1px solid rgba(42,42,62,.5)">
+            <div>
+              <div class="name">${escapeHtml(ex.name)}</div>
+              <div class="tiny muted">${ex.sets} sets • ${tgt} reps • start ${ex.startWeight}${p.units} • ${ruleTxt}</div>
+            </div>
+            <div class="right">
+              <button class="mini btnDanger" data-act="delEx" data-day="${day.id}" data-ex="${exId}">Remove</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+      list.appendChild(exDiv);
+    }
+  }
+
+  // attach handlers
+  list.querySelectorAll("button[data-act]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      const act=b.getAttribute("data-act");
+      const id=b.getAttribute("data-id");
+      if(act==="delDay") deleteDay(id);
+      if(act==="addEx") addExerciseToDay(id);
+      if(act==="delEx"){
+        const dayId=b.getAttribute("data-day");
+        const exId=b.getAttribute("data-ex");
+        removeExerciseFromDay(dayId, exId);
+      }
+    });
+  });
+}
+
+function deleteDay(dayId){
+  const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{} };
+  p.split = p.split.filter(d => d.id !== dayId);
+  // (we keep exercises in library; removing from day only)
+  state.program = p;
+  save();
+  render();
+}
+
+function addDay(){
+  const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{} };
+  openModal("Add Day",
+    `
+      <div class="grid2">
+        <div>
+          <div class="tiny">Weekday</div>
+          <select id="mWeekday">
+            ${WEEKDAYS.map((d,i)=>`<option value="${i}">${d}</option>`).join("")}
+          </select>
+        </div>
+        <div>
+          <div class="tiny">Title</div>
+          <input id="mTitle" placeholder="Upper / Lower / Push..."/>
+        </div>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-        <span class="pill">${ex.scheme==="repRange" ? `${ex.min}-${ex.max}` : `${ex.fixed} reps`} • +${ex.inc||0}lb</span>
-        <span class="tiny" style="max-width:200px;text-align:right">${escapeHtml(target)}</span>
+      <div class="tiny muted" style="margin-top:10px">Example: Tue Upper, Wed Lower, Fri Upper…</div>
+    `,
+    "Add","Cancel",
+    ()=>{
+      const wd = num(document.getElementById("mWeekday").value, 1);
+      const title = (document.getElementById("mTitle").value||"Workout").trim();
+      p.split.push({ id: uid(), weekday: wd, title, exercises: [] });
+      state.program = p;
+      save();
+      closeModal();
+      render();
+      toast("Day added");
+    },
+    ()=>{}
+  );
+}
+
+function addExerciseToDay(dayId){
+  const p = state.program || { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{} };
+  const day = p.split.find(d=>d.id===dayId);
+  if(!day) return;
+
+  openModal("Add Exercise",
+    `
+      <div class="grid2">
+        <div class="tiny" style="grid-column:1/-1">Name</div>
+        <input id="exName" class="full" placeholder="Bench Press / Squat / Pull-Ups"/>
+
+        <div>
+          <div class="tiny">Sets</div>
+          <input id="exSets" inputmode="numeric" value="4"/>
+        </div>
+
+        <div>
+          <div class="tiny">Start weight (${p.units})</div>
+          <input id="exW" inputmode="decimal" value="0"/>
+        </div>
+
+        <div class="tiny" style="grid-column:1/-1">Target</div>
+        <select id="exTargetType">
+          <option value="range">Rep range</option>
+          <option value="fixed">Fixed reps</option>
+        </select>
+
+        <div id="rangeBox" class="grid2" style="grid-column:1/-1">
+          <div>
+            <div class="tiny">Min</div>
+            <input id="exMin" inputmode="numeric" value="6"/>
+          </div>
+          <div>
+            <div class="tiny">Max</div>
+            <input id="exMax" inputmode="numeric" value="8"/>
+          </div>
+        </div>
+
+        <div id="fixedBox" style="grid-column:1/-1; display:none">
+          <div class="tiny">Reps</div>
+          <input id="exFixed" inputmode="numeric" value="3"/>
+        </div>
+
+        <div class="tiny" style="grid-column:1/-1">Progression rule</div>
+        <select id="exRuleType">
+          <option value="double">Double progression</option>
+          <option value="fixed">Fixed weekly increase</option>
+          <option value="percent">Percent increase</option>
+        </select>
+
+        <div id="incBox" class="grid2" style="grid-column:1/-1">
+          <div>
+            <div class="tiny">Increase (${p.units})</div>
+            <input id="exInc" inputmode="decimal" value="5"/>
+          </div>
+          <div>
+            <div class="tiny">Deload after 2 misses</div>
+            <select id="exDeload">
+              <option value="yes">Yes (-10%)</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="pctBox" class="grid2" style="grid-column:1/-1; display:none">
+          <div>
+            <div class="tiny">Percent (%)</div>
+            <input id="exPct" inputmode="decimal" value="2.5"/>
+          </div>
+          <div></div>
+        </div>
+
+        <div class="tiny muted" style="grid-column:1/-1;margin-top:6px">
+          Tip: For bodyweight moves, start weight can be 0.
+        </div>
+      </div>
+    `,
+    "Add","Cancel",
+    ()=>{
+      const name = (document.getElementById("exName").value||"").trim();
+      if(!name){ alert("Enter exercise name."); return; }
+      const sets = clamp(num(document.getElementById("exSets").value, 4), 1, 10);
+      const startW = num(document.getElementById("exW").value, 0);
+
+      const ttype = document.getElementById("exTargetType").value;
+      let target;
+      if(ttype==="range"){
+        target = { type:"range", min: clamp(num(document.getElementById("exMin").value,6),1,50), max: clamp(num(document.getElementById("exMax").value,8),1,50) };
+        if(target.max < target.min) target.max = target.min;
+      } else {
+        target = { type:"fixed", reps: clamp(num(document.getElementById("exFixed").value,3),1,50) };
+      }
+
+      const rtype = document.getElementById("exRuleType").value;
+      const deload = (document.getElementById("exDeload")?.value || "yes") === "yes";
+      let rule;
+      if(rtype==="percent"){
+        rule = { type:"percent", pct: num(document.getElementById("exPct").value, 2.5), deloadOnMiss2: deload };
+      } else {
+        rule = { type: rtype, inc: num(document.getElementById("exInc").value, 5), deloadOnMiss2: deload };
+      }
+
+      const exId = "ex_"+uid();
+      p.exercises[exId] = { name, sets, target, startWeight:startW, rule };
+      day.exercises.push(exId);
+      state.program = p;
+
+      ensureExerciseState(exId, startW);
+
+      save();
+      closeModal();
+      render();
+      toast("Exercise added");
+    },
+    ()=>{}
+  );
+
+  // toggle fields in modal
+  setTimeout(()=>{
+    const tsel = document.getElementById("exTargetType");
+    const rsel = document.getElementById("exRuleType");
+    const rangeBox = document.getElementById("rangeBox");
+    const fixedBox = document.getElementById("fixedBox");
+    const incBox = document.getElementById("incBox");
+    const pctBox = document.getElementById("pctBox");
+
+    const sync = ()=>{
+      const t = tsel.value;
+      rangeBox.style.display = (t==="range") ? "" : "none";
+      fixedBox.style.display = (t==="fixed") ? "" : "none";
+    };
+    const syncRule = ()=>{
+      const r = rsel.value;
+      incBox.style.display = (r==="percent") ? "none" : "";
+      pctBox.style.display = (r==="percent") ? "" : "none";
+    };
+    tsel.addEventListener("change", sync);
+    rsel.addEventListener("change", syncRule);
+    sync(); syncRule();
+  }, 0);
+}
+
+function removeExerciseFromDay(dayId, exId){
+  const p = state.program;
+  if(!p) return;
+  const day = p.split.find(d=>d.id===dayId);
+  if(!day) return;
+  day.exercises = (day.exercises||[]).filter(x=>x!==exId);
+  state.program = p;
+  save();
+  render();
+  toast("Removed");
+}
+
+$("btnAddDay").addEventListener("click", addDay);
+
+$("btnFinishSetup").addEventListener("click", ()=>{
+  // build program from UI
+  const units = $("setUnits").value;
+  const startWeekDate = ($("setStartWeek").value||"").trim() || defaultMonday();
+  const p = state.program || { units, startWeekDate, split:[], exercises:{} };
+  p.units = units;
+  p.startWeekDate = startWeekDate;
+
+  // require at least 1 day
+  if(!p.split.length){
+    alert("Add at least 1 training day.");
+    return;
+  }
+  state.program = p;
+  save();
+  toast("Setup saved");
+  setActiveTab("today");
+});
+
+/* =========================
+   Today + Logger
+========================= */
+let sessionDraft = null; // current workout draft
+
+function getSessionByDate(date){
+  return state.sessions.find(s=>s.date===date) || null;
+}
+
+function weekKeyForDate(iso){
+  // derive Monday ISO for this week (simple)
+  const d=new Date(iso+"T12:00:00");
+  const dow=d.getDay();
+  const diff = (dow===0? -6 : 1-dow);
+  d.setDate(d.getDate()+diff);
+  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), day=String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+
+function countWeekStats(){
+  const today = isoToday();
+  const wk = weekKeyForDate(today);
+  const p = state.program;
+  const planned = p ? p.split.length : 0;
+
+  const doneThisWeek = state.sessions.filter(s => weekKeyForDate(s.date)===wk).length;
+
+  // streak = consecutive days with sessions ending today
+  let streak=0;
+  const datesSet = new Set(state.sessions.map(s=>s.date));
+  let d = new Date(today+"T12:00:00");
+  for(;;){
+    const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), day=String(d.getDate()).padStart(2,"0");
+    const iso=`${y}-${m}-${day}`;
+    if(datesSet.has(iso)){ streak++; d.setDate(d.getDate()-1); }
+    else break;
+  }
+
+  $("stPlanned").textContent = planned;
+  $("stDone").textContent = doneThisWeek;
+  $("stStreak").textContent = streak;
+  $("stTotal").textContent = state.sessions.length;
+}
+
+function plannedWorkoutForToday(){
+  const p=state.program;
+  if(!p) return null;
+  const d=isoToday();
+  const dow=dayOfWeek(d);
+  const plan = getPlanForWeekday(dow);
+  return { date:d, dow, plan };
+}
+
+function renderToday(){
+  const p=state.program;
+  const info = plannedWorkoutForToday();
+  const d=isoToday();
+  $("todayDatePill").textContent = d;
+  $("todaySub").textContent = prettyDate(d);
+
+  if(!p || !info?.plan){
+    $("todayTitle").textContent = "Rest Day ✅";
+    $("todayBox").innerHTML = `No workout scheduled for today.`;
+    $("btnStartWorkout").disabled = true;
+  } else {
+    $("todayTitle").textContent = info.plan.title;
+    const exIds = info.plan.exercises || [];
+    if(!exIds.length){
+      $("todayBox").innerHTML = `No exercises in today’s plan. (Add in Settings)`;
+      $("btnStartWorkout").disabled = true;
+    } else {
+      const lines = exIds.map(exId=>{
+        const ex=p.exercises[exId];
+        if(!ex) return "";
+        ensureExerciseState(exId, ex.startWeight);
+        const st=state.exerciseState[exId];
+        const tgt = ex.target.type==="range" ? `${ex.target.min}-${ex.target.max}` : `${ex.target.reps}`;
+        const w = st.currentWeight;
+        return `<div class="item">
+          <div>
+            <div class="name">${escapeHtml(ex.name)}</div>
+            <div class="tiny muted">${ex.sets} sets • ${tgt} reps • target <b>${w}${p.units}</b></div>
+          </div>
+          <span class="pill">next: ${w}${p.units}</span>
+        </div>`;
+      }).join("");
+      $("todayBox").innerHTML = `<div class="list" style="margin-top:0"><div class="listHeader"><span>Planned</span><span class="tiny">targets</span></div>${lines}</div>`;
+      $("btnStartWorkout").disabled = false;
+    }
+  }
+
+  countWeekStats();
+}
+
+function buildSessionDraft(){
+  const p=state.program;
+  const {date,dow,plan} = plannedWorkoutForToday();
+  const exLogs = (plan.exercises||[]).map(exId=>{
+    const ex = p.exercises[exId];
+    ensureExerciseState(exId, ex.startWeight);
+    const w = state.exerciseState[exId].currentWeight;
+    const sets = Array.from({length: ex.sets}, ()=>({ w: w, r: 0, done:false }));
+    return { exId, sets, note:"" };
+  });
+
+  return {
+    id: "sess_"+uid(),
+    date,
+    weekday: dow,
+    workoutTitle: plan.title,
+    rating: "normal",
+    notes: "",
+    exercises: exLogs,
+    computed: { volume:0, e1rm:{} }
+  };
+}
+
+$("btnStartWorkout").addEventListener("click", ()=>{
+  sessionDraft = buildSessionDraft();
+  setActiveTab("logger");
+});
+
+$("btnBackToday").addEventListener("click", ()=>{
+  setActiveTab("today");
+});
+
+/* =========================
+   Logger rendering + controls
+========================= */
+function renderLogger(){
+  const p=state.program;
+  if(!sessionDraft || !p){
+    $("loggerExercises").innerHTML = `<div class="content"><div class="card"><div class="tiny muted">No active workout. Start from Today.</div></div></div>`;
+    $("fabAddExerciseToSession").classList.remove("show");
+    return;
+  }
+
+  $("loggerTitle").textContent = "Log";
+  $("loggerName").textContent = sessionDraft.workoutTitle;
+  $("loggerMeta").textContent = `Targets in ${p.units}. Quick buttons use your jump size in Settings.`;
+  $("loggerDate").textContent = sessionDraft.date;
+
+  const box=$("loggerExercises");
+  box.innerHTML = "";
+
+  const jump = state.program?.settings?.jump ?? 5;
+
+  sessionDraft.exercises.forEach((exLog, idx)=>{
+    const exDef = p.exercises[exLog.exId];
+    if(!exDef) return;
+
+    const tgt = exDef.target.type==="range" ? `${exDef.target.min}-${exDef.target.max}` : `${exDef.target.reps}`;
+    const st = state.exerciseState[exLog.exId] || { currentWeight: exDef.startWeight, misses:0 };
+    const targetW = st.currentWeight;
+
+    const card=document.createElement("div");
+    card.className="card";
+    card.style.marginTop="12px";
+    card.innerHTML = `
+      <div class="row" style="justify-content:space-between">
+        <div>
+          <div class="name">${escapeHtml(exDef.name)}</div>
+          <div class="tiny muted">${exDef.sets} sets • ${tgt} reps • target <b>${targetW}${p.units}</b></div>
+        </div>
+        <div class="right">
+          <span class="badge">misses: ${st.misses||0}</span>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:42px">✓</th>
+            <th style="width:64px">Set</th>
+            <th>Weight</th>
+            <th>Reps</th>
+            <th style="width:120px">Quick</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${exLog.sets.map((s,i)=>`
+            <tr>
+              <td><div class="chk ${s.done?'on':''}" data-act="toggle" data-e="${idx}" data-i="${i}">${s.done?'✓':''}</div></td>
+              <td>${i+1}</td>
+              <td><input inputmode="decimal" value="${escapeAttr(s.w)}" data-act="w" data-e="${idx}" data-i="${i}" style="width:100%"/></td>
+              <td><input inputmode="numeric" value="${escapeAttr(s.r)}" data-act="r" data-e="${idx}" data-i="${i}" style="width:100%"/></td>
+              <td>
+                <div class="miniBtns">
+                  <button class="mini btnGhost" data-act="repUp" data-e="${idx}" data-i="${i}">+1</button>
+                  <button class="mini btnGhost" data-act="repDn" data-e="${idx}" data-i="${i}">-1</button>
+                  <button class="mini btnGhost" data-act="wUp" data-e="${idx}" data-i="${i}">+${jump}</button>
+                  <button class="mini btnGhost" data-act="wDn" data-e="${idx}" data-i="${i}">-${jump}</button>
+                  <button class="mini btnGhost" data-act="copyPrev" data-e="${idx}" data-i="${i}">Copy</button>
+                </div>
+              </td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+
+      <div class="sep"></div>
+
+      <div class="grid2">
+        <div>
+          <div class="tiny">Exercise note</div>
+          <input value="${escapeAttr(exLog.note||"")}" data-act="note" data-e="${idx}" placeholder="felt heavy, form…"/>
+        </div>
+        <div>
+          <div class="tiny">Rule</div>
+          <div class="tiny muted">${ruleText(exDef, p.units)}</div>
+        </div>
       </div>
     `;
-    div.addEventListener("click", ()=>openDetail(ex.id));
+
+    // event delegation inside card
+    card.addEventListener("click", (ev)=>{
+      const t = ev.target;
+      if(!(t instanceof HTMLElement)) return;
+      const act = t.getAttribute("data-act");
+      if(!act) return;
+
+      const e = num(t.getAttribute("data-e"), -1);
+      const i = num(t.getAttribute("data-i"), -1);
+      if(e<0) return;
+
+      const exL = sessionDraft.exercises[e];
+      const set = (i>=0) ? exL.sets[i] : null;
+      const jump = state.program?.settings?.jump ?? 5;
+
+      if(act==="toggle" && set){
+        set.done = !set.done;
+        // auto-fill reps if toggling on with 0 reps
+        if(set.done && num(set.r,0)===0){
+          if(exDef.target.type==="range") set.r = exDef.target.min;
+          else set.r = exDef.target.reps;
+        }
+        render();
+      }
+      if(act==="repUp" && set){ set.r = clamp(num(set.r,0)+1, 0, 100); render(); }
+      if(act==="repDn" && set){ set.r = clamp(num(set.r,0)-1, 0, 100); render(); }
+      if(act==="wUp" && set){ set.w = num(set.w,0)+jump; render(); }
+      if(act==="wDn" && set){ set.w = Math.max(0, num(set.w,0)-jump); render(); }
+      if(act==="copyPrev" && set){
+        if(i>0){
+          set.w = exL.sets[i-1].w;
+          set.r = exL.sets[i-1].r;
+          render();
+        }
+      }
+    });
+
+    // inputs
+    card.querySelectorAll("input[data-act='w']").forEach(inp=>{
+      inp.addEventListener("input", ()=>{
+        const e=num(inp.getAttribute("data-e"),-1), i=num(inp.getAttribute("data-i"),-1);
+        sessionDraft.exercises[e].sets[i].w = num(inp.value,0);
+      });
+    });
+    card.querySelectorAll("input[data-act='r']").forEach(inp=>{
+      inp.addEventListener("input", ()=>{
+        const e=num(inp.getAttribute("data-e"),-1), i=num(inp.getAttribute("data-i"),-1);
+        sessionDraft.exercises[e].sets[i].r = num(inp.value,0);
+      });
+    });
+    card.querySelectorAll("input[data-act='note']").forEach(inp=>{
+      inp.addEventListener("input", ()=>{
+        const e=num(inp.getAttribute("data-e"),-1);
+        sessionDraft.exercises[e].note = inp.value;
+      });
+    });
+
+    box.appendChild(card);
+  });
+
+  $("fabAddExerciseToSession").classList.add("show"); // (MVP placeholder)
+}
+
+function ruleText(exDef, units){
+  const r=exDef.rule||{type:"double",inc:5};
+  const deload = (r.deloadOnMiss2 ?? true) ? " • deload -10% after 2 misses" : "";
+  if(r.type==="double"){
+    if(exDef.target.type==="range") return `Double progression: hit top reps on all sets → +${r.inc||5}${units}.${deload}`;
+    return `Fixed reps: complete all sets → +${r.inc||5}${units}.${deload}`;
+  }
+  if(r.type==="fixed"){
+    return `Weekly increase: if successful → +${r.inc||5}${units}.${deload}`;
+  }
+  return `Percent increase: if successful → +${r.pct||2.5}%.${deload}`;
+}
+
+$("btnFinishWorkout").addEventListener("click", ()=>{
+  if(!sessionDraft) return;
+
+  // quick rating
+  openModal("Finish Workout",
+    `
+      <div class="tiny">How did it feel?</div>
+      <div class="row" style="margin-top:10px">
+        <button class="mini btnGhost" id="rateEasy">Easy</button>
+        <button class="mini btnGhost" id="rateNorm">Normal</button>
+        <button class="mini btnGhost" id="rateHard">Hard</button>
+      </div>
+      <div class="sep"></div>
+      <div class="tiny">Workout notes (optional)</div>
+      <textarea id="sessNote" placeholder="Anything to remember…"></textarea>
+      <div class="sep"></div>
+      <div class="tiny muted">We’ll save your sets, compute volume, PRs, and update next targets automatically.</div>
+    `,
+    "Save","Cancel",
+    ()=>{
+      const note = (document.getElementById("sessNote").value||"").trim();
+      sessionDraft.notes = note;
+      // default rating if not picked
+      if(!sessionDraft.rating) sessionDraft.rating = "normal";
+
+      // compute + save session
+      computeSession(sessionDraft);
+      state.sessions.push(sessionDraft);
+
+      // PRs
+      updatePRsFromSession(sessionDraft);
+
+      // progression (updates currentWeight/misses)
+      for(const exLog of sessionDraft.exercises){
+        const exDef = state.program.exercises[exLog.exId];
+        if(exDef) applyProgression(exDef, exLog);
+      }
+
+      save();
+      closeModal();
+      toast("Workout saved");
+      sessionDraft = null;
+      setActiveTab("today");
+    },
+    ()=>{}
+  );
+
+  setTimeout(()=>{
+    document.getElementById("rateEasy").addEventListener("click", ()=>{ sessionDraft.rating="easy"; toast("Easy"); });
+    document.getElementById("rateNorm").addEventListener("click", ()=>{ sessionDraft.rating="normal"; toast("Normal"); });
+    document.getElementById("rateHard").addEventListener("click", ()=>{ sessionDraft.rating="hard"; toast("Hard"); });
+  }, 0);
+});
+
+$("fabAddExerciseToSession").addEventListener("click", ()=>{
+  toast("MVP: add exercises in Settings");
+});
+
+/* =========================
+   Settings (simple)
+========================= */
+$("btnSettings").addEventListener("click", ()=>{
+  const p = state.program;
+  openModal("Settings",
+    `
+      <div class="grid2">
+        <div>
+          <div class="tiny">Jump size (${p.units})</div>
+          <input id="stJump" inputmode="decimal" value="${escapeAttr(p.settings?.jump ?? 5)}"/>
+        </div>
+        <div>
+          <div class="tiny">Edit split</div>
+          <button id="goSetup" class="btnGhost" style="width:100%">Open Setup</button>
+        </div>
+      </div>
+      <div class="sep"></div>
+      <div class="row">
+        <button id="exportBtn" class="btnGhost" style="flex:1">Export backup</button>
+        <button id="importBtn" class="btnGhost" style="flex:1">Import backup</button>
+      </div>
+      <div class="sep"></div>
+      <button id="wipeBtn" class="btnDanger" style="width:100%">Delete ALL data</button>
+    `,
+    "Save","Close",
+    ()=>{
+      const jump = num(document.getElementById("stJump").value, 5);
+      state.program.settings ||= {};
+      state.program.settings.jump = jump;
+      save();
+      closeModal();
+      toast("Settings saved");
+      render();
+    },
+    ()=>{}
+  );
+
+  setTimeout(()=>{
+    document.getElementById("goSetup").addEventListener("click", ()=>{
+      closeModal();
+      showScreen("screenSetup");
+      render();
+    });
+
+    document.getElementById("exportBtn").addEventListener("click", async ()=>{
+      const data = JSON.stringify(state, null, 2);
+      try{
+        await navigator.clipboard.writeText(data);
+        toast("Copied backup");
+      }catch{
+        toast("Copy blocked");
+      }
+    });
+
+    document.getElementById("importBtn").addEventListener("click", ()=>{
+      const raw = prompt("Paste backup JSON:");
+      if(!raw) return;
+      try{
+        const parsed = JSON.parse(raw);
+        state = parsed;
+        save();
+        toast("Imported");
+        closeModal();
+        render();
+      }catch{
+        alert("Import failed.");
+      }
+    });
+
+    document.getElementById("wipeBtn").addEventListener("click", ()=>{
+      if(confirm("Delete ALL data?")) {
+        localStorage.removeItem(KEY);
+        state = load();
+        toast("Wiped");
+        closeModal();
+        render();
+      }
+    });
+  }, 0);
+});
+
+/* =========================
+   Calendar
+========================= */
+let calCursor = (()=>{ const d=new Date(); return { y:d.getFullYear(), m:d.getMonth() }; })();
+let calSelected = null;
+
+function monthName(y,m){
+  const mons=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  return `${mons[m]} ${y}`;
+}
+
+function renderCalendar(){
+  $("calMonth").textContent = monthName(calCursor.y, calCursor.m);
+  const grid = $("calGrid");
+  grid.innerHTML = "";
+
+  const first = new Date(calCursor.y, calCursor.m, 1);
+  const startDow = first.getDay();
+  const daysInMonth = new Date(calCursor.y, calCursor.m+1, 0).getDate();
+
+  // previous month padding
+  const prevDays = startDow; // number of cells before 1st
+  const prevMonthDays = new Date(calCursor.y, calCursor.m, 0).getDate();
+
+  const cells = [];
+  for(let i=0;i<prevDays;i++){
+    const dayNum = prevMonthDays - prevDays + 1 + i;
+    cells.push({ off:true, day:dayNum, y: calCursor.m===0? calCursor.y-1 : calCursor.y, m: calCursor.m===0? 11 : calCursor.m-1 });
+  }
+  for(let d=1; d<=daysInMonth; d++){
+    cells.push({ off:false, day:d, y: calCursor.y, m: calCursor.m });
+  }
+  // next month padding to complete weeks
+  while(cells.length % 7 !== 0){
+    const dayNum = (cells.length - (prevDays+daysInMonth)) + 1;
+    cells.push({ off:true, day:dayNum, y: calCursor.m===11? calCursor.y+1 : calCursor.y, m: calCursor.m===11? 0 : calCursor.m+1 });
+  }
+
+  // session map
+  const map = new Map(); // date -> session
+  for(const s of state.sessions){
+    map.set(s.date, s);
+  }
+
+  for(const c of cells){
+    const m = String(c.m+1).padStart(2,"0");
+    const d = String(c.day).padStart(2,"0");
+    const iso = `${c.y}-${m}-${d}`;
+    const sess = map.get(iso);
+
+    const cell=document.createElement("div");
+    cell.className = "calCell" + (c.off ? " off" : "");
+    cell.innerHTML = `
+      <div class="calNum">
+        <span>${c.day}</span>
+        <span>${sess ? `<span class="dot ${sess.rating==='hard'?'amber':''}"></span>` : ""}</span>
+      </div>
+      <div class="calTitle">${sess ? escapeHtml(sess.workoutTitle) : ""}</div>
+    `;
+
+    if(sess){
+      cell.addEventListener("click", ()=>{
+        calSelected = sess.date;
+        renderCalDetail(sess);
+      });
+    }
+
+    grid.appendChild(cell);
+  }
+
+  // keep detail
+  if(calSelected){
+    const sess = map.get(calSelected);
+    if(sess) renderCalDetail(sess);
+    else $("calDetail").textContent="Tap a completed day.";
+  }
+}
+
+function renderCalDetail(sess){
+  const p = state.program;
+  const units = p?.units || "lb";
+  const prMsgs = getPRMessages(sess);
+
+  const exLines = sess.exercises.map(exLog=>{
+    const ex = p?.exercises?.[exLog.exId];
+    const name = ex ? ex.name : exLog.exId;
+    const setsStr = exLog.sets.map((s,i)=>`${i+1}:${num(s.w,0)}x${num(s.r,0)}`).join("  ");
+    return `<div class="item">
+      <div>
+        <div class="name">${escapeHtml(name)}</div>
+        <div class="tiny muted">${escapeHtml(setsStr)}</div>
+      </div>
+    </div>`;
+  }).join("");
+
+  $("calDetail").innerHTML = `
+    <div class="tiny"><b>${prettyDate(sess.date)}</b> • ${escapeHtml(sess.workoutTitle)} • <span class="badge ${sess.rating==='hard'?'hard':'good'}">${escapeHtml(sess.rating)}</span></div>
+    <div class="sep"></div>
+    <div class="tiny">Volume: <b>${sess.computed?.volume ?? 0}</b> ${units}</div>
+    <div class="tiny">PRs: ${prMsgs.length ? prMsgs.map(m=>`<span class="badge good">${escapeHtml(m)}</span>`).join(" ") : `<span class="muted">none</span>`}</div>
+    <div class="sep"></div>
+    <div class="list" style="margin-top:0">
+      <div class="listHeader"><span>Logged</span><span class="tiny">sets</span></div>
+      ${exLines}
+    </div>
+    ${sess.notes ? `<div class="sep"></div><div class="tiny muted">${escapeHtml(sess.notes)}</div>` : ""}
+  `;
+}
+
+function getPRMessages(sess){
+  // quick PR messages by comparing session e1RM to stored PR after saving
+  // Here we just show "e1RM PR" for exercises where this session == best date
+  const msgs=[];
+  for(const exLog of sess.exercises){
+    const exId = exLog.exId;
+    const pr = state.prs[exId];
+    if(pr?.bestE1RM?.date === sess.date) msgs.push("New e1RM PR");
+    if(pr?.bestWeight?.date === sess.date) msgs.push("New Weight PR");
+    if(pr?.bestVolume?.date === sess.date) msgs.push("New Volume PR");
+  }
+  // de-dupe
+  return [...new Set(msgs)];
+}
+
+$("calPrev").addEventListener("click", ()=>{
+  calCursor.m -= 1;
+  if(calCursor.m<0){ calCursor.m=11; calCursor.y-=1; }
+  render();
+});
+$("calNext").addEventListener("click", ()=>{
+  calCursor.m += 1;
+  if(calCursor.m>11){ calCursor.m=0; calCursor.y+=1; }
+  render();
+});
+
+/* =========================
+   Progress screen
+========================= */
+function renderProgress(){
+  const p=state.program;
+  const box=$("progList");
+  box.innerHTML = "";
+  if(!p){
+    box.innerHTML = `<div class="item"><div class="tiny muted">Finish setup first.</div></div>`;
+    return;
+  }
+
+  const exIds = Object.keys(p.exercises||{});
+  if(!exIds.length){
+    box.innerHTML = `<div class="item"><div class="tiny muted">No exercises.</div></div>`;
+    return;
+  }
+
+  for(const exId of exIds){
+    const ex=p.exercises[exId];
+    const pr=state.prs[exId];
+    const best = pr?.bestE1RM?.value ?? 0;
+
+    // estimate start e1RM from start weight and target min reps (rough)
+    let startE = 0;
+    if(ex.startWeight>0){
+      const r = ex.target.type==="range" ? ex.target.min : ex.target.reps;
+      startE = Math.round(e1rmEpley(ex.startWeight, r));
+    }
+    const diff = best - startE;
+    const diffTxt = (best>0 && startE>0) ? (diff>=0? `+${diff}` : `${diff}`) : "—";
+
+    const div=document.createElement("div");
+    div.className="item";
+    div.innerHTML = `
+      <div>
+        <div class="name">${escapeHtml(ex.name)}</div>
+        <div class="tiny muted">Best e1RM: <b>${best || "—"}</b> • Since start: <b>${diffTxt}</b></div>
+      </div>
+      <div class="right">
+        <span class="pill">start ${ex.startWeight}${p.units}</span>
+      </div>
+    `;
     box.appendChild(div);
   }
 }
 
-function renderDetail(){
-  const ex = state.exercises.find(e=>e.id===currentExerciseId);
-  if(!ex) return;
-
-  $("detailTitle").textContent = ex.name;
-  $("detailDate").textContent = prettyDate(todayKey());
-  $("sessionLabel").textContent = "Today";
-
-  // sessions sorted
-  const sess = (state.sessions[ex.id] || []).slice();
-  sess.sort((a,b)=> (a.date>b.date?1:-1));
-  const last = sess[sess.length-1] || null;
-  const prev = sess.length>=2 ? sess[sess.length-2] : null;
-
-  const lastStats = last ? sessionStats(last) : {sets:0,reps:0,volume:0,lbr:0};
-  const prevStats = prev ? sessionStats(prev) : {sets:0,reps:0,volume:0,lbr:0};
-
-  // metrics
-  $("mSets").textContent = lastStats.sets;
-  $("mReps").textContent = lastStats.reps;
-  $("mVol").textContent = Math.round(lastStats.volume);
-  $("mLbr").textContent = lastStats.reps>0 ? (lastStats.lbr.toFixed(1)) : "0";
-
-  setDelta("dSets", deltaText(lastStats.sets, prevStats.sets, 0));
-  setDelta("dReps", deltaText(lastStats.reps, prevStats.reps, 0));
-  setDelta("dVol",  deltaText(lastStats.volume, prevStats.volume, 0));
-  setDelta("dLbr",  deltaText(lastStats.lbr, prevStats.lbr, 1));
-
-  $("nextTarget").textContent = makeTarget(ex, last);
-
-  // set list
-  const list = $("setList");
-  list.innerHTML = "";
-
-  const sets = last?.sets || [];
-  if(!sets.length){
-    const empty=document.createElement("div");
-    empty.className="row";
-    empty.innerHTML = `<div class="tiny">No sets logged yet. Tap the green +.</div>`;
-    list.appendChild(empty);
-  }else{
-    // newest first like screenshot
-    const reversed = sets.slice().reverse();
-    for(let i=0;i<reversed.length;i++){
-      const s = reversed[i];
-      const row=document.createElement("div");
-      row.className="row";
-      row.innerHTML = `
-        <div class="time">${escapeHtml(s.time || "")}</div>
-        <div class="rep">${num(s.reps,0)} <span class="tiny">rep</span></div>
-        <div style="display:flex;gap:10px;align-items:center">
-          <div class="wt">${num(s.weight,0) ? `${num(s.weight,0)} <span class="tiny">lb</span>` : `<span class="tiny muted">—</span>`}</div>
-          <div class="chev">›</div>
-        </div>
-      `;
-      row.addEventListener("click", ()=>openEditSetModal(s));
-      list.appendChild(row);
-    }
-  }
-}
-
-function setDelta(id, obj){
-  const el = $(id);
-  el.textContent = obj.txt;
-  el.className = `delta ${obj.cls||""}`;
-}
-
-function openDetail(id){
-  currentExerciseId=id;
-  showScreen("detail");
-  renderDetail();
-}
-
-function backToExercises(){
-  showScreen("exercises");
-  renderExercises();
-}
-
 /* =========================
-   Modal logic (Add/Edit Set)
+   Render + Init
 ========================= */
-let editingSetRef = null; // {exerciseId, sessionDate, setIndex}
-
-function openAddSetModal(){
-  const ex = state.exercises.find(e=>e.id===currentExerciseId);
-  if(!ex) return;
-
-  editingSetRef = null;
-  $("sheetTitle").textContent = "Add Set";
-  $("sheetHint").textContent = ex.bodyweight
-    ? "Weight is optional (bodyweight). Log reps + time."
-    : "Log reps + weight + time.";
-
-  // fill time dropdown
-  const sel = $("inTime");
-  sel.innerHTML = "";
-  for(const t of timeOptions()){
-    const o=document.createElement("option");
-    o.value=t; o.textContent=t;
-    sel.appendChild(o);
-  }
-  sel.value = timeOptions().slice(-1)[0];
-
-  // clear inputs
-  $("inReps").value="";
-  $("inWeight").value= ex.bodyweight ? "" : "";
-
-  // progression settings
-  $("inMode").value = ex.scheme;
-  $("inMin").value = ex.min ?? 6;
-  $("inMax").value = ex.max ?? 10;
-  $("inFixed").value = ex.fixed ?? 3;
-  $("inInc").value = ex.inc ?? 5;
-  toggleProgInputs();
-
-  $("overlay").classList.add("show");
-  $("inReps").focus();
-}
-
-function openEditSetModal(setObj){
-  // We edit the most recent session’s set by matching object reference
-  const ex = state.exercises.find(e=>e.id===currentExerciseId);
-  const sess = (state.sessions[ex.id] || []).slice().sort((a,b)=> (a.date>b.date?1:-1));
-  const last = sess[sess.length-1];
-  if(!last) return;
-
-  const idx = last.sets.findIndex(s => s === setObj);
-  if(idx === -1) return;
-
-  editingSetRef = { exerciseId: ex.id, sessionDate: last.date, setIndex: idx };
-
-  $("sheetTitle").textContent = "Edit Set";
-  $("sheetHint").textContent = "Update reps/weight/time. Or delete this set.";
-
-  const sel = $("inTime");
-  sel.innerHTML = "";
-  // include set time + nearby options
-  const opts = new Set(timeOptions());
-  if(setObj.time) opts.add(setObj.time);
-  for(const t of [...opts]){
-    const o=document.createElement("option");
-    o.value=t; o.textContent=t;
-    sel.appendChild(o);
-  }
-  sel.value = setObj.time || timeOptions().slice(-1)[0];
-
-  $("inReps").value = num(setObj.reps,0) ? String(setObj.reps) : "";
-  $("inWeight").value = num(setObj.weight,0) ? String(setObj.weight) : "";
-
-  // show progression settings too (sync back)
-  $("inMode").value = ex.scheme;
-  $("inMin").value = ex.min ?? 6;
-  $("inMax").value = ex.max ?? 10;
-  $("inFixed").value = ex.fixed ?? 3;
-  $("inInc").value = ex.inc ?? 5;
-  toggleProgInputs();
-
-  $("overlay").classList.add("show");
-}
-
-function closeModal(){ $("overlay").classList.remove("show"); }
-
-function toggleProgInputs(){
-  const mode = $("inMode").value;
-  $("inMin").style.display = (mode==="repRange") ? "" : "none";
-  $("inMax").style.display = (mode==="repRange") ? "" : "none";
-  $("inFixed").style.display = (mode==="fixedReps") ? "" : "none";
-}
-
-$("inMode").addEventListener("change", toggleProgInputs);
-
-function upsertSessionAndSet(exId, setData){
-  const d = todayKey();
-  state.sessions[exId] ||= [];
-  let sess = state.sessions[exId].find(s => s.date === d);
-  if(!sess){
-    sess = { date: d, sets: [] };
-    state.sessions[exId].push(sess);
-  }
-  sess.sets.push(setData);
-}
-
-function saveSet(){
-  const ex = state.exercises.find(e=>e.id===currentExerciseId);
-  if(!ex) return;
-
-  // sync progression settings from sheet back to exercise
-  ex.scheme = $("inMode").value;
-  ex.min = num($("inMin").value, 6);
-  ex.max = num($("inMax").value, 10);
-  ex.fixed = num($("inFixed").value, 3);
-  ex.inc = num($("inInc").value, 5);
-
-  const reps = num($("inReps").value, 0);
-  const weight = num($("inWeight").value, 0);
-  const time = $("inTime").value;
-
-  if(reps <= 0){
-    alert("Enter reps (greater than 0).");
+function render(){
+  // setup default program if not exists (for editing screen)
+  if(!state.program){
+    showScreen("screenSetup");
+    renderSetup();
+    // tabs states
+    tabEl("tabToday", false);
+    tabEl("tabLogger", false);
+    tabEl("tabCalendar", false);
+    tabEl("tabProgress", false);
+    $("fabAddExerciseToSession").classList.remove("show");
     return;
   }
 
-  if(editingSetRef){
-    // edit existing
-    const sess = (state.sessions[editingSetRef.exerciseId] || []).find(s=>s.date===editingSetRef.sessionDate);
-    if(sess && sess.sets[editingSetRef.setIndex]){
-      sess.sets[editingSetRef.setIndex].reps = reps;
-      sess.sets[editingSetRef.setIndex].weight = weight;
-      sess.sets[editingSetRef.setIndex].time = time;
-    }
-  }else{
-    // add new
-    upsertSessionAndSet(ex.id, { time, reps, weight });
-  }
+  // active tab
+  const t = state.ui.activeTab || "today";
+  tabEl("tabToday", t==="today");
+  tabEl("tabLogger", t==="logger");
+  tabEl("tabCalendar", t==="calendar");
+  tabEl("tabProgress", t==="progress");
 
-  save();
-  closeModal();
-  renderDetail();
+  if(t==="today"){
+    showScreen("screenToday");
+    renderToday();
+    $("fabAddExerciseToSession").classList.remove("show");
+  }
+  if(t==="logger"){
+    showScreen("screenLogger");
+    renderLogger();
+  }
+  if(t==="calendar"){
+    showScreen("screenCalendar");
+    renderCalendar();
+    $("fabAddExerciseToSession").classList.remove("show");
+  }
+  if(t==="progress"){
+    showScreen("screenProgress");
+    renderProgress();
+    $("fabAddExerciseToSession").classList.remove("show");
+  }
 }
 
-function deleteEditingSet(){
-  if(!editingSetRef) return;
-  const sess = (state.sessions[editingSetRef.exerciseId] || []).find(s=>s.date===editingSetRef.sessionDate);
-  if(sess){
-    sess.sets.splice(editingSetRef.setIndex, 1);
-    // if empty session, remove it
-    if(sess.sets.length===0){
-      state.sessions[editingSetRef.exerciseId] = state.sessions[editingSetRef.exerciseId].filter(s=>s!==sess);
-    }
-  }
+// Tabs
+$("tabToday").addEventListener("click", ()=>setActiveTab("today"));
+$("tabLogger").addEventListener("click", ()=>{
+  // if no draft, bounce to today
+  if(!sessionDraft) { toast("Start from Today"); setActiveTab("today"); return; }
+  setActiveTab("logger");
+});
+$("tabCalendar").addEventListener("click", ()=>setActiveTab("calendar"));
+$("tabProgress").addEventListener("click", ()=>setActiveTab("progress"));
+
+// Setup screen first time
+if(!state.program){
+  // create a blank program shell so setup UI works
+  state.program = { units:"lb", startWeekDate: defaultMonday(), split:[], exercises:{}, settings:{ jump:5 } };
   save();
-  closeModal();
-  renderDetail();
 }
 
-$("btnSave").addEventListener("click", saveSet);
-$("btnCancel").addEventListener("click", ()=>{
-  // if editing, offer delete quickly via confirm
-  if(editingSetRef && confirm("Delete this set? Press OK to delete, Cancel to keep.")){
-    deleteEditingSet();
-    return;
-  }
-  closeModal();
-});
-$("overlay").addEventListener("click", (e)=>{
-  if(e.target === $("overlay")) closeModal();
-});
+// Render setup if they have no split yet
+if(state.program && (!state.program.split || state.program.split.length===0)){
+  showScreen("screenSetup");
+  renderSetup();
+} else {
+  render();
+}
 
-/* =========================
-   Exercise management
-========================= */
-$("btnAddExercise").addEventListener("click", ()=>{
-  const name = prompt("Exercise name (e.g., Bench Press):");
-  if(!name) return;
-  const bodyweight = confirm("Is it bodyweight (like Pull-Ups)? OK = Yes, Cancel = No");
-  state.exercises.push({
-    id: uid(),
-    name: name.trim(),
-    scheme: bodyweight ? "repRange" : "fixedReps",
-    min: 6,
-    max: 10,
-    fixed: 3,
-    inc: bodyweight ? 0 : 5,
-    bodyweight
-  });
-  save();
-  renderExercises();
+// If setup screen is open, keep it rendered
+const obs = new MutationObserver(()=>{
+  if($("screenSetup").classList.contains("show")) renderSetup();
 });
+obs.observe(document.body, { attributes:true, subtree:true, attributeFilter:["class"] });
 
-$("btnBack").addEventListener("click", backToExercises);
-$("fabAddSet").addEventListener("click", openAddSetModal);
-
-$("btnMore").addEventListener("click", ()=>{
-  const ex = state.exercises.find(e=>e.id===currentExerciseId);
-  if(!ex) return;
-  const action = prompt(
-`Type:
-1 = Rename
-2 = Toggle bodyweight
-3 = Delete exercise`
-  );
-  if(action==="1"){
-    const n = prompt("New name:", ex.name);
-    if(n){ ex.name=n.trim(); save(); renderDetail(); renderExercises(); }
-  }else if(action==="2"){
-    ex.bodyweight = !ex.bodyweight;
-    save(); renderDetail(); renderExercises();
-  }else if(action==="3"){
-    if(confirm("Delete this exercise and all history?")){
-      state.exercises = state.exercises.filter(e=>e.id!==ex.id);
-      delete state.sessions[ex.id];
-      save();
-      backToExercises();
-    }
-  }
-});
-
-/* =========================
-   Escape helpers
-========================= */
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 }
-
-/* =========================
-   Init
-========================= */
-renderExercises();
-
-// if first load has starters, open Exercises screen
-showScreen("exercises");
+function escapeAttr(s){ return escapeHtml(s).replace(/"/g,"&quot;"); }
 </script>
 </body>
 </html>
+
