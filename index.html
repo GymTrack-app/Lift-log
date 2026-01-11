@@ -1653,13 +1653,25 @@ function renderProgress(){
     // PR % change in window (best in window vs best before window)
     const winBest = arr.reduce((m,x)=>Math.max(m,x.e1rm), 0);
     const prevBest = beforeMax[exId] || 0;
-    let prPctStr = "—";
-    if(winBest > 0 && prevBest > 0){
-      const prPct = ((winBest - prevBest) / prevBest) * 100;
-      prPctStr = `${prPct >= 0 ? "+" : ""}${prPct.toFixed(1)}%`;
-    } else if(winBest > 0 && prevBest === 0){
-      prPctStr = `NEW`;
-    }
+    // PR % change ONLY for Bench + Squat (by name match)
+const exNameLower = (ex.name || "").toLowerCase();
+const isBench = exNameLower.includes("bench");
+const isSquat = exNameLower.includes("squat");
+const isPrimaryPR = isBench || isSquat;
+
+const winBest = arr.reduce((m,x)=>Math.max(m,x.e1rm), 0);
+const prevBest = beforeMax[exId] || 0;
+
+let prPctStr = "—";
+if(isPrimaryPR){
+  if(winBest > 0 && prevBest > 0){
+    const prPct = ((winBest - prevBest) / prevBest) * 100;
+    prPctStr = `${prPct >= 0 ? "+" : ""}${prPct.toFixed(1)}%`;
+  } else if(winBest > 0 && prevBest === 0){
+    prPctStr = `NEW`;
+  }
+}
+
 
     // text for the right side
     const right = `
