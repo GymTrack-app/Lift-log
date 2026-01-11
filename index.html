@@ -1565,47 +1565,133 @@ $("calNext").addEventListener("click", ()=>{
    Progress screen
 ========================= */
 function renderProgress(){
-  const p=state.program;
-  const box=$("progList");
+  const p = state.program;
+  const box = $("progList");
   box.innerHTML = "";
+
   if(!p){
     box.innerHTML = `<div class="item"><div class="tiny muted">Finish setup first.</div></div>`;
     return;
   }
 
-  const exIds = Object.keys(p.exercises||{});
+  const exIds = Object.keys(p.exercises || {});
   if(!exIds.length){
     box.innerHTML = `<div class="item"><div class="tiny muted">No exercises.</div></div>`;
     return;
   }
 
-  for(const exId of exIds){
-    const ex=p.exercises[exId];
-    const pr=state.prs[exId];
-    const best = pr?.bestE1RM?.value ?? 0;
+  // window days (default month)
+  const sel = $("progWindow");
+  const days = num(sel?.value, 30);
 
-    // estimate start e1RM from start weight and target min reps (rough)
-    let startE = 0;
-    if(ex.startWeight>0){
-      const r = ex.target.type==="range" ? ex.target.min : ex.target.reps;
-      startE = Math.round(e1rmEpley(ex.startWeight, r));
+  // date range
+  const endIso = isoToday();
+  const end = new Date(endIso + "T12:00:00");
+  const start = new Date(end);
+  start.setDate(start.getDate() - (days - 1));
+  const startIso = `${start.getFullYear()}-${String(start.getMonth()+1).padStart(2,"0")}-${String(start.getDate()).padStart(2,"0")}`;
+
+  // helper: get best e1RM for an exercise on a given session
+  function bestE1rmFromSession(exLog){
+    let best = 0;
+    for(const s of exLog.sets || []){
+      const w = num(s.w,0), r = num(s.r,0);
+      best = Math.max(best, e1rmEpley(w,r));
     }
-    const diff = best - startE;
-    const diffTxt = (best>0 && startE>0) ? (diff>=0? `+${diff}` : `${diff}`) : "—";
+    return best;
+  }
 
-    const div=document.createElement("div");
-    div.className="item";
+  // prebuild maps:
+  // - window series: exId -> [{date, e1rm}]
+  // - before max PR: exId -> max e1rm before window start
+  const series = {};
+  const beforeMax = {};
+  for(const exId of exIds){ series[exId] = []; beforeMax[exId] = 0; }
+
+  for(const sess of (state.sessions || [])){
+    const d = sess.date;
+    // ignore sessions without exercises
+    if(!sess.exercises) continue;
+
+    for(const exLog of sess.exercises){
+      const exId = exLog.exId;
+      if(!series[exId]) continue;
+
+      const best = bestE1rmFromSession(exLog);
+      if(best <= 0) continue;
+
+      if(d >= startIso && d <= endIso){
+        series[exId].push({ date: d, e1rm: best });
+      } else if(d < startIso){
+        beforeMax[exId] = Math.max(beforeMax[exId], best);
+      }
+    }
+  }
+
+  // overall summary numbers
+  let counted = 0;
+  let sumPct = 0;
+
+  for(const exId of exIds){
+    const ex = p.exercises[exId];
+    const arr = series[exId] || [];
+    arr.sort((a,b)=> a.date.localeCompare(b.date));
+
+    const first = arr.length ? arr[0].e1rm : 0;
+    const last  = arr.length ? arr[arr.length-1].e1rm : 0;
+
+    // % stronger in window (e1RM)
+    let pctStr = "—";
+    let pctNum = null;
+    if(first > 0 && last > 0){
+      pctNum = ((last - first) / first) * 100;
+      pctStr = `${pctNum >= 0 ? "+" : ""}${pctNum.toFixed(1)}%`;
+      counted++;
+      sumPct += pctNum;
+    }
+
+    // PR % change in window (best in window vs best before window)
+    const winBest = arr.reduce((m,x)=>Math.max(m,x.e1rm), 0);
+    const prevBest = beforeMax[exId] || 0;
+    let prPctStr = "—";
+    if(winBest > 0 && prevBest > 0){
+      const prPct = ((winBest - prevBest) / prevBest) * 100;
+      prPctStr = `${prPct >= 0 ? "+" : ""}${prPct.toFixed(1)}%`;
+    } else if(winBest > 0 && prevBest === 0){
+      prPctStr = `NEW`;
+    }
+
+    // text for the right side
+    const right = `
+      <div class="right" style="flex-direction:column;align-items:flex-end;gap:2px">
+        <span class="pill">Strength: <b>${pctStr}</b></span>
+        <span class="pill">PR: <b>${prPctStr}</b></span>
+      </div>
+    `;
+
+    const div = document.createElement("div");
+    div.className = "item";
     div.innerHTML = `
       <div>
         <div class="name">${escapeHtml(ex.name)}</div>
-        <div class="tiny muted">Best e1RM: <b>${best || "—"}</b> • Since start: <b>${diffTxt}</b></div>
+        <div class="tiny muted">
+          Window: ${days===7?"Week":days===30?"Month":"Year"} •
+          e1RM ${first?Math.round(first):"—"} → ${last?Math.round(last):"—"} •
+          Best in window: ${winBest?Math.round(winBest):"—"}
+        </div>
       </div>
-      <div class="right">
-        <span class="pill">start ${ex.startWeight}${p.units}</span>
-      </div>
+      ${right}
     `;
     box.appendChild(div);
   }
+
+  // summary line
+  const avg = counted ? (sumPct / counted) : null;
+  const label = days===7 ? "this week" : days===30 ? "this month" : "this year";
+  $("progSummary").textContent =
+    avg === null
+      ? `No enough data ${label} yet. Log a couple sessions and this will fill in.`
+      : `Average strength change ${label}: ${avg >= 0 ? "+" : ""}${avg.toFixed(1)}% (across ${counted} exercise(s)).`;
 }
 
 /* =========================
