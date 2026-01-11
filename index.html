@@ -833,10 +833,14 @@ function renderSetup(){
           <div class="tiny muted">${exCount} exercise(s)</div>
         </div>
         <div class="right">
+          <button class="mini btnGhost" data-act="upDay" data-id="${day.id}">↑</button>
+          <button class="mini btnGhost" data-act="dnDay" data-id="${day.id}">↓</button>
+          <button class="mini btnGhost" data-act="editDay" data-id="${day.id}">Edit</button>
           <button class="mini btnGhost" data-act="addEx" data-id="${day.id}">+ Exercise</button>
           <button class="mini btnDanger" data-act="delDay" data-id="${day.id}">Delete</button>
         </div>
       `;
+
       list.appendChild(div);
 
       const exDiv = document.createElement("div");
