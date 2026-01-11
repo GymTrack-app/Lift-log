@@ -626,15 +626,14 @@ function applyProgression(exDef, exLog){
    UI Routing + Tabs
 ========================= */
 function setActiveTab(tab){
-  if(tab === "setup"){
-    showScreen("screenSetup");
-    renderSetup();
-    return;
-  }
-  state.ui.activeTab = tab;
+ if(tab === "prs"){
+  showScreen("screenPRs");
+  renderPRs();
+  state.ui.activeTab = "prs";
   save();
-  render();
+  return;
 }
+
 
 
 function tabEl(id, active){
