@@ -334,34 +334,35 @@
   </div>
 
   <!-- PROGRESS -->
-  <div id="screenProgress" class="screen">
-    <div class="topbar">
-      <div class="navrow">
-        <div style="width:80px"></div>
-        <div class="title">Progress</div>
-        <div style="width:80px"></div>
+<div id="screenPRs" class="screen">
+  <div class="card">
+    <div class="row" style="justify-content:space-between;align-items:flex-start">
+      <div>
+        <div class="name">PRs</div>
+        <div class="tiny muted">Only tracks exact names: <b>Smith Flat Bench</b> and <b>Smith Squat</b>.</div>
+      </div>
+      <div class="right">
+        <select id="prWindow">
+          <option value="7">Week</option>
+          <option value="30" selected>Month</option>
+          <option value="365">Year</option>
+          <option value="99999">All time</option>
+        </select>
       </div>
     </div>
-    <div class="content">
-      <div class="card">
-  <div class="row" style="justify-content:space-between;align-items:flex-start">
-    <div>
-      <div class="name">How much stronger did you get?</div>
-      <div class="tiny muted">Shows % change using e1RM + PR % change for the selected window.</div>
-    </div>
-    <div class="right">
-      <select id="progWindow">
-        <option value="7">Week</option>
-        <option value="30" selected>Month</option>
-        <option value="365">Year</option>
-      </select>
-    </div>
+    <div class="sep"></div>
+    <div id="prSummary" class="tiny muted">—</div>
   </div>
 
-  <div class="sep"></div>
+  <div id="prCards"></div>
 
-  <div id="progSummary" class="tiny muted">—</div>
+  <div class="card" style="margin-top:12px">
+    <div class="name">PR history</div>
+    <div class="sep"></div>
+    <div id="prHistory" class="tiny muted">—</div>
+  </div>
 </div>
+
 
 
       <div class="list">
