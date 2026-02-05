@@ -85,3 +85,122 @@ function save() {
 }
 
 let state = load();
+/* ===== Program Management (Setup) ===== */
+function normalizeProgram() {
+  const p = state.program || {
+    units: "lb",
+    startWeekDate: defaultMonday(),
+    split: [],
+    exercises: {},
+    settings: { jump: 5, microload: false }
+  };
+  p.split ||= [];
+  p.exercises ||= {};
+  return p;
+}
+
+// Logic to add/remove workout days
+function deleteDay(dayId) {
+  const p = normalizeProgram();
+  p.split = p.split.filter(d => d.id !== dayId);
+  state.program = p;
+  save(); render(); toast("Day deleted");
+}
+
+/* ===== Progression AI Logic ===== */
+function calculateNextSession(logEx, def) {
+  const stateEx = state.exerciseState[logEx.exId];
+  let nextW = stateEx.nextWeight;
+  
+  // Check if all sets were completed
+  const allDone = logEx.sets.every(s => s.done);
+  if (!allDone) return nextW; // No change if workout was incomplete
+
+  // Determine if user hit target reps (Double Progression)
+  let passed = true;
+  logEx.sets.forEach(s => {
+    const targetReps = (def.target.type === "fixed") ? def.target.reps : def.target.max;
+    if (s.reps < targetReps) passed = false;
+  });
+
+  if (passed) {
+    // Increase weight based on the specific exercise rule
+    const inc = (def.rule.type === "percent") ? (nextW * (def.rule.pct / 100)) : (def.rule.inc || 5);
+    nextW += inc;
+    nextW = Math.round(nextW * 100) / 100; // Keep decimals clean
+    toast(`AI: Bumped ${def.name} to ${nextW}`);
+  }
+  
+  return nextW;
+}
+
+// Helper to ensure exercise tracking exists
+function ensureExerciseState(exId, startW) {
+  if (!state.exerciseState[exId]) {
+    state.exerciseState[exId] = { nextWeight: startW, history: [] };
+  }
+}
+/* ===== Active Logger Logic ===== */
+let activeSession = null;
+
+function startSession(dayCfg) {
+  activeSession = {
+    id: uid(),
+    date: isoToday(),
+    dayId: dayCfg.id,
+    dayTitle: dayCfg.title,
+    startTime: Date.now(),
+    exercises: []
+  };
+
+  const p = normalizeProgram();
+  (dayCfg.exercises || []).forEach(exId => {
+    const def = p.exercises[exId];
+    if (!def) return;
+    const st = state.exerciseState[exId] || { nextWeight: def.startWeight };
+    
+    // Fill initial set data
+    const setArr = [];
+    for (let i = 0; i < def.sets; i++) {
+      setArr.push({
+        reps: (def.target.type === "fixed" ? def.target.reps : def.target.max),
+        weight: st.nextWeight,
+        done: false
+      });
+    }
+    activeSession.exercises.push({ exId, name: def.name, sets: setArr });
+  });
+
+  setActiveTab("logger");
+}
+
+function finishSession() {
+  if (!activeSession) return;
+  const p = normalizeProgram();
+
+  activeSession.exercises.forEach(logEx => {
+    const def = p.exercises[logEx.exId];
+    if (!def) return;
+
+    // Run AI progression
+    const nextWeight = calculateNextSession(logEx, def);
+    state.exerciseState[logEx.exId].nextWeight = nextWeight;
+
+    // Update Personal Records (PRs)
+    if (def.prTag && def.prTag !== "none") {
+      const maxLoad = Math.max(...logEx.sets.map(s => s.weight));
+      const curPR = state.prs[def.prTag] || 0;
+      if (maxLoad > curPR) {
+        state.prs[def.prTag] = maxLoad;
+      }
+    }
+  });
+
+  activeSession.endTime = Date.now();
+  state.sessions.unshift(activeSession); // Add to history
+  if (state.sessions.length > 100) state.sessions.pop(); // Keep storage light
+  
+  save();
+  activeSession = null;
+  setActiveTab("today");
+}
