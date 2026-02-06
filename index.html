@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Gemini Strength Pro</title>
+  <title>Gemini Strength Pro v3</title>
   <style>
     :root {
       --bg: #09090b;
@@ -15,358 +15,490 @@
       --text: #fafafa;
       --muted: #a1a1aa;
       --gold: #fbbf24;
+      --nav-bg: rgba(9, 9, 11, 0.95);
     }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     body {
       background: var(--bg); color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      margin: 0; padding-bottom: 90px; overflow-x: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0; padding-bottom: 100px; line-height: 1.5;
     }
 
-    /* Core Layout */
-    .screen { display: none; padding: 16px; animation: fadeIn 0.2s ease; }
-    .screen.show { display: block; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    /* Layout Components */
+    .container { max-width: 600px; margin: 0 auto; padding: 16px; }
+    .screen { display: none; animation: slideUp 0.3s ease-out; }
+    .screen.active { display: block; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
     .card {
       background: var(--card); border: 1px solid var(--border);
-      border-radius: 16px; padding: 16px; margin-bottom: 12px;
+      border-radius: 20px; padding: 20px; margin-bottom: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
     }
 
-    .plateau-warning { border-left: 4px solid var(--danger); background: rgba(239, 68, 68, 0.05); }
-    .pr-card { border-left: 4px solid var(--gold); background: rgba(251, 191, 36, 0.05); }
+    .plateau-warning { border: 1px solid var(--danger); background: rgba(239, 68, 68, 0.05); }
+    .pr-glow { border: 1px solid var(--gold); background: rgba(251, 191, 36, 0.05); }
 
-    h2, h3 { margin: 0 0 8px 0; }
-    .tiny { font-size: 0.75rem; }
+    /* Typography */
+    h1, h2, h3 { margin: 0 0 10px 0; letter-spacing: -0.02em; }
+    .tiny { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
     .muted { color: var(--muted); }
-    .row { display: flex; align-items: center; gap: 8px; }
-    .sep { height: 1px; background: var(--border); margin: 12px 0; }
+    .success { color: var(--success); }
+    .danger { color: var(--danger); }
 
-    /* Interactive Elements */
-    input, select {
+    /* Form Elements */
+    input, select, textarea {
       width: 100%; background: #000; border: 1px solid var(--border);
-      color: #fff; padding: 10px; border-radius: 8px; margin: 4px 0;
+      color: #fff; padding: 12px; border-radius: 12px; font-size: 1rem;
+      margin-bottom: 12px; transition: border-color 0.2s;
     }
+    input:focus { border-color: var(--accent); outline: none; }
 
+    /* Buttons */
     button {
-      cursor: pointer; border-radius: 12px; font-weight: 600; border: none; padding: 12px;
+      cursor: pointer; border-radius: 14px; font-weight: 700; border: none;
+      padding: 14px 20px; font-size: 1rem; transition: transform 0.1s, opacity 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
     }
-    .btnPrimary { background: var(--accent); color: white; width: 100%; }
-    .btnGhost { background: transparent; border: 1px solid var(--border); color: var(--text); }
-    .btnDanger { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+    button:active { transform: scale(0.97); opacity: 0.8; }
+    .btn-main { background: var(--accent); color: white; width: 100%; }
+    .btn-sub { background: var(--card); border: 1px solid var(--border); color: var(--text); }
+    .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
 
-    /* Navigation */
+    /* Bottom Nav */
     .nav {
-      position: fixed; bottom: 0; width: 100%; background: rgba(9, 9, 11, 0.95);
-      backdrop-filter: blur(10px); border-top: 1px solid var(--border);
-      display: flex; justify-content: space-around; padding: 12px 0; z-index: 100;
+      position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg);
+      backdrop-filter: blur(15px); border-top: 1px solid var(--border);
+      display: flex; height: 85px; padding-bottom: 20px; z-index: 1000;
     }
-    .navItem { color: var(--muted); font-size: 0.75rem; text-align: center; flex: 1; }
-    .navItem.active { color: var(--accent); font-weight: bold; }
+    .nav-btn {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; color: var(--muted); font-size: 0.7rem; gap: 4px;
+    }
+    .nav-btn.active { color: var(--accent); }
+    .nav-icon { font-size: 1.4rem; }
 
-    /* Data Visualization */
-    .bar-container { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin: 8px 0; }
-    .bar-fill { height: 100%; background: var(--accent); transition: width 0.5s ease; }
-    
-    table { width: 100%; margin-top: 10px; }
-    th { text-align: left; color: var(--muted); font-size: 0.7rem; }
-    td input { padding: 4px; font-size: 0.9rem; }
+    /* Logger Specifics */
+    .log-table { width: 100%; border-spacing: 0 8px; }
+    .log-table th { text-align: left; padding: 0 8px; }
+    .log-table td { padding: 4px; }
+    .check-btn {
+      width: 40px; height: 40px; border-radius: 10px; background: var(--border);
+      display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+    }
+    .check-btn.done { background: var(--success); color: #000; }
+
+    /* Timer Overlay */
+    #timerOverlay {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+      background: var(--accent); color: white; padding: 10px 24px;
+      border-radius: 30px; font-weight: bold; z-index: 2000; display: none;
+      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+    }
+
+    /* Progress Visuals */
+    .progress-track { height: 6px; background: var(--border); border-radius: 3px; margin: 10px 0; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
   </style>
 </head>
 <body>
 
-  <div id="screenToday" class="screen">
-    <div class="row" style="justify-content: space-between;">
-      <h2>Today</h2>
-      <button class="btnGhost tiny" onclick="renderSetup()">⚙️ Settings</button>
+  <div id="timerOverlay">Rest: <span id="timerVal">60</span>s</div>
+
+  <div class="container">
+    
+    <section id="today" class="screen active">
+      <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <h1>Dashboard</h1>
+        <button class="btn-sub" onclick="app.nav('settings')" style="padding: 8px 12px;">⚙️</button>
+      </header>
+      <div id="plateauSection"></div>
+      <div id="workoutSummary"></div>
+      <button id="startBtn" class="btn-main" onclick="app.startWorkout()" style="display:none; margin-top: 20px;">Start Workout</button>
+    </section>
+
+    <section id="logger" class="screen">
+      <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 id="logTitle">Push Day</h2>
+        <button class="btn-danger" onclick="app.cancelWorkout()" style="padding: 8px;">Cancel</button>
+      </header>
+      <div id="logExercises"></div>
+      <button class="btn-main" onclick="app.finishWorkout()" style="margin-top: 30px;">Finish Workout</button>
+    </section>
+
+    <section id="stats" class="screen">
+      <h1>Progress</h1>
+      <div id="statsList"></div>
+    </section>
+
+    <section id="prs" class="screen">
+      <h1>Wall of Fame 🏆</h1>
+      <div id="prList"></div>
+    </section>
+
+    <section id="settings" class="screen">
+      <h1>Settings</h1>
+      <div class="card">
+        <h3>Program Split</h3>
+        <div id="splitList"></div>
+        <button class="btn-sub" onclick="app.addDay()" style="width: 100%; margin-top: 10px;">+ Add Day</button>
+      </div>
+      <div class="card">
+        <h3>Data Management</h3>
+        <button class="btn-danger" onclick="app.clearData()" style="width: 100%;">Nuke All Data</button>
+      </div>
+    </section>
+
+  </div>
+
+  <nav class="nav">
+    <div class="nav-btn active" onclick="app.nav('today')" id="nav-today">
+      <span class="nav-icon">⚡</span><span>Today</span>
     </div>
-    <div id="todayBox"></div>
-    <button class="btnPrimary" id="btnStartWorkout" style="display:none; margin-top:16px;">Start Session</button>
-  </div>
-
-  <div id="screenStats" class="screen">
-    <h2>Performance Stats</h2>
-    <div id="statsBox"></div>
-  </div>
-
-  <div id="screenPRs" class="screen">
-    <h2>Personal Records 🏆</h2>
-    <div id="prsBox"></div>
-  </div>
-
-  <div class="nav">
-    <div class="navItem" id="tabToday">Today</div>
-    <div class="navItem" id="tabStats">Stats</div>
-    <div class="navItem" id="tabPRs">PRs</div>
-  </div>
+    <div class="nav-btn" onclick="app.nav('stats')" id="nav-stats">
+      <span class="nav-icon">📈</span><span>Stats</span>
+    </div>
+    <div class="nav-btn" onclick="app.nav('prs')" id="nav-prs">
+      <span class="nav-icon">🏆</span><span>PRs</span>
+    </div>
+  </nav>
 
   <script>
-    /* --- CONSTANTS & STATE --- */
-    const KEY = "gemini_pro_v2";
-    const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const $ = id => document.getElementById(id);
+    /* --- GEMINI STRENGTH PRO CORE ENGINE ---
+       Fully Reactive, Persistent, and Data-Driven
+    */
 
-    let state = JSON.parse(localStorage.getItem(KEY)) || {
-      program: { units: "lb", split: [], exercises: {} },
-      sessions: [],
-      exerciseState: {},
-      ui: { activeTab: "today" }
-    };
+    const app = {
+      state: {
+        program: { units: "lb", split: [], exercises: {} },
+        sessions: [],
+        exerciseState: {},
+        currentTab: "today"
+      },
 
-    const save = () => localStorage.getItem(KEY, JSON.stringify(state));
-    const num = (x, fb = 0) => { let n = parseFloat(x); return isNaN(n) ? fb : n; };
-    const e1rm = (w, r) => w * (1 + (r / 30));
-    const escapeHtml = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));
+      init() {
+        const saved = localStorage.getItem('gemini_pro_v3_data');
+        if (saved) this.state = JSON.parse(saved);
+        this.render();
+      },
 
-    /* --- PLATEAU & PROGRESSION LOGIC --- */
-    function getPlateaus() {
-      const p = state.program;
-      if (!p || !state.sessions.length) return [];
-      const plateaus = [];
-      const threshold = 21 * 24 * 60 * 60 * 1000; // 21 days
+      save() {
+        localStorage.setItem('gemini_pro_v3_data', JSON.stringify(this.state));
+      },
 
-      Object.keys(p.exercises).forEach(id => {
-        const history = state.sessions.filter(s => s.exercises.some(e => e.exId === id))
-          .sort((a,b) => new Date(b.date) - new Date(a.date));
+      // --- Navigation ---
+      nav(target) {
+        this.state.currentTab = target;
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         
-        if (history.length < 3) return;
-        const current = history[0].computed.e1rm[id];
-        const oldSess = history.find(s => (new Date() - new Date(s.date)) > threshold);
+        document.getElementById(target).classList.add('active');
+        document.getElementById('nav-' + (target === 'settings' ? 'today' : target)).classList.add('active');
         
-        if (oldSess && current <= oldSess.computed.e1rm[id] * 1.01) {
-          plateaus.push({ name: p.exercises[id].name, days: Math.floor((new Date() - new Date(oldSess.date))/86400000) });
-        }
-      });
-      return plateaus;
-    }
+        this.render();
+      },
 
-    /* --- RENDERING ENGINE --- */
-    function render() {
-      const t = state.ui.activeTab;
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('show'));
-      document.querySelectorAll('.navItem').forEach(n => n.classList.remove('active'));
-      
-      if (t === "today") { $("screenToday").classList.add("show"); renderToday(); }
-      if (t === "stats") { $("screenStats").classList.add("show"); renderStats(); }
-      if (t === "prs") { $("screenPRs").classList.add("show"); renderPRs(); }
-      if (t === "setup") { $("screenToday").classList.add("show"); renderSetup(); }
-      if (t === "logger") { $("screenToday").classList.add("show"); renderLogger(); }
-      
-      $(`tab${t.charAt(0).toUpperCase() + t.slice(1)}`)?.classList.add("active");
-    }
+      // --- Math & Analytics ---
+      calcE1RM(w, r) { return w * (1 + (r / 30)); },
 
-    function renderToday() {
-      const p = state.program;
-      if (!p.split.length) {
-        $("todayBox").innerHTML = `<div class="card muted">Welcome! Tap Settings to create your split.</div>`;
-        $("btnStartWorkout").style.display = "none";
-        return;
-      }
+      getPlateaus() {
+        const p = this.state.program;
+        const plateaus = [];
+        const threshold = 21 * 86400000; // 21 days
 
-      const stalls = getPlateaus();
-      let html = stalls.map(s => `
-        <div class="card plateau-warning">
-          <div class="tiny" style="color:var(--danger)">⚠️ PLATEAU DETECTED</div>
-          <strong>${escapeHtml(s.name)}</strong>
-          <div class="tiny muted">No progress in ${s.days} days. Try a deload or changing reps.</div>
-        </div>
-      `).join("");
-
-      const dow = new Date().getDay();
-      const plan = p.split.find(s => s.weekday === dow);
-
-      if (!plan) {
-        html += `<div class="card"><h3>Rest Day</h3><p class="muted">Growth happens during recovery.</p></div>`;
-        $("btnStartWorkout").style.display = "none";
-      } else {
-        html += `<div class="card"><h3>${escapeHtml(plan.title)}</h3><div class="sep"></div>`;
-        plan.exercises.forEach(id => {
-          const ex = p.exercises[id];
-          html += `<div class="row" style="justify-content:space-between">
-            <span>${escapeHtml(ex.name)}</span>
-            <span class="tiny muted">${ex.sets} sets @ ${state.exerciseState[id]?.currentWeight || ex.startWeight}${p.units}</span>
-          </div>`;
-        });
-        html += `</div>`;
-        $("btnStartWorkout").style.display = "block";
-      }
-      $("todayBox").innerHTML = html;
-    }
-
-    /* --- WORKOUT LOGGER --- */
-    let activeSession = null;
-    function startWorkout() {
-      const p = state.program;
-      const dow = new Date().getDay();
-      const plan = p.split.find(s => s.weekday === dow);
-      
-      activeSession = {
-        date: new Date().toISOString().split('T')[0],
-        workoutTitle: plan.title,
-        exercises: plan.exercises.map(id => ({
-          exId: id,
-          sets: Array.from({length: p.exercises[id].sets}, () => ({ w: state.exerciseState[id]?.currentWeight || p.exercises[id].startWeight, r: 0, done: false }))
-        })),
-        computed: { e1rm: {} }
-      };
-      state.ui.activeTab = "logger";
-      render();
-    }
-
-    function renderLogger() {
-      let html = `<h3>Logging ${activeSession.workoutTitle}</h3>`;
-      activeSession.exercises.forEach((ex, exIdx) => {
-        const name = state.program.exercises[ex.exId].name;
-        html += `<div class="card">
-          <strong>${escapeHtml(name)}</strong>
-          <table>
-            <tr><th>W</th><th>R</th><th>✓</th></tr>
-            ${ex.sets.map((s, sIdx) => `
-              <tr>
-                <td><input type="number" value="${s.w}" onchange="updateSet(${exIdx},${sIdx},'w',this.value)"></td>
-                <td><input type="number" placeholder="0" onchange="updateSet(${exIdx},${sIdx},'r',this.value)"></td>
-                <td><input type="checkbox" onchange="updateSet(${exIdx},${sIdx},'done',this.checked)"></td>
-              </tr>
-            `).join('')}
-          </table>
-        </div>`;
-      });
-      html += `<button class="btnPrimary" onclick="finishWorkout()">Complete Session</button>`;
-      $("todayBox").innerHTML = html;
-      $("btnStartWorkout").style.display = "none";
-    }
-
-    window.updateSet = (ei, si, field, val) => {
-      activeSession.exercises[ei].sets[si][field] = field === 'done' ? val : num(val);
-    };
-
-    window.finishWorkout = () => {
-      activeSession.exercises.forEach(ex => {
-        let best = 0;
-        ex.sets.forEach(s => { if(s.done) best = Math.max(best, e1rm(s.w, s.r)); });
-        activeSession.computed.e1rm[ex.exId] = best;
-        
-        // Progression: Simple 5lb increase if all reps done (logic can be expanded)
-        if (!state.exerciseState[ex.exId]) state.exerciseState[ex.exId] = { currentWeight: state.program.exercises[ex.exId].startWeight };
-        state.exerciseState[ex.exId].currentWeight += 5; 
-      });
-
-      state.sessions.push(activeSession);
-      activeSession = null;
-      state.ui.activeTab = "today";
-      save(); render();
-    };
-
-    /* --- STATS & PRS --- */
-    function renderStats() {
-      if (!state.sessions.length) { $("statsBox").innerHTML = `<div class="muted">Complete a workout to see stats.</div>`; return; }
-      
-      let html = "";
-      Object.keys(state.program.exercises).forEach(id => {
-        const data = state.sessions.filter(s => s.computed.e1rm[id]).map(s => s.computed.e1rm[id]);
-        if (!data.length) return;
-        const max = Math.max(...data);
-        const last = data[data.length - 1];
-        const progress = (last / max) * 100;
-
-        html += `<div class="card">
-          <div class="row" style="justify-content:space-between">
-            <strong>${escapeHtml(state.program.exercises[id].name)}</strong>
-            <span class="tiny">${Math.round(last)} ${state.program.units} e1RM</span>
-          </div>
-          <div class="bar-container"><div class="bar-fill" style="width:${progress}%"></div></div>
-          <div class="tiny muted">Last: ${Math.round(last)} | All-time: ${Math.round(max)}</div>
-        </div>`;
-      });
-      $("statsBox").innerHTML = html;
-    }
-
-    function renderPRs() {
-      const records = {};
-      state.sessions.forEach(s => {
-        Object.keys(s.computed.e1rm).forEach(id => {
-          if (!records[id] || s.computed.e1rm[id] > records[id].val) {
-            records[id] = { val: s.computed.e1rm[id], date: s.date };
+        Object.keys(p.exercises).forEach(id => {
+          const history = this.state.sessions
+            .filter(s => s.logs.some(l => l.exId === id))
+            .sort((a,b) => new Date(b.date) - new Date(a.date));
+          
+          if (history.length < 3) return;
+          const currentE1 = history[0].computedE1[id];
+          const threeWeeksAgo = history.find(s => (new Date() - new Date(s.date)) > threshold);
+          
+          if (threeWeeksAgo && currentE1 <= threeWeeksAgo.computedE1[id] * 1.01) {
+            plateaus.push({ name: p.exercises[id].name, days: 21 });
           }
         });
-      });
+        return plateaus;
+      },
 
-      let html = "";
-      Object.keys(records).forEach(id => {
-        html += `<div class="card pr-card">
-          <div class="row" style="justify-content:space-between">
-            <strong>${escapeHtml(state.program.exercises[id].name)}</strong>
-            <span style="color:var(--gold); font-weight:bold;">${Math.round(records[id].val)} ${state.program.units}</span>
-          </div>
-          <div class="tiny muted">Achieved on ${records[id].date}</div>
-        </div>`;
-      });
-      $("prsBox").innerHTML = html || `<div class="muted">No records yet. Hit the gym!</div>`;
-    }
+      // --- Workout Logic ---
+      activeWorkout: null,
 
-    /* --- SETUP / SETTINGS --- */
-    function renderSetup() {
-      state.ui.activeTab = "setup";
-      let html = `<button class="btnGhost" onclick="state.ui.activeTab='today'; render();">← Back</button>
-      <div class="card" style="margin-top:16px;">
-        <h3>Split Manager</h3>
-        <div id="setupList"></div>
-        <button class="btnPrimary" style="margin-top:10px" onclick="addDay()">+ Add Workout Day</button>
-      </div>
-      <button class="btnDanger" style="width:100%" onclick="localStorage.clear(); location.reload();">Nuke All Data</button>`;
-      $("todayBox").innerHTML = html;
-      $("btnStartWorkout").style.display = "none";
+      startWorkout() {
+        const dow = new Date().getDay();
+        const plan = this.state.program.split.find(s => s.weekday === dow);
+        if (!plan) return;
 
-      const list = $("setupList");
-      state.program.split.forEach((day, dIdx) => {
-        const div = document.createElement("div");
-        div.className = "card";
-        div.style.background = "#000";
-        div.innerHTML = `
-          <div class="row" style="justify-content:space-between">
-            <strong>${day.title}</strong>
-            <span class="tiny muted">${WEEKDAYS[day.weekday]}</span>
-          </div>
-          <div id="exList-${dIdx}"></div>
-          <button class="btnGhost tiny" style="width:100%; margin-top:8px" onclick="addEx(${dIdx})">+ Add Exercise</button>
-        `;
-        list.appendChild(div);
-        
-        const exList = div.querySelector(`#exList-${dIdx}`);
-        day.exercises.forEach(exId => {
-          exList.innerHTML += `<div class="tiny muted" style="padding:4px 0; border-bottom:1px solid #111">${state.program.exercises[exId].name}</div>`;
+        this.activeWorkout = {
+          date: new Date().toISOString(),
+          title: plan.title,
+          logs: plan.exercises.map(id => {
+            const ex = this.state.program.exercises[id];
+            const lastWeight = this.state.exerciseState[id]?.weight || ex.startWeight;
+            return {
+              exId: id,
+              sets: Array.from({ length: ex.sets }, () => ({ w: lastWeight, r: 0, done: false }))
+            };
+          })
+        };
+        this.nav('logger');
+      },
+
+      finishWorkout() {
+        const session = {
+          date: this.activeWorkout.date,
+          title: this.activeWorkout.title,
+          logs: this.activeSessionClean(),
+          computedE1: {}
+        };
+
+        session.logs.forEach(log => {
+          let best = 0;
+          log.sets.forEach(s => {
+            if(s.done) best = Math.max(best, this.calcE1RM(s.w, s.r));
+          });
+          session.computedE1[log.exId] = best;
+          
+          // Auto Progression
+          const allDone = log.sets.every(s => s.done && s.r >= 10); // Logic: 10+ reps all sets = +5lb
+          if (allDone) {
+            this.state.exerciseState[log.exId] = { weight: (this.state.exerciseState[log.exId]?.weight || 0) + 5 };
+          }
         });
-      });
-    }
 
-    window.addDay = () => {
-      const title = prompt("Day Title (e.g. Push Day)");
-      const dow = prompt("Day Number (0=Sun, 1=Mon...6=Sat)");
-      if (title && dow !== null) {
-        state.program.split.push({ title, weekday: parseInt(dow), exercises: [] });
-        save(); renderSetup();
+        this.state.sessions.push(session);
+        this.activeWorkout = null;
+        this.save();
+        this.nav('today');
+      },
+
+      activeSessionClean() { return JSON.parse(JSON.stringify(this.activeWorkout.logs)); },
+
+      cancelWorkout() {
+        if(confirm("Discard this session?")) {
+          this.activeWorkout = null;
+          this.nav('today');
+        }
+      },
+
+      // --- Timer Logic ---
+      timerId: null,
+      startTimer() {
+        clearInterval(this.timerId);
+        let count = 60;
+        const el = document.getElementById('timerOverlay');
+        const val = document.getElementById('timerVal');
+        el.style.display = 'block';
+        val.innerText = count;
+
+        this.timerId = setInterval(() => {
+          count--;
+          val.innerText = count;
+          if (count <= 0) {
+            clearInterval(this.timerId);
+            el.style.display = 'none';
+            new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play().catch(()=>{});
+          }
+        }, 1000);
+      },
+
+      // --- Rendering Screens ---
+      render() {
+        const t = this.state.currentTab;
+        if (t === 'today') this.renderToday();
+        if (t === 'logger') this.renderLogger();
+        if (t === 'stats') this.renderStats();
+        if (t === 'prs') this.renderPRs();
+        if (t === 'settings') this.renderSettings();
+      },
+
+      renderToday() {
+        const dow = new Date().getDay();
+        const plan = this.state.program.split.find(s => s.weekday === dow);
+        const plateauDiv = document.getElementById('plateauSection');
+        const summaryDiv = document.getElementById('workoutSummary');
+        const startBtn = document.getElementById('startBtn');
+
+        // Plateau Warnings
+        const stalls = this.getPlateaus();
+        plateauDiv.innerHTML = stalls.map(s => `
+          <div class="card plateau-warning">
+            <span class="tiny danger">Plateau Alert</span>
+            <h3>${s.name}</h3>
+            <p class="muted">Stalled for ${s.days}+ days. Lower weight by 10% to reset.</p>
+          </div>
+        `).join('');
+
+        if (!plan) {
+          summaryDiv.innerHTML = `<div class="card"><h3>Rest Day</h3><p class="muted">No workout scheduled for today. Take it easy!</p></div>`;
+          startBtn.style.display = 'none';
+        } else {
+          summaryDiv.innerHTML = `
+            <div class="card">
+              <span class="tiny success">Up Next</span>
+              <h3>${plan.title}</h3>
+              <div class="progress-track"><div class="progress-fill" style="width: 100%"></div></div>
+              <p class="muted">${plan.exercises.length} Exercises planned.</p>
+            </div>
+          `;
+          startBtn.style.display = 'block';
+        }
+      },
+
+      renderLogger() {
+        if (!this.activeWorkout) return;
+        document.getElementById('logTitle').innerText = this.activeWorkout.title;
+        const container = document.getElementById('logExercises');
+        container.innerHTML = this.activeWorkout.logs.map((log, exIdx) => {
+          const exDef = this.state.program.exercises[log.exId];
+          return `
+            <div class="card">
+              <h3 style="margin-bottom:15px;">${exDef.name}</h3>
+              <table class="log-table">
+                <tr><th>Set</th><th>Weight</th><th>Reps</th><th></th></tr>
+                ${log.sets.map((s, sIdx) => `
+                  <tr>
+                    <td>${sIdx + 1}</td>
+                    <td><input type="number" value="${s.w}" oninput="app.updateLog(${exIdx},${sIdx},'w',this.value)"></td>
+                    <td><input type="number" placeholder="0" oninput="app.updateLog(${exIdx},${sIdx},'r',this.value)"></td>
+                    <td>
+                      <div class="check-btn ${s.done ? 'done' : ''}" onclick="app.toggleDone(${exIdx},${sIdx})">
+                        ${s.done ? '✓' : ''}
+                      </div>
+                    </td>
+                  </tr>
+                `).join('')}
+              </table>
+            </div>
+          `;
+        }).join('');
+      },
+
+      updateLog(exIdx, sIdx, prop, val) {
+        this.activeWorkout.logs[exIdx].sets[sIdx][prop] = parseInt(val) || 0;
+      },
+
+      toggleDone(exIdx, sIdx) {
+        const s = this.activeWorkout.logs[exIdx].sets[sIdx];
+        s.done = !s.done;
+        if (s.done) this.startTimer();
+        this.renderLogger();
+      },
+
+      renderStats() {
+        const container = document.getElementById('statsList');
+        if (this.state.sessions.length === 0) {
+          container.innerHTML = `<p class="muted">Finish your first workout to see analytics.</p>`;
+          return;
+        }
+
+        let html = "";
+        Object.keys(this.state.program.exercises).forEach(id => {
+          const history = this.state.sessions.filter(s => s.computedE1[id]).map(s => s.computedE1[id]);
+          if (!history.length) return;
+          const current = Math.round(history[history.length - 1]);
+          const max = Math.round(Math.max(...history));
+          const pct = (current / max) * 100;
+
+          html += `
+            <div class="card">
+              <div style="display:flex; justify-content:space-between;">
+                <strong>${this.state.program.exercises[id].name}</strong>
+                <span>${current}${this.state.program.units}</span>
+              </div>
+              <div class="progress-track"><div class="progress-fill" style="width: ${pct}%"></div></div>
+              <div style="display:flex; justify-content:space-between;" class="tiny muted">
+                <span>Peak: ${max}</span>
+                <span>Strength: ${Math.round(pct)}%</span>
+              </div>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+      },
+
+      renderPRs() {
+        const container = document.getElementById('prList');
+        const prs = {};
+        this.state.sessions.forEach(s => {
+          Object.keys(s.computedE1).forEach(id => {
+            if (!prs[id] || s.computedE1[id] > prs[id].val) {
+              prs[id] = { val: s.computedE1[id], date: s.date };
+            }
+          });
+        });
+
+        container.innerHTML = Object.keys(prs).map(id => `
+          <div class="card pr-glow">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <span class="tiny" style="color:var(--gold)">Personal Record</span>
+                <h3 style="margin:0;">${this.state.program.exercises[id].name}</h3>
+              </div>
+              <h2 style="color:var(--gold); margin:0;">${Math.round(prs[id].val)}</h2>
+            </div>
+            <p class="tiny muted" style="margin-top:10px;">Set on ${new Date(prs[id].date).toLocaleDateString()}</p>
+          </div>
+        `).join('') || `<p class="muted">No PRs recorded yet. Keep pushing!</p>`;
+      },
+
+      renderSettings() {
+        const list = document.getElementById('splitList');
+        list.innerHTML = this.state.program.split.map((day, dIdx) => `
+          <div style="background: #000; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong>${day.title} (${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][day.weekday]})</strong>
+              <button class="btn-danger" style="padding: 4px 8px; font-size: 12px;" onclick="app.removeDay(${dIdx})">X</button>
+            </div>
+            <div id="ex-setup-${dIdx}" style="margin-top:10px;">
+              ${day.exercises.map(id => `<div class="tiny muted">• ${this.state.program.exercises[id].name}</div>`).join('')}
+            </div>
+            <button class="btn-sub" style="width:100%; margin-top:10px; font-size: 12px;" onclick="app.addEx(${dIdx})">+ Add Exercise</button>
+          </div>
+        `).join('');
+      },
+
+      addDay() {
+        const title = prompt("Day Name (e.g. Upper Body)");
+        const dow = prompt("Day of week (0=Sun, 1=Mon...6=Sat)");
+        if (title && dow !== null) {
+          this.state.program.split.push({ title, weekday: parseInt(dow), exercises: [] });
+          this.save(); this.render();
+        }
+      },
+
+      addEx(dIdx) {
+        const name = prompt("Exercise Name");
+        const sets = prompt("Sets", "3");
+        const weight = prompt("Starting Weight", "45");
+        if (name) {
+          const id = 'ex_' + Date.now();
+          this.state.program.exercises[id] = { name, sets: parseInt(sets), startWeight: parseInt(weight) };
+          this.state.program.split[dIdx].exercises.push(id);
+          this.save(); this.render();
+        }
+      },
+
+      removeDay(idx) {
+        if(confirm("Delete this day?")) {
+          this.state.program.split.splice(idx, 1);
+          this.save(); this.render();
+        }
+      },
+
+      clearData() {
+        if(confirm("DELETE EVERYTHING? This cannot be undone.")) {
+          localStorage.clear();
+          location.reload();
+        }
       }
     };
 
-    window.addEx = (dIdx) => {
-      const name = prompt("Exercise Name");
-      const sets = prompt("Number of Sets", "3");
-      const weight = prompt("Start Weight", "45");
-      if (name) {
-        const id = "ex_" + Date.now();
-        state.program.exercises[id] = { name, sets: parseInt(sets), startWeight: parseInt(weight) };
-        state.program.split[dIdx].exercises.push(id);
-        save(); renderSetup();
-      }
-    };
-
-    /* --- INIT --- */
-    $("tabToday").onclick = () => { state.ui.activeTab = "today"; render(); };
-    $("tabStats").onclick = () => { state.ui.activeTab = "stats"; render(); };
-    $("tabPRs").onclick = () => { state.ui.activeTab = "prs"; render(); };
-    $("btnStartWorkout").onclick = startWorkout;
-
-    render();
+    // Global Initializer
+    app.init();
   </script>
 </body>
 </html>
